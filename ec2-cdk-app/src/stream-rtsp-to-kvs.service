@@ -1,0 +1,13 @@
+[Unit]
+Description=Ingestion of RTSP stream to Kinesis Video Streams via gstreamer pipeline
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=ubuntu
+ExecStart=/home/ubuntu/stream-rtsp-to-kvs.sh
+ 
+[Install]
+WantedBy=multi-user.target
