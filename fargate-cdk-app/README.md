@@ -1,20 +1,24 @@
-This CDK project has been copied from https://github.com/aws-samples/aws-cdk-examples/tree/master/typescript/ecs/fargate-service-with-local-image
-
 # ECS/Fargate Creation with CDK
 
 This example will create:
 
 - A new VPC with an Internet Gateway
-- One public subnet
+- Public and Private subnets
 - A security group
-- An EC2 instance with the the KVS gstreamer pipeline installed and ready to use
+- An ECS/Fargate Cluster, Task, and Task Definition
 
  
  
  . This file contains all of the installation instructions for the KVS application. 
 
 ## Pre-requisites
+- AWS CLI
+- AWS CDK
+- Docker tools installed on the system the AWS CDK will execute
+- Basic container understanding
+- NPM
 
+   
  
 
 ## To Deploy
