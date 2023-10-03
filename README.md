@@ -6,7 +6,7 @@ Overview
 The architecture diagram below depicts the resources that this solution will deploy into your account. 
 
 
-![Architecture Diagram]([https://github.com/aws-samples/cloud-gateway-for-amazon-kinesis-video-streams/](https://github.com/aws-samples/cloud-gateway-for-amazon-kinesis-video-streams/blob/main/Kinesis-CloudGateway-Architecture.png)
+![Architecture](./Kinesis-CloudGateway-Architecture.png) 
  
 Figure 1: AWS Fargate-based gateway for ingestion of on-premises IP camera video streams from RTSP to Kinesis Video Streams solution architecture
 
