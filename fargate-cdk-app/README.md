@@ -4,22 +4,14 @@ This example will create:
 
 - A new VPC with an Internet Gateway
 - Public and Private subnets
-- A security group
+- A security group with egress traffic only
 - An ECS/Fargate Cluster, Task, and Task Definition
-
- 
- 
- . This file contains all of the installation instructions for the KVS application. 
 
 ## Pre-requisites
 - AWS CLI
 - AWS CDK
 - Docker tools installed on the system the AWS CDK will execute
 - Basic container understanding
-- NPM
-
-   
- 
 
 ## To Deploy
 
@@ -36,16 +28,20 @@ $ npm install
 $ npm run build
 $ cdk bootstrap
 ```
+## Set the valus in stream-rtsp-to-kvs.sh
+Set the RTSP_URL value in stream-rtsp-to-kvs.sh.  If you have used a different STEAM_NAME in STEP 1: Create Kinesis Video Stream, update STREAM_NAME to match.
+STREAM_NAME=CloudGatewayStream
+RTSP_URL="rtsp://kvsedge:stream1234@your-ip-cam:554/"
 
-Finally, to deploy this project, you will need to pass in your EC2 key pair name and your IPv4 address as parameters so they can be used within this project.
+$ <a href="https://github.com/aws-samples/cloud-gateway-for-amazon-kinesis-video-streams/blob/main/ec2-cdk-app/src/stream-rtsp-to-kvs.sh">stream-rtsp-to-kvs.sh</a>
+
+
+## CDK Deploy
+Deploy with the CDK.
 
 ```bash
-$ cdk deploy --parameters keyPairName=MY-KEY-PAIR-NAME --parameters myIpAddress=MY-IP-ADDRESS
+$ cdk deploy 
 ```
-
-## Output
-
-??
 
 ## To Destroy
 
