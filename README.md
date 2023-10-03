@@ -51,9 +51,11 @@ Log into the AWS Management console.
 ![AWS Management Console Kinesis Video Streams](./AWSManagementConsoleKVS.png) 
 
 Create the Video Stream. Example name: CloudGatewayStream.
+
 ![AWS Management Console Kinesis Video Streams - Create Stream](./AWSManagementConsoleKVSCreateStream.png) 
 
-Example of a Success Message
+Example of a Create Video Stream Success Message.
+
 ![AWS Management Console Kinesis Video Streams - Create Stream Success](./AWSManagementConsoleKVSCreateSuccess.png) 
   
 
