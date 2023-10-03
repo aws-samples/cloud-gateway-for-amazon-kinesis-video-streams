@@ -72,13 +72,15 @@ aws kinesisvideo create-stream --stream-name "CloudGatewayStream" --data-retenti
 
 ## Step 2: Choose an EC2 or Fargate CDK
 
-!
-
-FARGATE-CDK-APP
+Choose which deployment you prefer:
+1. <a href="https://github.com/aws-samples/cloud-gateway-for-amazon-kinesis-video-streams/blob/main/ec2-cdk-app/README.md">ec2-cdk-app</a>
+OR 
+2. <a href="https://github.com/aws-samples/cloud-gateway-for-amazon-kinesis-video-streams/blob/main/fargate-cdk-app/README.md">fargate-cdk-app</a>
 
 ## Step 3: View the Kinesis Video Stream
- 
 
+Navigate to the Kinesis Video Stream in the AWS Management Console. 
+![AWS Management Console Kinesis Video Streams](./CloudGatewayStream.png) 
 
 ## Authors and acknowledgment
 Show your appreciation to those who have contributed to the project.
