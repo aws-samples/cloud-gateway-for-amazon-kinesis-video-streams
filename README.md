@@ -6,7 +6,7 @@ Overview
 The architecture diagram below depicts the resources that this solution will deploy into your account. 
 
 
-![Architecture](./Kinesis-CloudGateway-Architecture.png) 
+![Figure1: Architecture](./Kinesis-CloudGateway-Architecture.png) 
  
 Figure 1: AWS Fargate-based gateway for ingestion of on-premises IP camera video streams from RTSP to Kinesis Video Streams solution architecture
 
@@ -15,24 +15,15 @@ The cloud gateway is deployed as an AWS Fargate application, although it could r
 
 The Amazon Virtual Private Cloud (Amazon VPC) architecture in figure 1 above includes the use of an Internet gateway or Egress-only internet gateway. Depending on the bitrates of your RTSP streams and the total number of cameras you choose to integrate using the solution in this blog, use an Internet or Egress-only gateway to cost optimize network traffic. NAT gateway could be used, but NAT gateway isn’t the most cost optimized approach when ingesting video data from one or more IP cameras. For more information, see Amazon VPC Pricing. 
 The architecture in figure 1 does not depict the use of AWS Direct Connect or an AWS Site-to-Site VPN, but these AWS services could be used to further secure the connection between your premises and the Amazon VPC. For more information see the Hybrid Networking Lens of the AWS Well-Architected Framework. 
-Prerequisites
 
-•	An AWS account with full permissions on Kinesis Video Streams, EC2 or Fargate, and Amazon VPC
-•	Familiarity with Linux operating systems and using the command-line 
-•	Familiarity with compiling C++ applications and using CMake is helpful, but not required
-•	A system with AWS CLI, AWS CDK, and docker tools installe 
-Walkthrough
+## Prerequisites
 
-The Cloud Gateway for Amazon Kinesis Video Stream repository contains AWS Cloud Development Kit (CDK) for EC2 and Fargate deployments. The following is an overview of manual steps: 
-![image](https://github.com/aws-samples/cloud-gateway-for-amazon-kinesis-video-streams/assets/114954593/d2a020dc-e315-4814-aa6c-1712da36ac34)
+*	An AWS account with full permissions on Kinesis Video Streams, EC2 or Fargate, and Amazon VPC
+*	Familiarity with Linux operating systems and using the command-line 
+*	Familiarity with compiling C++ applications and using CMake is helpful, but not required
+*	A system with AWS CLI, AWS CDK, and docker tools installe 
 
-
-Prerequisites
-
-* An AWS account with full permissions on Kinesis Video Streams, Fargate, and Amazon VPC
-* Familiarity with Linux operating systems and using the command-line 
-* Familiarity with compiling C++ applications and using CMake is helpful, but not required
-
+## Walkthrough
  
 To deploy and run the sample application we will perform the following steps:
 
@@ -51,9 +42,22 @@ To deploy and run the sample application we will perform the following steps:
 
 
 
-*Step 1: Create a Kinesis Video Stream*
+## Step 1: Create a Kinesis Video Stream*
 
 *Create a Kinesis Video Stream*
+
+Log into the AWS Management console.
+
+![AWS Management Console Kinesis Video Streams](./AWSManagementConsoleKVS.png) 
+
+Create the Video Stream. Example name: CloudGatewayStream.
+![AWS Management Console Kinesis Video Streams - Create Stream](./AWSManagementConsoleKVSCreateStream.png) 
+
+Example of a Success Message
+![AWS Management Console Kinesis Video Streams - Create Stream Success](./AWSManagementConsoleKVSCreateSuccess.png) 
+  
+
+ If you prefer the AWS CLI, use the following commands.
 
 ```bash
 aws kinesisvideo create-stream --stream-name "CloudGatewayStream" --data-retention-in-hours "24" --region us-east-1
@@ -65,8 +69,14 @@ aws kinesisvideo create-stream --stream-name "CloudGatewayStream" --data-retenti
     "StreamARN": "arn:aws:kinesisvideo:us-east-1:8xxxxxxxxxxx:stream/CloudGatewayStream/1682603545622"
 }
 ```
- 
 
+## Step 2: Choose an EC2 or Fargate CDK
+
+!
+
+FARGATE-CDK-APP
+
+## Step 3: View the Kinesis Video Stream
  
 
 
