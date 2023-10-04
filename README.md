@@ -85,10 +85,10 @@ Navigate to the Kinesis Video Stream in the AWS Management Console.
 ![AWS Management Console Kinesis Video Streams](./CloudGatewayStream.png) 
 
 ## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+[Brian Slater](https://github.com/bmslater)
+
+[David Malone](https://github.com/dave-malone)
 
 ## License
-For open source projects, say how it is licensed.
+MIT License
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
