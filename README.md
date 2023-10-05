@@ -68,7 +68,7 @@ aws kinesisvideo create-stream --stream-name "CloudGatewayStream" --data-retenti
 *Example Command Output*
 ```json
 {
-    "StreamARN": "arn:aws:kinesisvideo:us-east-1:8xxxxxxxxxxx:stream/CloudGatewayStream/1682603545622"
+    "StreamARN": "arn:aws:kinesisvideo:us-east-1:8xxxxxxxxxxx:stream/CloudGatewayStream/1682603XXXXXX"
 }
 ```
 
