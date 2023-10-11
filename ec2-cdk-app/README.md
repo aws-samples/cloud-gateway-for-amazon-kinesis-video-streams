@@ -19,7 +19,7 @@ In order to restrict access to the EC2 instance that is created, you will also n
 
 ## To Deploy
 
-Ensure that aws-cdk is installed.
+Ensure that aws-cdk is installed and the respository is cloned. Some environments may require the sudo command. 
 
 ```bash
 $ npm install -g aws-cdk
