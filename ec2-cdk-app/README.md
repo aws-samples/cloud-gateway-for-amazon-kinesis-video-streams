@@ -17,9 +17,11 @@ This CDK project depends on an EC2 instance keypair. To create this keypair, nav
 
 In order to restrict access to the EC2 instance that is created, you will also need to fetch your public IPv4 address to be added to the security group created by this project. You can easily obtain this value by visiting http://checkip.amazonaws.com/. The value displayed on this page will need to be passed in as a parameter to the CDK deploy command below.
 
+Clone the respository to your environment. Some environments may require the sudo command.
+
 ## To Deploy
 
-Ensure that aws-cdk is installed and the respository is cloned. Some environments may require the sudo command. 
+Ensure that aws-cdk is installed. 
 
 ```bash
 $ npm install -g aws-cdk
