@@ -12,6 +12,8 @@ This example will create:
 - AWS CDK
 - Docker tools installed on the system the AWS CDK will execute
 - Basic container understanding
+- Clone the respository to your environment
+- Some environments may require the sudo command.
 
 ## To Deploy
 
