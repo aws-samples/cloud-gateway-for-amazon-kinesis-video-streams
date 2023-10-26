@@ -21,7 +21,7 @@ The architecture in figure 1 does not depict the use of AWS Direct Connect or an
 *	An AWS account with full permissions on Kinesis Video Streams, EC2 or Fargate, and Amazon VPC
 *	Familiarity with Linux operating systems and using the command-line 
 *	Familiarity with compiling C++ applications and using CMake is helpful, but not required
-*	A system with AWS CLI, AWS CDK, and docker tools installe 
+*	A system with AWS CLI, AWS CDK, and docker tools installed 
 
 ## Walkthrough
  
