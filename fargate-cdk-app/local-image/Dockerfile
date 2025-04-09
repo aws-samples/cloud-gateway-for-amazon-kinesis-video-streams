@@ -1,7 +1,8 @@
 # Build docker with
 # docker build -t kinesis-video-producer-sdk-cpp-amazon-linux .
 #
-FROM ubuntu:22.04
+ARG BUILDPLATFORM="linux/amd64"
+FROM --platform=${BUILDPLATFORM} ubuntu:22.04
 #apt-get install tzdata noninteractive. Without the next line, one will be prompted during build to select timezone.
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
 RUN apt-get install -y \
@@ -25,6 +26,7 @@ RUN apt-get install -y \
         curl \
         diffutils \
         flex \
+        jq \
         make
 
 ENV KVS_SDK_VERSION v3.2.0

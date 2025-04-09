@@ -5,57 +5,66 @@
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v4.html
 # https://docs.aws.amazon.com/sdkref/latest/guide/feature-container-credentials.html
 TASK_ROLE_NAME=${TASK_ROLE_NAME:-kvsCloudGatewayInstanceRole}
-ECS_CONTAINER_METADATA_URI_V4=${ECS_CONTAINER_METADATA_URI_V4:-"http://169.254.170.2"}
 
-if [ -n "$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI" ]; then
-  echo "Using ECS task IAM role credentials endpoint"
-  PAYLOAD=`curl --connect-timeout 2 --max-time 5 -s "${ECS_CONTAINER_METADATA_URI_V4}${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}"`
-else
-  echo "Requesting IMDSv2 token..."
-  TOKEN=`curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
-
-  if [ -z "$TOKEN" ]; then
-    echo "ERROR: Failed to obtain IMDSv2 token (empty response)"
-    exit 1
+# Let's check if we already have credentials -- this allows for testing the container locally with docker run
+if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+  # If we don't have local creds, let's check if we are inside an ECS container
+  if [ -n "$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI" ]; then
+    echo "Using ECS task IAM role credentials endpoint"
+    PAYLOAD=`curl --connect-timeout 2 --max-time 5 -s "http://169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"`
   else
-    echo "Token received (first 5 chars): ${TOKEN:0:5}..."
+    echo "Requesting IMDSv2 token..."
+    TOKEN=`curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+
+    if [ -z "$TOKEN" ]; then
+      echo "ERROR: Failed to obtain IMDSv2 token (empty response)"
+      exit 1
+    else
+      echo "Token received (first 5 chars): ${TOKEN:0:5}..."
+    fi
+
+    echo "Requesting credentials for role $TASK_ROLE_NAME..."
+    PAYLOAD=`curl -s -H "X-aws-ec2-metadata-token: $TOKEN" curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/iam/security-credentials/$TASK_ROLE_NAME`
   fi
 
-  echo "Requesting credentials for role $TASK_ROLE_NAME..."  
-  PAYLOAD=`curl -s -H "X-aws-ec2-metadata-token: $TOKEN" curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/iam/security-credentials/$TASK_ROLE_NAME`
-fi
-
-if [ -z "$PAYLOAD" ]; then
-  echo "ERROR: Empty response from metadata service"
+  if [ -z "$PAYLOAD" ]; then
+    echo "ERROR: Empty response from metadata service when trying to retrieve credentials."
+    exit 1
+  else
+    # Extract credentials
+    AWS_ACCESS_KEY_ID_TMP=`echo $PAYLOAD | jq -r .AccessKeyId 2>&1`
+    AWS_SECRET_ACCESS_KEY_TMP=`echo $PAYLOAD | jq -r .SecretAccessKey 2>&1`
+    AWS_SESSION_TOKEN_TMP=`echo $PAYLOAD | jq -r .Token 2>&1`
     
-  # Show available roles for troubleshooting
-  echo "Checking available roles..."
-  AVAILABLE_ROLES=`curl --connect-timeout 2 --max-time 5 -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/iam/security-credentials/`
-  echo "Available roles: $AVAILABLE_ROLES"
-  
-  echo "All credential retrieval methods failed. Attempting to proceed with AWS SDK default credential provider chain."
-  echo "Setting AWS_SDK_LOAD_CONFIG=1 to ensure SDK checks all credential sources"
-  export AWS_SDK_LOAD_CONFIG=1
-  
-  # Set default region if not already set
-  export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-"us-east-1"}
-  echo "Using AWS region: $AWS_DEFAULT_REGION"
-  
-  # Continue execution and let the AWS SDK handle credentials
-  echo "Proceeding with AWS SDK credential provider chain"
+    # Check for parse errors
+    if [[ "$AWS_ACCESS_KEY_ID_TMP" == *"parse error"* || "$AWS_SECRET_ACCESS_KEY_TMP" == *"parse error"* || "$AWS_SESSION_TOKEN_TMP" == *"parse error"* ]]; then
+      echo "ERROR: JSON parsing failed. Full payload omitted for security reasons:"
+      echo "${PAYLOAD:0:50}"
+      
+      exit 1
+    fi
+    
+    export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID_TMP"
+    export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY_TMP"
+    export AWS_SESSION_TOKEN="$AWS_SESSION_TOKEN_TMP"
+
+    if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$AWS_SESSION_TOKEN" ]; then
+      echo "Credentials retrieved successfully"
+    else
+      echo "Failed to retrieve all required credentials from metadata service"
+      exit 1
+    fi
+  fi
 fi
-  
-export AWS_ACCESS_KEY_ID=`echo $PAYLOAD | jq -r .AccessKeyId`
-export AWS_SECRET_ACCESS_KEY=`echo $PAYLOAD | jq -r .SecretAccessKey`
-export AWS_SESSION_TOKEN=`echo $PAYLOAD | jq -r .Token`
 
 export LD_LIBRARY_PATH=/opt/amazon-kinesis-video-streams-producer-sdk-cpp/open-source/local/lib
 export GST_PLUGIN_PATH=/opt/amazon-kinesis-video-streams-producer-sdk-cpp/build/
 
 export AWS_DEFAULT_REGION=us-east-1 
 
-STREAM_NAME=CloudGatewayStream
-RTSP_URL="rtsp://kvsedge:stream1234@your-ip-cam:554/"
+STREAM_NAME=${STREAM_NAME-CloudGatewayStream}
+RTSP_URL=${RTSP_URL-rtsp://kvsedge:stream1234@your-ip-cam:554/}
+echo "Using stream name: $STREAM_NAME | RTSP URL $RTSP_URL"
  
 # below pipeline is specific to h264 encoded media, and does not process audio
 gst-launch-1.0 -v rtspsrc location=$RTSP_URL short-header=TRUE \
