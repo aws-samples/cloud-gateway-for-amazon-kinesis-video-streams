@@ -5,6 +5,7 @@ This example will create:
 - A new VPC with an Internet Gateway
 - Public and Private subnets
 - A security group with egress traffic only
+- An IAM Role for the ECS Task
 - An ECS/Fargate Cluster, Task, and Task Definition
 
 ## Pre-requisites
@@ -30,15 +31,19 @@ $ npm install
 $ npm run build
 $ cdk bootstrap
 ```
-### Set the valus in stream-rtsp-to-kvs.sh
-Set the RTSP_URL value in <a href="https://github.com/aws-samples/cloud-gateway-for-amazon-kinesis-video-streams/blob/main/ec2-cdk-app/src/stream-rtsp-to-kvs.sh">stream-rtsp-to-kvs.sh</a>.  If you have used a different STEAM_NAME in <a href="https://github.com/aws-samples/cloud-gateway-for-amazon-kinesis-video-streams/blob/main/README.md#step-1-create-a-kinesis-video-stream">STEP 1: Create Kinesis Video Stream</a>, update STREAM_NAME to match.
-1. STREAM_NAME=CloudGatewayStream
-2. RTSP_URL="rtsp://kvsedge:stream1234@your-ip-cam:554/"
+### Use deployment context variables to customize your Stream Name and RTSP URL
 
-Deploy with the CDK.
+You can use CDK's context variables to pass the name of the Stream you created 
+previously and the url or your RTSP stream.
 
 ```bash
-$ cdk deploy 
+$ cdk deploy --context streamName=<YourStreamName> --context rtspUrl=<YourRtspUrl>
+```
+
+For example:
+
+```bash
+$ cdk deploy --context streamName=CloudGatewayStream --context rtspUrl=rtsp://kvsedge:stream1234@your-ip-cam:554/
 ```
 
 ## To Destroy
