@@ -1,0 +1,18 @@
+MODEL=/work/intel/person-detection-retail-0013/FP32/person-detection-retail-0013.xml
+PROC=/opt/intel/dlstreamer/samples/model_proc/intel/person-detection-retail-0013.json
+RTSP_URL="rtsp://rtspurl"
+KVS_STREAM_NAME="dlstreamer-test"
+
+gst-launch-1.0 -e \
+  rtspsrc location="$RTSP_URL" protocols=tcp latency=300 do-rtsp-keep-alive=true tcp-timeout=20000000 name=src \
+    src. ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! \
+      videoscale ! video/x-raw,width=2560,height=1920,framerate=25/1 ! \
+      gvadetect model="$MODEL" model-proc="$PROC" device=CPU ! gvatrack ! gvawatermark ! videoconvert ! \
+      x265enc bitrate=6144 key-int-max=50 tune=zerolatency speed-preset=superfast \
+        option-string="bframes=0:rc-lookahead=0:no-scenecut=1:b-adapt=0:frame-threads=1" ! \
+      h265parse config-interval=-1 ! video/x-h265,stream-format=hvc1,alignment=au ! queue ! \
+      kvssink name=sink stream-name="$KVS_STREAM_NAME" aws-region="$AWS_DEFAULT_REGION" \
+              codec-id="V_MPEGH/ISO/HEVC" content-type="video/h265" \
+    src. ! queue ! rtpmp4gdepay ! aacparse ! \
+      audio/mpeg,mpegversion=4,stream-format=raw,rate=16000,channels=1 ! \
+      queue ! sink.

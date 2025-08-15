@@ -1,0 +1,2 @@
+export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:/work/kvs-producer-cpp-sdk/build/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/work/kvs-producer-cpp-sdk/build/dependency/libkvscproducer/kvscproducer-src/

@@ -1,0 +1,11 @@
+VIDEO=/work/people_walking_video.mp4
+MODEL=/work/intel/person-detection-retail-0013/FP32/person-detection-retail-0013.xml
+PROC=/opt/intel/dlstreamer/samples/model_proc/intel/person-detection-retail-0013.json
+
+gst-launch-1.0 \
+  filesrc location="$VIDEO" ! decodebin ! videoconvert ! \
+  gvadetect model="$MODEL" model-proc="$PROC" device=CPU ! queue ! \
+  gvatrack tracking-type=short-term-imageless ! queue ! \
+  gvawatermark ! videoconvert ! \
+  x264enc tune=zerolatency bitrate=4000 speed-preset=veryfast ! mp4mux ! \
+  filesink location=/work/out_annotated.mp4 -e

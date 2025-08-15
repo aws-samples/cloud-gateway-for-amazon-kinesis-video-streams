@@ -1,0 +1,12 @@
+VIDEO=/work/test.mp4
+MODEL=/work/intel/person-detection-retail-0013/FP32/person-detection-retail-0013.xml
+PROC=/opt/intel/dlstreamer/samples/model_proc/intel/person-detection-retail-0013.json
+KVS_STREAM_NAME="dlstreamer-test"
+
+gst-launch-1.0 \
+  filesrc location="$VIDEO" ! decodebin ! videoconvert ! \
+  gvadetect model="$MODEL" model-proc="$PROC" device=CPU ! queue ! \
+  gvatrack tracking-type=short-term-imageless ! queue ! \
+  gvawatermark ! videoconvert ! \
+  x264enc tune=zerolatency bitrate=4000 speed-preset=veryfast ! \
+  kvssink stream-name=$KVS_STREAM_NAME -e

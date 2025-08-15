@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-rtspcloudgatewayui-dev-83039-authRole",
+      "UnauthRoleArn": "arn:aws:iam::418265330172:role/amplify-rtspcloudgatewayui-dev-83039-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::418265330172:role/amplify-rtspcloudgatewayui-dev-83039-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-rtspcloudgatewayui-dev-83039-deployment",
+      "UnauthRoleName": "amplify-rtspcloudgatewayui-dev-83039-unauthRole",
+      "StackName": "amplify-rtspcloudgatewayui-dev-83039",
+      "StackId": "arn:aws:cloudformation:us-east-1:418265330172:stack/amplify-rtspcloudgatewayui-dev-83039/7d77ea50-790a-11f0-b3cf-0e7b44b72747",
+      "AmplifyAppId": "d13m821yfv6e5m"
+    },
+    "categories": {
+      "auth": {
+        "rtspcloudgatewayuiaa890462": {}
+      }
+    }
+  }
+}
