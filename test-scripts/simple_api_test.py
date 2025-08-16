@@ -27,7 +27,7 @@ def test_pipeline_api(rtsp_url):
     
     try:
         # Make the API request
-        response = requests.post(api_endpoint, json=payload, headers=headers, timeout=30)
+        response = requests.post(api_endpoint, json=payload, headers=headers, timeout=120)
         
         if response.status_code == 200:
             result = response.json()

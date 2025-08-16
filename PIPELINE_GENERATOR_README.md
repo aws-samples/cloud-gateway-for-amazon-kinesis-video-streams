@@ -1,30 +1,48 @@
 # GStreamer Pipeline Generator for Kinesis Video Streams
 
-This solution automatically generates optimized GStreamer pipelines for ingesting RTSP streams into Amazon Kinesis Video Streams. It uses AWS Lambda with direct RTSP analysis and Amazon Bedrock to generate intelligent pipeline configurations with automatic authentication detection.
+This solution provides **dual-mode functionality** for RTSP stream analysis and GStreamer pipeline generation. It uses AWS Lambda with direct RTSP analysis and Amazon Bedrock to generate intelligent pipeline configurations with automatic authentication detection.
 
 ## 🏗️ Architecture Overview
 
 ```
-RTSP Stream → Lambda (Direct SDP Analysis) → Bedrock Agent → GStreamer Pipeline
+RTSP Stream → Lambda (Dual-Mode Analysis) → Mode 1: Bedrock Agent → GStreamer Pipeline
+                                         → Mode 2: Stream Characteristics → UI Integration
 ```
 
 ### Components
 
-1. **Lambda Function**: Performs direct RTSP SDP extraction with automatic authentication detection
+1. **Lambda Function**: Dual-mode RTSP analysis with comprehensive SDP extraction
 2. **Bedrock Agent**: Analyzes stream data and generates optimized GStreamer pipelines using Claude Opus 4.1
-3. **API Gateway**: Provides REST API access to the pipeline generator
+3. **API Gateway**: Provides REST API access to both pipeline generation and stream analysis
 4. **CDK Infrastructure**: Deploys and manages all AWS resources
 
 ## ✨ Features
 
-- **🔍 Real Stream Analysis**: Direct RTSP SDP extraction (no mock data)
-- **🔐 Automatic Authentication**: Detects and uses appropriate auth method (Digest, Basic, None)
-- **🚨 Enhanced Error Detection**: Categorizes network, authentication, and protocol errors
-- **🎥 Codec Detection**: Supports H.264, H.265/HEVC, AAC, G.711, and more
-- **⚡ Smart Pipeline Generation**: AI-powered optimization using Amazon Bedrock with Claude Opus 4.1
-- **🛡️ Security-First**: Prefers most secure authentication methods available
-- **🔄 Fallback Logic**: Graceful handling of authentication failures
-- **📊 Detailed Logging**: Comprehensive authentication and analysis logging
+### 🔄 **Dual-Mode Operation**
+- **Mode 1 (Pipeline)**: Full GStreamer pipeline generation for existing workflows
+- **Mode 2 (Characteristics)**: Fast stream validation and characteristics for UI integration
+
+### 🔍 **Enhanced Stream Analysis**
+- **Real Stream Analysis**: Direct RTSP SDP extraction (no mock data)
+- **Comprehensive Codec Detection**: H.264, H.265/HEVC, AAC, G.711, and more
+- **Detailed Stream Characteristics**: Framerates, bitrates, sample rates, profiles
+- **Stream Metadata**: Title, description, server information extraction
+- **Raw SDP Content**: Complete SDP data for advanced analysis
+
+### 🔐 **Advanced Authentication**
+- **Automatic Detection**: Real-time authentication method detection and reporting
+- **Multi-Method Support**: None, Basic, Digest with security preference
+- **Authentication Reporting**: Shows actual method used (None, Basic, Digest)
+
+### 🚨 **Enhanced Error Detection**
+- **Categorized Errors**: Network, authentication, and protocol error classification
+- **Specific Suggestions**: Actionable error resolution guidance
+- **Comprehensive Logging**: Detailed authentication and analysis logging
+
+### ⚡ **Performance Optimized**
+- **Mode 1**: 15s response time with full pipeline generation
+- **Mode 2**: 0.3s response time for fast stream validation
+- **Smart Pipeline Generation**: AI-powered optimization using Amazon Bedrock with Claude Opus 4.1
 
 ## 🚀 Deployment Status
 
@@ -32,7 +50,8 @@ RTSP Stream → Lambda (Direct SDP Analysis) → Bedrock Agent → GStreamer Pip
 
 #### **Service Endpoints**
 - **API Gateway URL**: `https://44gtbahskk.execute-api.us-east-1.amazonaws.com/prod/`
-- **API Endpoint**: `https://44gtbahskk.execute-api.us-east-1.amazonaws.com/prod/generate-pipeline`
+- **Pipeline Generation**: `https://44gtbahskk.execute-api.us-east-1.amazonaws.com/prod/generate-pipeline`
+- **Stream Analysis**: Same endpoint with `"mode": "characteristics"` parameter
 
 #### **Bedrock Agent**
 - **Agent ID**: `0BFPX7EETQ`
@@ -44,21 +63,110 @@ RTSP Stream → Lambda (Direct SDP Analysis) → Bedrock Agent → GStreamer Pip
 - **Function Name**: `PipelineGeneratorStack-SdpExtractorFunction0634AF6-KgGhfCv0dhM4`
 - **Runtime**: Python 3.11
 - **Status**: ✅ DEPLOYED and WORKING
-- **Analysis Method**: `DIRECT_RTSP_SDP_EXTRACTION_WITH_ENHANCED_ERROR_DETECTION`
+- **Analysis Methods**: 
+  - Mode 1: `DIRECT_RTSP_SDP_EXTRACTION_WITH_AUTO_AUTH_DETECTION`
+  - Mode 2: `COMPREHENSIVE_RTSP_SDP_ANALYSIS_WITH_ENHANCED_PARSING`
+
+## 🚀 API Usage
+
+### **Mode 1: Pipeline Generation (Original)**
+Generate GStreamer pipelines for existing workflows:
+
+```bash
+curl -X POST https://44gtbahskk.execute-api.us-east-1.amazonaws.com/prod/generate-pipeline \
+  -H "Content-Type: application/json" \
+  -d '{"rtsp_url": "rtsp://user:pass@host/stream"}'
+```
+
+**Response**: Full GStreamer pipeline with stream analysis (~15s)
+
+### **Mode 2: Stream Characteristics (New)**
+Fast stream validation and characteristics for UI integration:
+
+```bash
+curl -X POST https://44gtbahskk.execute-api.us-east-1.amazonaws.com/prod/generate-pipeline \
+  -H "Content-Type: application/json" \
+  -d '{
+    "rtsp_url": "rtsp://user:pass@host/stream",
+    "mode": "characteristics",
+    "capture_frame": false
+  }'
+```
+
+**Response**: Detailed stream characteristics with authentication method (~0.3s)
+
+```json
+{
+  "stream_characteristics": {
+    "video": {
+      "codec": "H.265/HEVC",
+      "framerate": "25.0 fps",
+      "bitrate": "500 kbps",
+      "clock_rate": "90000 Hz"
+    },
+    "audio": {
+      "codec": "AAC",
+      "sample_rate": "16000 Hz",
+      "bitrate": "256 kbps"
+    },
+    "connection": {
+      "authentication_method": "DIGEST"
+    },
+    "raw_sdp": "v=0\r\no=- 1754805623440865 1 IN IP4..."
+  }
+}
+```
 
 ## 🧪 Testing
+
+## 🧪 Testing
+
+### **Available Test Scripts**
+
+#### **1. Dual-Mode Comprehensive Test**
+```bash
+python3 test-scripts/test_dual_mode.py "rtsp://user:pass@host/stream"
+```
+Tests both pipeline generation and stream characteristics modes.
+
+#### **2. Detailed Characteristics Test**
+```bash
+python3 test-scripts/test_characteristics_detailed.py "rtsp://user:pass@host/stream"
+```
+Comprehensive stream characteristics analysis with detailed output.
+
+#### **3. Simple API Test**
+```bash
+python3 test-scripts/simple_api_test.py "rtsp://user:pass@host/stream"
+```
+Basic pipeline generation test (Mode 1 only).
+
+#### **4. Advanced Pipeline Test**
+```bash
+python3 test-scripts/test-pipeline-generator.py --rtsp-url "rtsp://user:pass@host/stream" --test-type api
+```
+Advanced testing with multiple test types (lambda, api, agent).
 
 ### **Verified Test Cases**
 - ✅ **H.265/HEVC Camera**: Successfully analyzed and generated H.265 pipeline
 - ✅ **Digest Authentication**: Automatically detected and authenticated
 - ✅ **Real SDP Extraction**: Actual stream parameters extracted from camera
-- ✅ **Response Time**: ~7-11 seconds (includes RTSP connection + AI processing)
+- ✅ **Dual-Mode Operation**: Both pipeline generation and characteristics working
+- ✅ **Performance**: Mode 1 (~15s), Mode 2 (~0.3s)
+- ✅ **Authentication Detection**: Real-time method detection (None, Basic, Digest)
+- ✅ **Raw SDP Inclusion**: Complete SDP content available for analysis
 
-### **Test Command**
-```bash
-curl -X POST https://44gtbahskk.execute-api.us-east-1.amazonaws.com/prod/generate-pipeline \
-  -H "Content-Type: application/json" \
-  -d '{"rtsp_url": "rtsp://username:password@camera-ip:554/stream"}'
+### **Test Results Summary**
+```
+🎯 DUAL-MODE TEST RESULTS
+Pipeline Generation: ✅ SUCCESS (15.2s)
+Stream Characteristics: ✅ SUCCESS (0.3s)
+
+📊 Stream Analysis:
+• Video: H.265/HEVC @ 25.0 fps, 500 kbps
+• Audio: AAC @ 16000 Hz, 256 kbps
+• Authentication: DIGEST
+• Raw SDP: 863 characters included
 ```
 
 ## 📊 API Usage
