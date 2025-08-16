@@ -1142,6 +1142,14 @@ def extract_frame_from_rtsp(rtsp_url: str, timeout: int = 30, max_width: int = 6
 
 def lambda_handler(event, context):
     """Main Lambda handler function - DIRECT RTSP SDP ANALYSIS with automatic authentication detection."""
+    
+    # CORS headers for all responses
+    cors_headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Requested-With',
+        'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+    }
+    
     try:
         # Parse input
         if 'body' in event:
@@ -1158,6 +1166,7 @@ def lambda_handler(event, context):
         if not rtsp_url:
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'rtsp_url is required'})
             }
         
@@ -1196,6 +1205,7 @@ def lambda_handler(event, context):
                 
                 return {
                     'statusCode': 200,
+                    'headers': cors_headers,
                     'body': json.dumps(response_data)
                 }
                 
@@ -1203,6 +1213,7 @@ def lambda_handler(event, context):
                 logger.error(f"Failed to analyze stream characteristics: {e}")
                 return {
                     'statusCode': 500,
+                    'headers': cors_headers,
                     'body': json.dumps({
                         'error': f'Failed to analyze RTSP stream: {str(e)}',
                         'error_type': 'ANALYSIS_ERROR',
@@ -1216,6 +1227,7 @@ def lambda_handler(event, context):
         if not agent_id:
             return {
                 'statusCode': 400,
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'agent_id is required for pipeline mode (set BEDROCK_AGENT_ID environment variable)'})
             }
         
@@ -1229,6 +1241,7 @@ def lambda_handler(event, context):
             logger.error(f"Failed to extract SDP via RTSP: {e}")
             return {
                 'statusCode': 500,
+                'headers': cors_headers,
                 'body': json.dumps({
                     'error': f'Failed to analyze RTSP stream via SDP: {str(e)}',
                     'rtsp_url': rtsp_url,
@@ -1246,6 +1259,7 @@ def lambda_handler(event, context):
         # Return response
         return {
             'statusCode': 200,
+            'headers': cors_headers,
             'body': json.dumps({
                 'rtsp_url': rtsp_url,
                 'stream_analysis': json.loads(stream_analysis),
@@ -1259,6 +1273,7 @@ def lambda_handler(event, context):
         logger.error(f"Lambda execution failed: {e}")
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps({
                 'error': str(e),
                 'timestamp': context.aws_request_id

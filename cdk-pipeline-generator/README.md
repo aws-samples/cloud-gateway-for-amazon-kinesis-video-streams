@@ -10,6 +10,7 @@ This CDK application deploys a serverless pipeline generator that analyzes RTSP 
 - **GStreamer Pipeline Generation**: AI-powered pipeline generation using Amazon Bedrock agents
 - **OpenCV Frame Extraction**: Real-time frame capture and analysis from RTSP streams
 - **Serverless Architecture**: Fully serverless using AWS Lambda, API Gateway, and Amazon Bedrock
+- **CORS-Enabled API**: Properly configured for frontend integration with localhost development
 
 ### New OpenCV Integration
 - **Frame Capture**: Extract frames from live RTSP streams using OpenCV
@@ -17,6 +18,11 @@ This CDK application deploys a serverless pipeline generator that analyzes RTSP 
 - **Format Support**: JPEG encoding with base64 output for easy integration
 - **Performance Optimized**: Efficient frame extraction with configurable timeouts
 - **Container-Based**: OpenCV runs in AWS Lambda using container images
+
+### Frontend Integration
+- **React Frontend**: Complete RTSP stream testing interface (see `../frontend-app/`)
+- **CORS Support**: API Gateway configured for localhost development
+- **Real-time Preview**: Frame extraction with visual preview capabilities
 
 ## 🏗️ Architecture
 
@@ -51,11 +57,15 @@ npm install
 
 ### 2. Deploy the Stack
 ```bash
-# Set Docker to use legacy builder for Lambda compatibility
+# IMPORTANT: Set Docker to use legacy builder for Lambda compatibility
+# This is required to avoid multi-platform manifest issues with AWS Lambda
 export DOCKER_BUILDKIT=0
 
 # Deploy with your AWS profile
 AWS_PROFILE=your-profile cdk deploy --require-approval never
+
+# Alternative one-liner:
+DOCKER_BUILDKIT=0 AWS_PROFILE=your-profile cdk deploy --require-approval never
 ```
 
 ### 3. Note the Outputs

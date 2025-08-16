@@ -1,8 +1,7 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  text-align: left;
 }
 
 .logo {
@@ -39,4 +38,153 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Custom styles for RTSP Stream Tester */
+.rtsp-tester {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stream-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.preview-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.preview-image:hover {
+  transform: scale(1.02);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #root {
+    padding: 1rem;
+  }
+  
+  .stream-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.loading-text {
+  animation: pulse 2s infinite;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-success {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-info {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* Form improvements */
+.form-section {
+  margin-bottom: 1.5rem;
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+}
+
+.help-text {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Card hover effects */
+.info-card {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.info-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Amplify UI customizations */
+[data-amplify-theme] {
+  --amplify-colors-brand-primary-10: #f0f9ff;
+  --amplify-colors-brand-primary-80: #1e40af;
+  --amplify-colors-brand-primary-90: #1e3a8a;
+  --amplify-colors-brand-primary-100: #1e3a8a;
+}
+
+/* Tab styling improvements */
+.amplify-tabs {
+  --amplify-components-tabs-item-active-border-color: var(--amplify-colors-brand-primary-80);
+  --amplify-components-tabs-item-active-color: var(--amplify-colors-brand-primary-80);
+}
+
+/* Button improvements */
+.amplify-button--primary {
+  --amplify-components-button-primary-background-color: var(--amplify-colors-brand-primary-80);
+  --amplify-components-button-primary-hover-background-color: var(--amplify-colors-brand-primary-90);
+}
+
+/* Alert improvements */
+.amplify-alert--success {
+  --amplify-components-alert-success-background-color: #f0fdf4;
+  --amplify-components-alert-success-border-color: #22c55e;
+}
+
+.amplify-alert--error {
+  --amplify-components-alert-error-background-color: #fef2f2;
+  --amplify-components-alert-error-border-color: #ef4444;
+}
+
+.amplify-alert--warning {
+  --amplify-components-alert-warning-background-color: #fffbeb;
+  --amplify-components-alert-warning-border-color: #f59e0b;
+}
+
+.amplify-alert--info {
+  --amplify-components-alert-info-background-color: #eff6ff;
+  --amplify-components-alert-info-border-color: #3b82f6;
 }
