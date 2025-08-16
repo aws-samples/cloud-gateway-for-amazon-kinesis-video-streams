@@ -62,25 +62,25 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
           }}
         >
           <Button 
-            variation={activeTab === 'rtsp-tester' ? 'primary' : 'link'}
+            variation={activeTab === 'rtsp-tester' ? 'primary' : 'outlined'}
             onClick={() => setActiveTab('rtsp-tester')}
           >
             🔧 RTSP Stream Tester
           </Button>
           <Button 
-            variation={activeTab === 'dashboard' ? 'primary' : 'link'}
+            variation={activeTab === 'dashboard' ? 'primary' : 'outlined'}
             onClick={() => setActiveTab('dashboard')}
           >
             📊 Stream Dashboard
           </Button>
           <Button 
-            variation={activeTab === 'pipeline' ? 'primary' : 'link'}
+            variation={activeTab === 'pipeline' ? 'primary' : 'outlined'}
             onClick={() => setActiveTab('pipeline')}
           >
             ⚙️ Pipeline Generator
           </Button>
           <Button 
-            variation={activeTab === 'analytics' ? 'primary' : 'link'}
+            variation={activeTab === 'analytics' ? 'primary' : 'outlined'}
             onClick={() => setActiveTab('analytics')}
           >
             📈 Analytics
