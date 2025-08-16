@@ -19,6 +19,7 @@ RTSP Stream → Lambda (Direct SDP Analysis) → Bedrock Agent → GStreamer Pip
 
 - **🔍 Real Stream Analysis**: Direct RTSP SDP extraction (no mock data)
 - **🔐 Automatic Authentication**: Detects and uses appropriate auth method (Digest, Basic, None)
+- **🚨 Enhanced Error Detection**: Categorizes network, authentication, and protocol errors
 - **🎥 Codec Detection**: Supports H.264, H.265/HEVC, AAC, G.711, and more
 - **⚡ Smart Pipeline Generation**: AI-powered optimization using Amazon Bedrock with Claude Opus 4.1
 - **🛡️ Security-First**: Prefers most secure authentication methods available
@@ -43,7 +44,7 @@ RTSP Stream → Lambda (Direct SDP Analysis) → Bedrock Agent → GStreamer Pip
 - **Function Name**: `PipelineGeneratorStack-SdpExtractorFunction0634AF6-KgGhfCv0dhM4`
 - **Runtime**: Python 3.11
 - **Status**: ✅ DEPLOYED and WORKING
-- **Analysis Method**: `DIRECT_RTSP_SDP_EXTRACTION_WITH_AUTO_AUTH_DETECTION`
+- **Analysis Method**: `DIRECT_RTSP_SDP_EXTRACTION_WITH_ENHANCED_ERROR_DETECTION`
 
 ## 🧪 Testing
 

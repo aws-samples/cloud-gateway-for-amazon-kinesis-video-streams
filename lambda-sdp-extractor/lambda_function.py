@@ -248,7 +248,212 @@ def attempt_rtsp_authentication(sock: socket.socket, rtsp_url: str, username: st
         logger.error(error_msg)
         return False, "", error_msg
 
-def get_sdp_via_rtsp(rtsp_url: str, timeout: int = 60) -> Tuple[str, Dict[str, Any]]:
+def get_sdp_via_rtsp(rtsp_url: str, timeout: int = 60) -> Tuple[str, Dict[str, Any], str]:
+    """Get SDP information by sending RTSP DESCRIBE request with enhanced error detection
+    Returns: (sdp_content, stream_info, auth_method)
+    """
+    start_time = time.time()
+    auth_method_used = "None"
+    
+    try:
+        host, port, username, password, path, full_url = parse_rtsp_url(rtsp_url)
+        
+        logger.info(f"Connecting to RTSP server: {host}:{port} (timeout: {timeout}s)")
+        
+        # Create socket connection with enhanced error handling
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+        
+        try:
+            connect_start = time.time()
+            sock.connect((host, port))
+            connect_time = time.time() - connect_start
+            logger.info(f"Socket connection established in {connect_time:.2f}s")
+            
+            # Step 1: Send OPTIONS request (some servers require this)
+            options_request = (
+                f"OPTIONS {full_url} RTSP/1.0\r\n"
+                f"CSeq: 1\r\n"
+                f"User-Agent: AWS-Lambda-RTSP-Client\r\n"
+                f"\r\n"
+            )
+            
+            logger.info("Sending OPTIONS request")
+            sock.send(options_request.encode())
+            
+            # Receive OPTIONS response
+            options_response = b""
+            while True:
+                try:
+                    data = sock.recv(1024)
+                    if not data:
+                        break
+                    options_response += data
+                    if b'\r\n\r\n' in options_response:
+                        break
+                except socket.timeout:
+                    break
+            
+            options_str = options_response.decode('utf-8', errors='ignore')
+            logger.info(f"OPTIONS response: {options_str.split()[1] if options_str else 'No response'}")
+            
+            # Step 2: Send DESCRIBE request without authentication to detect requirements
+            describe_request = (
+                f"DESCRIBE {full_url} RTSP/1.0\r\n"
+                f"CSeq: 2\r\n"
+                f"User-Agent: AWS-Lambda-RTSP-Client\r\n"
+                f"Accept: application/sdp\r\n"
+                f"\r\n"
+            )
+            
+            logger.info("Sending initial DESCRIBE request to detect authentication requirements")
+            sock.send(describe_request.encode())
+            
+            # Receive DESCRIBE response
+            describe_response = b""
+            while True:
+                try:
+                    data = sock.recv(1024)
+                    if not data:
+                        break
+                    describe_response += data
+                    if b'\r\n\r\n' in describe_response:
+                        break
+                except socket.timeout:
+                    break
+            
+            describe_str = describe_response.decode('utf-8', errors='ignore')
+            first_line = describe_str.split('\r\n')[0] if describe_str else "No response"
+            logger.info(f"Initial DESCRIBE response: {first_line}")
+            
+            # Step 3: Handle authentication based on server response
+            if '200 OK' in describe_str:
+                # No authentication required!
+                logger.info("✅ No authentication required")
+                auth_method_used = "None"
+                
+                # Extract SDP content
+                sdp_start = describe_str.find('\r\n\r\n')
+                if sdp_start == -1:
+                    raise ProtocolError("No SDP content found in response", 
+                                      "The server responded successfully but didn't provide SDP data. Check if this is a valid RTSP stream.")
+                
+                sdp_content = describe_str[sdp_start + 4:].strip()
+                
+                if not sdp_content or not sdp_content.startswith('v='):
+                    raise ProtocolError("Invalid SDP content received",
+                                      "The server provided malformed SDP data. This may be a protocol compatibility issue.")
+                
+                total_time = time.time() - start_time
+                logger.info(f"Successfully extracted SDP content in {total_time:.2f}s ({len(sdp_content)} chars)")
+                
+                # Parse SDP to extract stream information
+                stream_info = parse_sdp_content(sdp_content)
+                
+                return sdp_content, stream_info, auth_method_used
+                
+            elif '401' in describe_str and username and password:
+                # Authentication required - detect and attempt authentication
+                logger.info("🔐 Authentication required - detecting supported methods")
+                
+                # Extract all WWW-Authenticate headers
+                www_auth_headers = re.findall(r'WWW-Authenticate:\s*(.+)', describe_str, re.IGNORECASE)
+                
+                if not www_auth_headers:
+                    raise AuthenticationError("Server requires authentication but no WWW-Authenticate header found",
+                                            "The server returned 401 but didn't specify authentication methods. This may be a server configuration issue.")
+                
+                logger.info(f"Found {len(www_auth_headers)} WWW-Authenticate header(s)")
+                for i, header in enumerate(www_auth_headers):
+                    logger.info(f"  Header {i+1}: {header}")
+                
+                # Parse authentication challenges
+                challenges = parse_authentication_challenges(www_auth_headers)
+                
+                if not challenges:
+                    raise AuthenticationError("No valid authentication challenges found in WWW-Authenticate headers",
+                                            "The server's authentication configuration may be invalid. Contact the server administrator.")
+                
+                logger.info(f"Detected {len(challenges)} authentication method(s): {[c.method.upper() for c in challenges]}")
+                
+                # Try authentication methods in order of preference
+                attempted_methods = []
+                last_error = ""
+                
+                # Sort challenges by preference
+                preference_order = get_authentication_preference_order()
+                sorted_challenges = sorted(challenges, key=lambda c: preference_order.index(c.method) if c.method in preference_order else 999)
+                
+                for challenge in sorted_challenges:
+                    success, response_str, error_msg = attempt_rtsp_authentication(
+                        sock, rtsp_url, username, password, challenge, 3
+                    )
+                    
+                    attempted_methods.append(challenge.method.upper())
+                    
+                    if success:
+                        # Record the successful authentication method
+                        auth_method_used = challenge.method.upper()
+                        logger.info(f"✅ Successfully authenticated using {auth_method_used}")
+                        
+                        # Extract SDP content from successful response
+                        sdp_start = response_str.find('\r\n\r\n')
+                        if sdp_start == -1:
+                            raise ProtocolError("No SDP content found in authenticated response",
+                                              "Authentication succeeded but no SDP data was provided.")
+                        
+                        sdp_content = response_str[sdp_start + 4:].strip()
+                        
+                        if not sdp_content or not sdp_content.startswith('v='):
+                            raise ProtocolError("Invalid SDP content received after authentication",
+                                              "Authentication succeeded but SDP data is malformed.")
+                        
+                        total_time = time.time() - start_time
+                        logger.info(f"Successfully extracted SDP content using {auth_method_used} auth in {total_time:.2f}s ({len(sdp_content)} chars)")
+                        
+                        # Parse SDP to extract stream information
+                        stream_info = parse_sdp_content(sdp_content)
+                        
+                        return sdp_content, stream_info, auth_method_used
+                    else:
+                        last_error = error_msg
+                        logger.warning(f"❌ {challenge.method.upper()} authentication failed: {error_msg}")
+                
+                # All authentication methods failed
+                raise AuthenticationError(
+                    f"All authentication methods failed. Tried: {', '.join(attempted_methods)}",
+                    f"Verify your credentials are correct. The server supports: {', '.join([c.method.upper() for c in challenges])}. Last error: {last_error}"
+                )
+                
+            elif '401' in describe_str:
+                raise AuthenticationError("Server requires authentication but no credentials provided",
+                                        "Add username and password to your RTSP URL: rtsp://username:password@host/path")
+            else:
+                raise ProtocolError(f"Unexpected server response: {first_line}",
+                                  "The server returned an unexpected response. Check if this is a valid RTSP server.")
+            
+        except RTSPError:
+            # Re-raise our custom errors
+            raise
+        except Exception as e:
+            sock.close()
+            raise categorize_socket_error(e, host, port)
+        finally:
+            try:
+                sock.close()
+            except:
+                pass
+            
+    except RTSPError:
+        # Re-raise our custom errors
+        raise
+    except Exception as e:
+        elapsed = time.time() - start_time
+        logger.error(f"Unexpected RTSP error after {elapsed:.2f}s: {e}")
+        raise ProtocolError(
+            f"Unexpected RTSP protocol error: {str(e)}",
+            "This may be a protocol compatibility issue or server configuration problem."
+        )
     """
     Get SDP information by sending RTSP DESCRIBE request with automatic authentication detection
     """
@@ -588,6 +793,188 @@ Return the response in JSON format with the pipeline string and explanation.
         logger.error(f"Error invoking Bedrock agent: {e}")
         raise
 
+def extract_detailed_characteristics_from_sdp(sdp_content: str, stream_info: Dict[str, Any], auth_method: str = None) -> Dict[str, Any]:
+    """Extract detailed stream characteristics from SDP content"""
+    characteristics = {
+        'video': {},
+        'audio': {},
+        'stream_info': {
+            'total_streams': len(stream_info.get('streams', [])),
+            'video_streams': 0,
+            'audio_streams': 0,
+            'title': None,
+            'description': None,
+            'server_info': None
+        },
+        'connection': {
+            'connection_time': None,
+            'authentication_method': auth_method or 'Auto-detected'
+        },
+        'diagnostics': {
+            'errors': [],
+            'warnings': []
+        },
+        'raw_sdp': sdp_content
+    }
+    
+    if not sdp_content:
+        characteristics['diagnostics']['errors'].append('No SDP content available')
+        return characteristics
+    
+    lines = sdp_content.split('\n')
+    current_media = None
+    video_found = False
+    audio_found = False
+    
+    logger.info(f"Parsing SDP content with {len(lines)} lines")
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        # Session-level information
+        if line.startswith('s='):
+            title = line[2:].strip()
+            if title and title != '-':
+                characteristics['stream_info']['title'] = title
+                logger.info(f"Stream title: {title}")
+                
+        elif line.startswith('i='):
+            description = line[2:].strip()
+            if description:
+                characteristics['stream_info']['description'] = description
+                logger.info(f"Stream description: {description}")
+                
+        elif line.startswith('a=tool:'):
+            server_info = line[7:].strip()
+            if server_info:
+                characteristics['stream_info']['server_info'] = server_info
+                logger.info(f"Server info: {server_info}")
+                
+        # Media-level information
+        elif line.startswith('m='):
+            parts = line.split()
+            if len(parts) >= 2:
+                media_type = parts[0][2:]  # Remove 'm='
+                if media_type == 'video':
+                    current_media = 'video'
+                    video_found = True
+                    characteristics['stream_info']['video_streams'] += 1
+                    logger.info(f"Found video media line: {line}")
+                elif media_type == 'audio':
+                    current_media = 'audio'
+                    audio_found = True
+                    characteristics['stream_info']['audio_streams'] += 1
+                    logger.info(f"Found audio media line: {line}")
+                else:
+                    current_media = None
+                    
+        # Bandwidth information
+        elif line.startswith('b=AS:') and current_media:
+            bitrate_match = re.search(r'b=AS:(\d+)', line)
+            if bitrate_match:
+                bitrate_kbps = int(bitrate_match.group(1))
+                if current_media == 'video':
+                    characteristics['video']['bitrate'] = f"{bitrate_kbps} kbps"
+                elif current_media == 'audio':
+                    characteristics['audio']['bitrate'] = f"{bitrate_kbps} kbps"
+                logger.info(f"{current_media} bitrate: {bitrate_kbps} kbps")
+                
+        # RTP map information (codec detection)
+        elif line.startswith('a=rtpmap:') and current_media:
+            rtpmap_match = re.search(r'a=rtpmap:\d+\s+([^/]+)(?:/(\d+))?(?:/(\d+))?', line)
+            if rtpmap_match:
+                codec = rtpmap_match.group(1).lower()
+                sample_rate = rtpmap_match.group(2)
+                channels = rtpmap_match.group(3)
+                
+                if current_media == 'video':
+                    if codec in ['h264', 'avc']:
+                        characteristics['video']['codec'] = 'H.264/AVC'
+                    elif codec in ['h265', 'hevc']:
+                        characteristics['video']['codec'] = 'H.265/HEVC'
+                        logger.info("✅ Detected H.265/HEVC video codec!")
+                    elif codec == 'h263':
+                        characteristics['video']['codec'] = 'H.263'
+                    elif codec == 'mp4v-es':
+                        characteristics['video']['codec'] = 'MPEG-4 Visual'
+                    else:
+                        characteristics['video']['codec'] = codec.upper()
+                        
+                    if sample_rate:
+                        characteristics['video']['clock_rate'] = f"{sample_rate} Hz"
+                        
+                elif current_media == 'audio':
+                    if codec in ['mpeg4-generic']:
+                        characteristics['audio']['codec'] = 'AAC'
+                    elif codec in ['pcmu', 'g711u']:
+                        characteristics['audio']['codec'] = 'G.711 μ-law'
+                    elif codec in ['pcma', 'g711a']:
+                        characteristics['audio']['codec'] = 'G.711 A-law'
+                    elif codec == 'g722':
+                        characteristics['audio']['codec'] = 'G.722'
+                    elif codec == 'g729':
+                        characteristics['audio']['codec'] = 'G.729'
+                    else:
+                        characteristics['audio']['codec'] = codec.upper()
+                        
+                    if sample_rate:
+                        characteristics['audio']['sample_rate'] = f"{sample_rate} Hz"
+                    if channels:
+                        characteristics['audio']['channels'] = channels
+                        
+                logger.info(f"Detected {current_media} codec: {codec} from {line}")
+                
+        # Framerate information
+        elif line.startswith('a=framerate:') and current_media == 'video':
+            framerate_match = re.search(r'a=framerate:([\d.]+)', line)
+            if framerate_match:
+                framerate = float(framerate_match.group(1))
+                characteristics['video']['framerate'] = f"{framerate} fps"
+                logger.info(f"Video framerate: {framerate} fps")
+                
+        # Format parameters (for resolution, profile info, etc.)
+        elif line.startswith('a=fmtp:') and current_media:
+            if current_media == 'video':
+                # Look for H.264/H.265 profile information
+                if 'profile-level-id' in line:
+                    profile_match = re.search(r'profile-level-id=([^;]+)', line)
+                    if profile_match:
+                        profile_id = profile_match.group(1)
+                        characteristics['video']['profile'] = profile_id
+                        logger.info(f"Video profile: {profile_id}")
+                        
+                # Look for resolution in sprop parameters (H.265/H.264)
+                if 'sprop-sps' in line or 'sprop-pps' in line:
+                    # This would require more complex SPS/PPS parsing
+                    # For now, we'll note that resolution info is available
+                    characteristics['video']['resolution_info'] = 'Available in SPS/PPS'
+                    
+            elif current_media == 'audio':
+                # AAC configuration
+                if 'config=' in line:
+                    config_match = re.search(r'config=([^;]+)', line)
+                    if config_match:
+                        characteristics['audio']['config'] = config_match.group(1)
+                        
+                # AAC profile
+                if 'profile=' in line:
+                    profile_match = re.search(r'profile=([^;]+)', line)
+                    if profile_match:
+                        characteristics['audio']['profile'] = profile_match.group(1)
+    
+    # Update stream counts
+    characteristics['stream_info']['total_streams'] = characteristics['stream_info']['video_streams'] + characteristics['stream_info']['audio_streams']
+    
+    # Add summary information
+    if video_found:
+        logger.info(f"Video stream detected: {characteristics['video']}")
+    if audio_found:
+        logger.info(f"Audio stream detected: {characteristics['audio']}")
+        
+    return characteristics
+
 def lambda_handler(event, context):
     """Main Lambda handler function - DIRECT RTSP SDP ANALYSIS with automatic authentication detection."""
     try:
@@ -598,6 +985,8 @@ def lambda_handler(event, context):
             body = event
         
         rtsp_url = body.get('rtsp_url')
+        mode = body.get('mode', 'pipeline')  # 'pipeline' or 'characteristics'
+        capture_frame = body.get('capture_frame', False)
         agent_id = body.get('agent_id', os.environ.get('BEDROCK_AGENT_ID'))
         agent_alias_id = body.get('agent_alias_id', os.environ.get('BEDROCK_AGENT_ALIAS_ID', 'TSTALIASID'))
         
@@ -607,17 +996,58 @@ def lambda_handler(event, context):
                 'body': json.dumps({'error': 'rtsp_url is required'})
             }
         
+        logger.info(f"Processing RTSP URL: {rtsp_url} (mode: {mode})")
+        
+        if mode == 'characteristics':
+            # Mode 2: Stream characteristics analysis (new functionality)
+            try:
+                sdp_content, stream_info, auth_method = get_sdp_via_rtsp(rtsp_url, timeout=60)
+                
+                # Extract detailed characteristics from SDP content with authentication method
+                characteristics = extract_detailed_characteristics_from_sdp(sdp_content, stream_info, auth_method)
+                
+                # Add frame capture warning if requested but not available
+                if capture_frame:
+                    characteristics['diagnostics']['warnings'].append('Frame capture not available - OpenCV not installed')
+                
+                response_data = {
+                    'rtsp_url': rtsp_url,
+                    'stream_characteristics': characteristics,
+                    'timestamp': context.aws_request_id,
+                    'analysis_method': 'COMPREHENSIVE_RTSP_SDP_ANALYSIS_WITH_ENHANCED_PARSING'
+                }
+                
+                return {
+                    'statusCode': 200,
+                    'body': json.dumps(response_data)
+                }
+                
+            except Exception as e:
+                logger.error(f"Failed to analyze stream characteristics: {e}")
+                return {
+                    'statusCode': 500,
+                    'body': json.dumps({
+                        'error': f'Failed to analyze RTSP stream: {str(e)}',
+                        'error_type': 'ANALYSIS_ERROR',
+                        'rtsp_url': rtsp_url,
+                        'timestamp': context.aws_request_id,
+                        'suggestion': 'Check the RTSP URL format and server availability.'
+                    })
+                }
+        
+        # Mode 1: Original pipeline generation (backward compatibility)
         if not agent_id:
             return {
                 'statusCode': 400,
-                'body': json.dumps({'error': 'agent_id is required (set BEDROCK_AGENT_ID environment variable)'})
+                'body': json.dumps({'error': 'agent_id is required for pipeline mode (set BEDROCK_AGENT_ID environment variable)'})
             }
         
-        logger.info(f"Processing RTSP URL: {rtsp_url} (AUTO AUTHENTICATION DETECTION)")
+        logger.info(f"Processing RTSP URL: {rtsp_url} (PIPELINE GENERATION MODE)")
         
         # Extract REAL stream information via RTSP SDP with automatic authentication
         try:
-            sdp_content, stream_info = get_sdp_via_rtsp(rtsp_url, timeout=60)
+            sdp_content, stream_info, auth_method = get_sdp_via_rtsp(rtsp_url, timeout=60)
+            logger.info(f"Pipeline mode: Authentication method used: {auth_method}")
         except Exception as e:
             logger.error(f"Failed to extract SDP via RTSP: {e}")
             return {
