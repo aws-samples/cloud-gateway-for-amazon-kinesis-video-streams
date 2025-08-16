@@ -6,7 +6,7 @@ Overview
 The architecture diagram below depicts the resources that this solution will deploy into your account. 
 
 
-![Figure1: Architecture](./Kinesis-CloudGateway-Architecture.png) 
+![Figure1: Architecture](./.github/images/Kinesis-CloudGateway-Architecture.png) 
  
 Figure 1: AWS Fargate-based gateway for ingestion of on-premises IP camera video streams from RTSP to Kinesis Video Streams solution architecture
 
@@ -48,15 +48,15 @@ To deploy and run the sample application we will perform the following steps:
 
 Log into the AWS Management console.
 
-![AWS Management Console Kinesis Video Streams](./AWSManagementConsoleKVS.png) 
+![AWS Management Console Kinesis Video Streams](./.github/images/AWSManagementConsoleKVS.png) 
 
 Create the Video Stream. Example name: CloudGatewayStream.
 
-![AWS Management Console Kinesis Video Streams - Create Stream](./AWSManagementConsoleKVSCreateStream.png) 
+![AWS Management Console Kinesis Video Streams - Create Stream](./.github/images/AWSManagementConsoleKVSCreateStream.png) 
 
 Example of a Create Video Stream Success Message.
 
-![AWS Management Console Kinesis Video Streams - Create Stream Success](./AWSManagementConsoleKVSCreateSuccess.png) 
+![AWS Management Console Kinesis Video Streams - Create Stream Success](./.github/images/AWSManagementConsoleKVSCreateSuccess.png) 
   
 
  If you prefer the AWS CLI, use the following commands.
@@ -82,7 +82,7 @@ OR
 ## Step 3: View the Kinesis Video Stream
 
 Navigate to the Kinesis Video Stream in the AWS Management Console. 
-![AWS Management Console Kinesis Video Streams](./CloudGatewayStream.png) 
+![AWS Management Console Kinesis Video Streams](./.github/images/CloudGatewayStream.png) 
 
 ## Authors and acknowledgment
 [Brian Slater](https://github.com/bmslater)
