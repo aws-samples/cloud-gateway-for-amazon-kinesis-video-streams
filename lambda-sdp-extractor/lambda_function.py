@@ -7,12 +7,28 @@ import base64
 import re
 import time
 import hashlib
+import subprocess
+import tempfile
 from urllib.parse import urlparse
 from typing import Dict, Any, Optional, Tuple, List
+
+# Import OpenCV for frame extraction
+try:
+    import cv2
+    OPENCV_AVAILABLE = True
+except ImportError as e:
+    OPENCV_AVAILABLE = False
+    cv2 = None
 
 # Configure logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+# Log OpenCV availability
+if OPENCV_AVAILABLE:
+    logger.info("✅ OpenCV successfully imported for frame extraction")
+else:
+    logger.warning("⚠️ OpenCV not available - frame extraction disabled")
 
 # Initialize Bedrock client
 bedrock_agent_runtime = boto3.client('bedrock-agent-runtime')
@@ -975,6 +991,120 @@ def extract_detailed_characteristics_from_sdp(sdp_content: str, stream_info: Dic
         
     return characteristics
 
+def extract_frame_from_rtsp(rtsp_url: str, timeout: int = 30, max_width: int = 640) -> Optional[Dict[str, Any]]:
+    """
+    Extract a single frame from RTSP stream using OpenCV
+    
+    Args:
+        rtsp_url: RTSP stream URL with authentication
+        timeout: Timeout in seconds for frame capture
+        max_width: Maximum width for the extracted frame (maintains aspect ratio)
+    
+    Returns:
+        Dictionary with frame data or None if extraction fails
+        {
+            'frame_data': 'base64-encoded JPEG data',
+            'width': int,
+            'height': int,
+            'format': 'JPEG',
+            'size_bytes': int,
+            'capture_time_ms': float
+        }
+    """
+    if not OPENCV_AVAILABLE:
+        logger.error("OpenCV not available - cannot extract frame")
+        return None
+    
+    start_time = time.time()
+    cap = None
+    
+    try:
+        logger.info(f"Attempting to extract frame from RTSP stream using OpenCV (timeout: {timeout}s)")
+        
+        # Create VideoCapture object with RTSP URL
+        cap = cv2.VideoCapture(rtsp_url)
+        
+        # Set timeout properties (in milliseconds)
+        cap.set(cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, timeout * 1000)
+        cap.set(cv2.CAP_PROP_READ_TIMEOUT_MSEC, timeout * 1000)
+        
+        # Set buffer size to 1 to get the latest frame
+        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        
+        if not cap.isOpened():
+            logger.error("Failed to open RTSP stream with OpenCV")
+            return None
+        
+        logger.info("RTSP stream opened successfully with OpenCV")
+        
+        # Try to read a frame (may take a few attempts)
+        frame = None
+        max_attempts = 5
+        
+        for attempt in range(max_attempts):
+            ret, frame = cap.read()
+            if ret and frame is not None:
+                logger.info(f"Frame captured successfully on attempt {attempt + 1}")
+                break
+            else:
+                logger.warning(f"Frame capture attempt {attempt + 1} failed, retrying...")
+                time.sleep(0.5)
+        
+        if frame is None:
+            logger.error("Failed to capture frame after all attempts")
+            return None
+        
+        # Get original dimensions
+        original_height, original_width = frame.shape[:2]
+        logger.info(f"Original frame dimensions: {original_width}x{original_height}")
+        
+        # Resize frame if it's too large (maintain aspect ratio)
+        if original_width > max_width:
+            aspect_ratio = original_height / original_width
+            new_width = max_width
+            new_height = int(max_width * aspect_ratio)
+            frame = cv2.resize(frame, (new_width, new_height), interpolation=cv2.INTER_AREA)
+            logger.info(f"Frame resized to: {new_width}x{new_height}")
+        else:
+            new_width, new_height = original_width, original_height
+        
+        # Encode frame as JPEG
+        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]  # 85% quality
+        ret, buffer = cv2.imencode('.jpg', frame, encode_param)
+        
+        if not ret:
+            logger.error("Failed to encode frame as JPEG")
+            return None
+        
+        # Convert to base64
+        frame_base64 = base64.b64encode(buffer).decode('utf-8')
+        frame_size = len(buffer)
+        
+        capture_time = (time.time() - start_time) * 1000  # Convert to milliseconds
+        
+        logger.info(f"Frame extracted successfully: {new_width}x{new_height}, {frame_size} bytes, {capture_time:.1f}ms")
+        
+        return {
+            'frame_data': frame_base64,
+            'width': new_width,
+            'height': new_height,
+            'format': 'JPEG',
+            'size_bytes': frame_size,
+            'capture_time_ms': round(capture_time, 1),
+            'original_width': original_width,
+            'original_height': original_height,
+            'extraction_method': 'OpenCV'
+        }
+        
+    except Exception as e:
+        logger.error(f"Error extracting frame: {e}")
+        return None
+        
+    finally:
+        if cap is not None:
+            cap.release()
+            logger.info("VideoCapture released")
+
 def lambda_handler(event, context):
     """Main Lambda handler function - DIRECT RTSP SDP ANALYSIS with automatic authentication detection."""
     try:
@@ -1006,9 +1136,21 @@ def lambda_handler(event, context):
                 # Extract detailed characteristics from SDP content with authentication method
                 characteristics = extract_detailed_characteristics_from_sdp(sdp_content, stream_info, auth_method)
                 
-                # Add frame capture warning if requested but not available
+                # Handle frame capture if requested
                 if capture_frame:
-                    characteristics['diagnostics']['warnings'].append('Frame capture not available - OpenCV not installed')
+                    if OPENCV_AVAILABLE:
+                        logger.info("Frame capture requested - attempting to extract frame using OpenCV")
+                        frame_data = extract_frame_from_rtsp(rtsp_url, timeout=30, max_width=640)
+                        
+                        if frame_data:
+                            characteristics['frame_capture'] = frame_data
+                            logger.info(f"Frame capture successful: {frame_data['width']}x{frame_data['height']} using {frame_data.get('extraction_method', 'unknown method')}")
+                        else:
+                            characteristics['diagnostics']['warnings'].append('Frame capture failed - could not extract frame from stream')
+                            logger.warning("Frame capture failed")
+                    else:
+                        characteristics['diagnostics']['warnings'].append('Frame capture not available - OpenCV not installed')
+                        logger.warning("Frame capture requested but OpenCV not available")
                 
                 response_data = {
                     'rtsp_url': rtsp_url,
