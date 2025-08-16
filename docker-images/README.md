@@ -5,11 +5,17 @@ Run the container:
 docker run --rm -u 0 -it -v "$PWD":/work -w /work kvs-dlstreamer:v1 /bin/bash
 
 
-
-
 Use the intel/dlstreamer image from scratch:
 
+Create a file named `set-aws-env` under the work directory mounted by the image and set your environment variables:
+```
+export AWS_DEFAULT_REGION=us-east-1
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
+```
+
 docker run --rm -u 0 -it -v "$PWD":/work -w /work intel/dlstreamer:v1 /bin/bash
+
 
 Then, within the container instance:
 ```
