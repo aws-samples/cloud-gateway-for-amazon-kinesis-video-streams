@@ -1,5 +1,6 @@
+# syntax=docker/dockerfile:1.4
 # Use the official AWS Lambda Python 3.11 base image
-FROM public.ecr.aws/lambda/python:3.11
+FROM --platform=linux/amd64 public.ecr.aws/lambda/python:3.11
 
 # Install system dependencies for OpenCV
 RUN yum update -y && \

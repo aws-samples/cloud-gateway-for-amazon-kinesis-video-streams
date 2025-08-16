@@ -1,9 +1,24 @@
 # Build a Cloud Gateway to Ingest RTSP video to Amazon Kinesis Video Streams
 
- 
-Kinesis Video Streams is a managed service that makes it easy for customers to securely send video data from camera devices to the cloud. Kinesis Video Streams provides you SDKs to make it easy to securely stream media to AWS, including a GStreamer plugin called kvssink. GStreamer is a popular open-source media framework that allows you to create custom media pipelines to greatly simplify integration with a multitude of cameras and video sources. This repository focuses on building a cloud based gateway for customers that are unable to deploy new hardware on-premises, such as an NVR. The same type of approach could be used to implement the secure streaming of media from existing on-prem NVRs.
+Kinesis Video Streams is a managed service that makes it easy for customers to securely send video data from camera devices to the cloud. Kinesis Video Streams provides you SDKs to make it easy to securely stream media to AWS, including a GStreamer plugin called kvssink. GStreamer is a popular open-source media framework that allows you to create custom media pipelines to greatly simplify integration with a multitude of cameras and video sources. 
+
+This repository provides **two complementary solutions** for customers who are unable to deploy new hardware on-premises:
+
+## 🚀 **NEW: Serverless Pipeline Generator with OpenCV Frame Extraction**
+
+A fully serverless solution that analyzes RTSP streams and generates optimized GStreamer pipelines using AI. Features include:
+
+- **🔍 RTSP Stream Analysis**: Automatic codec detection, authentication handling, and stream characteristics analysis
+- **🖼️ OpenCV Frame Extraction**: Real-time frame capture and analysis from RTSP streams using OpenCV in AWS Lambda
+- **🤖 AI-Powered Pipeline Generation**: Uses Amazon Bedrock agents to generate optimized GStreamer pipelines
+- **⚡ Serverless Architecture**: No infrastructure management required
+
+**Quick Start**: See [`cdk-pipeline-generator/README.md`](./cdk-pipeline-generator/README.md) for deployment instructions.
+
+## 🏗️ **Original: Fargate-based Cloud Gateway**
+
 Overview
-The architecture diagram below depicts the resources that this solution will deploy into your account. 
+The architecture diagram below depicts the Fargate-based gateway resources that this solution can deploy into your account. 
 
 
 ![Figure1: Architecture](./.github/images/Kinesis-CloudGateway-Architecture.png) 

@@ -30,8 +30,42 @@ if OPENCV_AVAILABLE:
 else:
     logger.warning("⚠️ OpenCV not available - frame extraction disabled")
 
-# Initialize Bedrock client
-bedrock_agent_runtime = boto3.client('bedrock-agent-runtime')
+def categorize_socket_error(error, host, port):
+    """Categorize socket errors and return appropriate RTSPError"""
+    error_str = str(error).lower()
+    
+    if "connection refused" in error_str:
+        return RTSPError(f"Connection refused to {host}:{port}",
+                        "The RTSP server is not running or not accepting connections on this port.")
+    elif "timeout" in error_str or "timed out" in error_str:
+        return RTSPError(f"Connection timeout to {host}:{port}",
+                        "The RTSP server is not responding. Check if the server is running and accessible.")
+    elif "name or service not known" in error_str or "nodename nor servname provided" in error_str:
+        return RTSPError(f"Cannot resolve hostname: {host}",
+                        "The hostname cannot be resolved. Check the RTSP URL and network connectivity.")
+    elif "network is unreachable" in error_str:
+        return RTSPError(f"Network unreachable to {host}:{port}",
+                        "Cannot reach the network. Check network connectivity and firewall settings.")
+    else:
+        return RTSPError(f"Connection error to {host}:{port}: {error}",
+                        "Check the RTSP URL, network connectivity, and server availability.")
+
+# Custom exception for RTSP errors
+class RTSPError(Exception):
+    """Custom exception for RTSP-related errors"""
+    pass
+
+class ProtocolError(Exception):
+    """Custom exception for protocol-related errors"""
+    def __init__(self, message, suggestion=None):
+        super().__init__(message)
+        self.suggestion = suggestion
+
+# Initialize Bedrock client with region (moved to function level to avoid startup issues)
+def get_bedrock_client():
+    """Get Bedrock client with proper region configuration"""
+    region = os.environ.get('AWS_REGION', 'us-east-1')
+    return boto3.client('bedrock-agent-runtime', region_name=region)
 
 def parse_rtsp_url(rtsp_url: str) -> Tuple[str, int, str, str, str, str]:
     """Parse RTSP URL to extract components"""
@@ -787,6 +821,7 @@ IMPORTANT: This is REAL stream data extracted from SDP using automatic authentic
 Return the response in JSON format with the pipeline string and explanation.
 """
 
+        bedrock_agent_runtime = get_bedrock_client()
         response = bedrock_agent_runtime.invoke_agent(
             agentId=agent_id,
             agentAliasId=agent_alias_id,
