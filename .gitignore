@@ -10,6 +10,7 @@ cdk-pipeline-generator/*.js
 cdk-pipeline-generator/*.js.map
 cdk-pipeline-generator/*.d.ts
 cdk-pipeline-generator/.env
+cdk-pipeline-generator/cdk.context.json
 
 # Python artifacts
 __pycache__/
