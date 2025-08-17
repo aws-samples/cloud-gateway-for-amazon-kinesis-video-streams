@@ -1026,9 +1026,93 @@ def extract_detailed_characteristics_from_sdp(sdp_content: str, stream_info: Dic
         
     return characteristics
 
+def parse_sdp_for_opencv_config(sdp_content: str) -> Dict[str, Any]:
+    """
+    Parse SDP content to extract codec and configuration information for OpenCV
+    
+    Args:
+        sdp_content: Raw SDP content
+        
+    Returns:
+        Dictionary with codec configuration for OpenCV
+    """
+    config = {
+        'codec': None,
+        'fourcc': None,
+        'profile_level_id': None,
+        'framerate': None,
+        'width': None,
+        'height': None,
+        'rtp_payload': None,
+        'packetization_mode': None,
+        'backend_preference': []
+    }
+    
+    try:
+        lines = sdp_content.strip().split('\n')
+        
+        for line in lines:
+            line = line.strip()
+            
+            # Parse RTP map for codec information
+            if line.startswith('a=rtpmap:'):
+                # Example: a=rtpmap:97 H264/90000 or a=rtpmap:96 H265/90000
+                parts = line.split(' ')
+                if len(parts) >= 2:
+                    payload_codec = parts[1].split('/')
+                    config['rtp_payload'] = parts[0].split(':')[1]
+                    if len(payload_codec) >= 1:
+                        codec_name = payload_codec[0].upper()
+                        config['codec'] = codec_name
+                        
+                        # Set appropriate FOURCC and backend preferences
+                        if codec_name == 'H264':
+                            config['fourcc'] = cv2.VideoWriter_fourcc('H', '2', '6', '4')
+                            config['backend_preference'] = [cv2.CAP_FFMPEG, cv2.CAP_ANY]
+                        elif codec_name == 'H265' or codec_name == 'HEVC':
+                            config['fourcc'] = cv2.VideoWriter_fourcc('H', 'E', 'V', 'C')
+                            config['backend_preference'] = [cv2.CAP_FFMPEG, cv2.CAP_ANY]
+                        elif codec_name.startswith('VP'):
+                            config['fourcc'] = cv2.VideoWriter_fourcc('V', 'P', '8', '0') if codec_name == 'VP8' else cv2.VideoWriter_fourcc('V', 'P', '9', '0')
+                            config['backend_preference'] = [cv2.CAP_FFMPEG, cv2.CAP_ANY]
+            
+            # Parse format parameters for detailed codec configuration
+            elif line.startswith('a=fmtp:'):
+                # Example: a=fmtp:97 packetization-mode=1;profile-level-id=4D4028;sprop-parameter-sets=...
+                if 'profile-level-id=' in line:
+                    profile_match = line.split('profile-level-id=')[1].split(';')[0]
+                    config['profile_level_id'] = profile_match
+                
+                if 'packetization-mode=' in line:
+                    pack_mode = line.split('packetization-mode=')[1].split(';')[0]
+                    config['packetization_mode'] = int(pack_mode)
+            
+            # Parse frame size
+            elif line.startswith('a=framesize:'):
+                # Example: a=framesize:97 864-480
+                parts = line.split(' ')
+                if len(parts) >= 2:
+                    dimensions = parts[1].split('-')
+                    if len(dimensions) == 2:
+                        config['width'] = int(dimensions[0])
+                        config['height'] = int(dimensions[1])
+            
+            # Parse framerate
+            elif line.startswith('a=framerate:'):
+                # Example: a=framerate:29.97002997002997 or a=framerate:25.000
+                framerate_str = line.split(':')[1]
+                config['framerate'] = float(framerate_str)
+        
+        logger.info(f"Parsed SDP config: codec={config['codec']}, {config['width']}x{config['height']}, {config['framerate']}fps")
+        return config
+        
+    except Exception as e:
+        logger.warning(f"Error parsing SDP for OpenCV config: {e}")
+        return config
+
 def extract_frame_from_rtsp(rtsp_url: str, timeout: int = 30, max_width: int = 640) -> Optional[Dict[str, Any]]:
     """
-    Extract a single frame from RTSP stream using OpenCV
+    Extract a single frame from RTSP stream using SDP-informed OpenCV configuration
     
     Args:
         rtsp_url: RTSP stream URL with authentication
@@ -1037,108 +1121,152 @@ def extract_frame_from_rtsp(rtsp_url: str, timeout: int = 30, max_width: int = 6
     
     Returns:
         Dictionary with frame data or None if extraction fails
-        {
-            'frame_data': 'base64-encoded JPEG data',
-            'width': int,
-            'height': int,
-            'format': 'JPEG',
-            'size_bytes': int,
-            'capture_time_ms': float
-        }
     """
     if not OPENCV_AVAILABLE:
         logger.error("OpenCV not available - cannot extract frame")
         return None
     
     start_time = time.time()
-    cap = None
     
+    # First, get SDP information to configure OpenCV properly
+    logger.info("Getting SDP information to configure OpenCV for frame extraction")
     try:
-        logger.info(f"Attempting to extract frame from RTSP stream using OpenCV (timeout: {timeout}s)")
-        
-        # Create VideoCapture object with RTSP URL
-        cap = cv2.VideoCapture(rtsp_url)
-        
-        # Set timeout properties (in milliseconds)
-        cap.set(cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, timeout * 1000)
-        cap.set(cv2.CAP_PROP_READ_TIMEOUT_MSEC, timeout * 1000)
-        
-        # Set buffer size to 1 to get the latest frame
-        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-        
-        if not cap.isOpened():
-            logger.error("Failed to open RTSP stream with OpenCV")
-            return None
-        
-        logger.info("RTSP stream opened successfully with OpenCV")
-        
-        # Try to read a frame (may take a few attempts)
-        frame = None
-        max_attempts = 5
-        
-        for attempt in range(max_attempts):
-            ret, frame = cap.read()
-            if ret and frame is not None:
-                logger.info(f"Frame captured successfully on attempt {attempt + 1}")
-                break
-            else:
-                logger.warning(f"Frame capture attempt {attempt + 1} failed, retrying...")
-                time.sleep(0.5)
-        
-        if frame is None:
-            logger.error("Failed to capture frame after all attempts")
-            return None
-        
-        # Get original dimensions
-        original_height, original_width = frame.shape[:2]
-        logger.info(f"Original frame dimensions: {original_width}x{original_height}")
-        
-        # Resize frame if it's too large (maintain aspect ratio)
-        if original_width > max_width:
-            aspect_ratio = original_height / original_width
-            new_width = max_width
-            new_height = int(max_width * aspect_ratio)
-            frame = cv2.resize(frame, (new_width, new_height), interpolation=cv2.INTER_AREA)
-            logger.info(f"Frame resized to: {new_width}x{new_height}")
+        sdp_content = extract_sdp_from_rtsp_url(rtsp_url, timeout=10)
+        if not sdp_content:
+            logger.warning("Could not get SDP content, using default OpenCV configuration")
+            opencv_config = {'backend_preference': [cv2.CAP_FFMPEG, cv2.CAP_ANY]}
         else:
-            new_width, new_height = original_width, original_height
-        
-        # Encode frame as JPEG
-        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]  # 85% quality
-        ret, buffer = cv2.imencode('.jpg', frame, encode_param)
-        
-        if not ret:
-            logger.error("Failed to encode frame as JPEG")
-            return None
-        
-        # Convert to base64
-        frame_base64 = base64.b64encode(buffer).decode('utf-8')
-        frame_size = len(buffer)
-        
-        capture_time = (time.time() - start_time) * 1000  # Convert to milliseconds
-        
-        logger.info(f"Frame extracted successfully: {new_width}x{new_height}, {frame_size} bytes, {capture_time:.1f}ms")
-        
-        return {
-            'frame_data': frame_base64,
-            'width': new_width,
-            'height': new_height,
-            'format': 'JPEG',
-            'size_bytes': frame_size,
-            'capture_time_ms': round(capture_time, 1),
-            'original_width': original_width,
-            'original_height': original_height,
-            'extraction_method': 'OpenCV'
-        }
-        
+            opencv_config = parse_sdp_for_opencv_config(sdp_content)
     except Exception as e:
-        logger.error(f"Error extracting frame: {e}")
-        return None
+        logger.warning(f"Error getting SDP for OpenCV config: {e}, using defaults")
+        opencv_config = {'backend_preference': [cv2.CAP_FFMPEG, cv2.CAP_ANY]}
+    
+    # Use SDP-informed backend preferences, fallback to defaults if not available
+    backends_to_try = opencv_config.get('backend_preference', [cv2.CAP_FFMPEG, cv2.CAP_ANY])
+    backend_names = {
+        cv2.CAP_FFMPEG: "FFmpeg",
+        cv2.CAP_ANY: "Any Available"
+    }
+    
+    for backend in backends_to_try:
+        backend_name = backend_names.get(backend, f"Backend-{backend}")
+        logger.info(f"Attempting frame extraction using {backend_name} backend for {opencv_config.get('codec', 'unknown')} codec")
         
-    finally:
-        if cap is not None:
-            cap.release()
-            logger.info("VideoCapture released")
+        cap = None
+        try:
+            # Create VideoCapture object with SDP-informed backend
+            cap = cv2.VideoCapture(rtsp_url, backend)
+            
+            # Set timeout properties
+            cap.set(cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, timeout * 1000)
+            cap.set(cv2.CAP_PROP_READ_TIMEOUT_MSEC, timeout * 1000)
+            cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Minimal buffer for latest frame
+            
+            # Apply SDP-informed codec configuration if available
+            if opencv_config.get('fourcc'):
+                cap.set(cv2.CAP_PROP_FOURCC, opencv_config['fourcc'])
+                logger.info(f"Set FOURCC for {opencv_config['codec']} codec")
+            
+            # Set expected frame rate if known from SDP
+            if opencv_config.get('framerate'):
+                cap.set(cv2.CAP_PROP_FPS, opencv_config['framerate'])
+                logger.info(f"Set expected framerate to {opencv_config['framerate']} fps")
+            
+            # Set expected frame size if known from SDP
+            if opencv_config.get('width') and opencv_config.get('height'):
+                cap.set(cv2.CAP_PROP_FRAME_WIDTH, opencv_config['width'])
+                cap.set(cv2.CAP_PROP_FRAME_HEIGHT, opencv_config['height'])
+                logger.info(f"Set expected frame size to {opencv_config['width']}x{opencv_config['height']}")
+            
+            if not cap.isOpened():
+                logger.warning(f"Failed to open RTSP stream with {backend_name} backend")
+                continue
+            
+            logger.info(f"RTSP stream opened successfully with {backend_name} backend")
+            
+            # Try to read a frame with adaptive retry strategy based on codec
+            frame = None
+            # More attempts for H.264 streams which can be more challenging
+            max_attempts = 15 if opencv_config.get('codec') == 'H264' else 10
+            
+            for attempt in range(max_attempts):
+                ret, frame = cap.read()
+                if ret and frame is not None and frame.size > 0:
+                    logger.info(f"Frame captured successfully on attempt {attempt + 1} using {backend_name}")
+                    break
+                else:
+                    logger.debug(f"Frame capture attempt {attempt + 1} failed with {backend_name}, retrying...")
+                    # Progressive wait times, longer for H.264
+                    base_wait = 0.2 if opencv_config.get('codec') == 'H264' else 0.1
+                    wait_time = min(base_wait * (attempt + 1), 2.0)
+                    time.sleep(wait_time)
+            
+            if frame is None or frame.size == 0:
+                logger.warning(f"Failed to capture valid frame with {backend_name} after {max_attempts} attempts")
+                continue
+            
+            # Validate frame dimensions
+            original_height, original_width = frame.shape[:2]
+            logger.info(f"Captured frame dimensions: {original_width}x{original_height}")
+            
+            # Verify dimensions match SDP expectations (with tolerance)
+            if opencv_config.get('width') and opencv_config.get('height'):
+                expected_w, expected_h = opencv_config['width'], opencv_config['height']
+                if abs(original_width - expected_w) > 10 or abs(original_height - expected_h) > 10:
+                    logger.warning(f"Frame dimensions {original_width}x{original_height} don't match SDP {expected_w}x{expected_h}")
+            
+            if original_width <= 0 or original_height <= 0:
+                logger.warning(f"Invalid frame dimensions: {original_width}x{original_height}")
+                continue
+            
+            # Resize frame if it's too large (maintain aspect ratio)
+            if original_width > max_width:
+                aspect_ratio = original_height / original_width
+                new_width = max_width
+                new_height = int(max_width * aspect_ratio)
+                frame = cv2.resize(frame, (new_width, new_height), interpolation=cv2.INTER_AREA)
+                logger.info(f"Frame resized to: {new_width}x{new_height}")
+            else:
+                new_width, new_height = original_width, original_height
+            
+            # Encode frame as JPEG with high quality
+            encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+            ret, buffer = cv2.imencode('.jpg', frame, encode_param)
+            
+            if not ret:
+                logger.warning(f"Failed to encode frame as JPEG with {backend_name}")
+                continue
+            
+            # Convert to base64
+            frame_base64 = base64.b64encode(buffer).decode('utf-8')
+            frame_size = len(buffer)
+            
+            capture_time = (time.time() - start_time) * 1000  # Convert to milliseconds
+            
+            logger.info(f"Frame extracted successfully using {backend_name}: {new_width}x{new_height}, {frame_size} bytes, {capture_time:.1f}ms")
+            
+            return {
+                'frame_data': frame_base64,
+                'width': new_width,
+                'height': new_height,
+                'format': 'JPEG',
+                'size_bytes': frame_size,
+                'capture_time_ms': round(capture_time, 1),
+                'original_width': original_width,
+                'original_height': original_height,
+                'extraction_method': f'OpenCV-{backend_name}-{opencv_config.get("codec", "Unknown")}'
+            }
+            
+        except Exception as e:
+            logger.warning(f"Error with {backend_name} backend: {e}")
+            continue
+            
+        finally:
+            if cap is not None:
+                cap.release()
+    
+    logger.error("All frame extraction methods failed")
+    return None
 
 def lambda_handler(event, context):
     """Main Lambda handler function - DIRECT RTSP SDP ANALYSIS with automatic authentication detection."""

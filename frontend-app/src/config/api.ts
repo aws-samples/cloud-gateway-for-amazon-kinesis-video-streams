@@ -46,6 +46,7 @@ export interface StreamCharacteristics {
     warnings?: string[];
     info?: string[];
   };
+  raw_sdp?: string;
 }
 
 export interface APIResponse {

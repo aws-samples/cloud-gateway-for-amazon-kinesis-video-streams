@@ -92,21 +92,40 @@ const RTSPStreamTester: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const payload: RTSPTestRequest = {
+      // First, get stream characteristics with frame capture
+      const characteristicsPayload: RTSPTestRequest = {
         rtsp_url: formData.rtspUrl,
         mode: 'characteristics',
         capture_frame: formData.captureFrame
       };
 
-      console.log('🚀 Testing RTSP stream:', payload);
-      const data = await apiUtils.makeRequest(payload);
-      console.log('✅ API Response:', data);
+      console.log('🚀 Testing RTSP stream characteristics:', characteristicsPayload);
+      const characteristicsData = await apiUtils.makeRequest(characteristicsPayload);
+      console.log('✅ Characteristics Response:', characteristicsData);
+
+      // Then, get the pipeline recommendation
+      const pipelinePayload: RTSPTestRequest = {
+        rtsp_url: formData.rtspUrl,
+        mode: 'pipeline',
+        capture_frame: false
+      };
+
+      console.log('🔧 Getting pipeline recommendation:', pipelinePayload);
+      const pipelineData = await apiUtils.makeRequest(pipelinePayload);
+      console.log('✅ Pipeline Response:', pipelineData);
+
+      // Combine both responses
+      const combinedData = {
+        ...characteristicsData,
+        generated_pipeline: pipelineData.generated_pipeline,
+        stream_analysis: pipelineData.stream_analysis
+      };
       
-      setTestResult(data);
+      setTestResult(combinedData);
 
       // If frame capture was successful, create preview image
-      if (data.stream_characteristics?.frame_capture?.frame_data) {
-        const frameData = data.stream_characteristics.frame_capture.frame_data;
+      if (characteristicsData.stream_characteristics?.frame_capture?.frame_data) {
+        const frameData = characteristicsData.stream_characteristics.frame_capture.frame_data;
         setPreviewImage(frameData); // Store just the base64 data
         console.log('📸 Frame extracted successfully');
       }
@@ -138,6 +157,37 @@ const RTSPStreamTester: React.FC = () => {
             </View>
           </Flex>
         </Alert>
+        
+        {/* Diagnostics */}
+        {testResult?.stream_characteristics && (() => {
+          const { diagnostics } = testResult.stream_characteristics;
+          return diagnostics && (diagnostics.warnings?.length || diagnostics.info?.length) && (
+            <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
+              <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
+                <Text style={{ fontSize: 'large' }}>🔍</Text>
+                <Heading level={5} style={{ margin: 0 }}>Diagnostics</Heading>
+              </Flex>
+              {diagnostics.warnings && diagnostics.warnings.length > 0 && (
+                <View style={{ marginBottom: 'var(--amplify-space-small)' }}>
+                  {diagnostics.warnings.map((warning, index) => (
+                    <Alert key={index} variation="warning" style={{ marginBottom: 'var(--amplify-space-xs)' }}>
+                      <Text style={{ fontSize: 'small' }}>{warning}</Text>
+                    </Alert>
+                  ))}
+                </View>
+              )}
+              {diagnostics.info && diagnostics.info.length > 0 && (
+                <View>
+                  {diagnostics.info.map((info, index) => (
+                    <Alert key={index} variation="info" style={{ marginBottom: 'var(--amplify-space-xs)' }}>
+                      <Text style={{ fontSize: 'small' }}>{info}</Text>
+                    </Alert>
+                  ))}
+                </View>
+              )}
+            </Card>
+          );
+        })()}
         
         {/* Captured Frame Preview */}
         {previewImage && (
@@ -217,9 +267,21 @@ const RTSPStreamTester: React.FC = () => {
                 {(() => {
                   try {
                     const pipeline = JSON.parse(testResult.generated_pipeline);
-                    return pipeline.pipeline || testResult.generated_pipeline;
+                    const pipelineText = pipeline.pipeline || testResult.generated_pipeline;
+                    
+                    // Format as multiline bash command
+                    return pipelineText
+                      .replace(/gst-launch-1\.0\s+/, 'gst-launch-1.0 \\\n  ')
+                      .replace(/\s+!\s+/g, ' \\\n  ! ')
+                      .replace(/\s+rtpmp4adepay/g, ' \\\n  rtpmp4adepay')
+                      .replace(/\s+kvssink/g, ' \\\n  kvssink');
                   } catch {
-                    return testResult.generated_pipeline;
+                    // If not JSON, format the raw pipeline text
+                    return testResult.generated_pipeline
+                      .replace(/gst-launch-1\.0\s+/, 'gst-launch-1.0 \\\n  ')
+                      .replace(/\s+!\s+/g, ' \\\n  ! ')
+                      .replace(/\s+rtpmp4adepay/g, ' \\\n  rtpmp4adepay')
+                      .replace(/\s+kvssink/g, ' \\\n  kvssink');
                   }
                 })()}
               </Text>
@@ -326,36 +388,8 @@ const RTSPStreamTester: React.FC = () => {
           </Card>
         )}
 
-        {/* Diagnostics */}
-        {diagnostics && (diagnostics.warnings?.length || diagnostics.info?.length) && (
-          <Card style={{ padding: 'var(--amplify-space-medium)' }}>
-            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
-              <Text style={{ fontSize: 'large' }}>🔍</Text>
-              <Heading level={5} style={{ margin: 0 }}>Diagnostics</Heading>
-            </Flex>
-            {diagnostics.warnings && diagnostics.warnings.length > 0 && (
-              <View style={{ marginBottom: 'var(--amplify-space-small)' }}>
-                {diagnostics.warnings.map((warning, index) => (
-                  <Alert key={index} variation="warning" style={{ marginBottom: 'var(--amplify-space-xs)' }}>
-                    <Text style={{ fontSize: 'small' }}>{warning}</Text>
-                  </Alert>
-                ))}
-              </View>
-            )}
-            {diagnostics.info && diagnostics.info.length > 0 && (
-              <View>
-                {diagnostics.info.map((info, index) => (
-                  <Alert key={index} variation="info" style={{ marginBottom: 'var(--amplify-space-xs)' }}>
-                    <Text style={{ fontSize: 'small' }}>{info}</Text>
-                  </Alert>
-                ))}
-              </View>
-            )}
-          </Card>
-        )}
-
         {/* SDP Contents */}
-        {testResult?.stream_analysis?.rtsp_analysis?.sdp_content && (
+        {testResult?.stream_characteristics?.raw_sdp && (
           <Card style={{ padding: 'var(--amplify-space-medium)' }}>
             <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
               <Text style={{ fontSize: 'large' }}>📄</Text>
@@ -376,7 +410,7 @@ const RTSPStreamTester: React.FC = () => {
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-all'
               }}>
-                {testResult.stream_analysis.rtsp_analysis.sdp_content}
+                {testResult.stream_characteristics.raw_sdp}
               </Text>
             </View>
             <Text style={{ fontSize: 'small', color: 'gray' }}>

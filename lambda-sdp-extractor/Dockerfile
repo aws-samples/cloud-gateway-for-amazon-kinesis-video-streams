@@ -2,7 +2,7 @@
 # Use the official AWS Lambda Python 3.11 base image
 FROM --platform=linux/amd64 public.ecr.aws/lambda/python:3.11
 
-# Install system dependencies for OpenCV
+# Install system dependencies for OpenCV with better codec support
 RUN yum update -y && \
     yum install -y \
     mesa-libGL \
@@ -12,6 +12,9 @@ RUN yum update -y && \
     libXrender \
     libgomp \
     && yum clean all
+
+# Set environment variables for better OpenCV performance
+ENV OPENCV_FFMPEG_CAPTURE_OPTIONS="rtsp_transport;tcp"
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt ${LAMBDA_TASK_ROOT}/

@@ -1,0 +1,18 @@
+services:
+  rtsp-server:
+    build: .
+    container_name: gstreamer-rtsp-server
+    ports:
+      - "8554:8554"  # Open (No Auth)
+      - "8555:8555"  # Basic Auth (testuser:testpass)
+      - "8556:8556"  # Digest Auth (digestuser:digestpass)
+      - "8322:8322"  # RTSPS/TLS (adminuser:adminpass123)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python3.*rtsp-server.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      - GST_DEBUG=2
