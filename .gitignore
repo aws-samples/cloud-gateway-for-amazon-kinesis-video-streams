@@ -6,9 +6,9 @@ docker-images/intel/
 cdk-pipeline-generator/node_modules/
 cdk-pipeline-generator/cdk.out/
 cdk-pipeline-generator/dist/
-cdk-pipeline-generator/*.js
-cdk-pipeline-generator/*.js.map
-cdk-pipeline-generator/*.d.ts
+cdk-pipeline-generator/**/*.js
+cdk-pipeline-generator/**/*.js.map
+cdk-pipeline-generator/**/*.d.ts
 cdk-pipeline-generator/.env
 cdk-pipeline-generator/cdk.context.json
 
@@ -65,6 +65,7 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+*.backup
 .cache/
 
 # AWS credentials (should never be committed)
