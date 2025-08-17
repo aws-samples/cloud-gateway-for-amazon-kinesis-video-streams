@@ -123,7 +123,7 @@ const RTSPStreamTester: React.FC = () => {
   };
 
   const renderStreamInfo = (characteristics: StreamCharacteristics) => {
-    const { video, audio, connection, frame_capture, diagnostics } = characteristics;
+    const { video, audio, connection, diagnostics } = characteristics;
 
     return (
       <View>
@@ -191,6 +191,42 @@ const RTSPStreamTester: React.FC = () => {
                 </Text>
               </Flex>
             )}
+          </Card>
+        )}
+        
+        {/* Recommended GStreamer Pipeline */}
+        {testResult?.generated_pipeline && (
+          <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
+            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
+              <Text style={{ fontSize: 'large' }}>🔧</Text>
+              <Heading level={5} style={{ margin: 0 }}>Recommended GStreamer Pipeline</Heading>
+            </Flex>
+            <View style={{ 
+              backgroundColor: 'var(--amplify-colors-background-secondary)',
+              padding: 'var(--amplify-space-medium)',
+              borderRadius: '8px',
+              border: '1px solid var(--amplify-colors-border-primary)',
+              marginBottom: 'var(--amplify-space-small)'
+            }}>
+              <Text style={{ 
+                fontFamily: 'monospace',
+                fontSize: 'small',
+                wordBreak: 'break-all',
+                whiteSpace: 'pre-wrap'
+              }}>
+                {(() => {
+                  try {
+                    const pipeline = JSON.parse(testResult.generated_pipeline);
+                    return pipeline.pipeline || testResult.generated_pipeline;
+                  } catch {
+                    return testResult.generated_pipeline;
+                  }
+                })()}
+              </Text>
+            </View>
+            <Text style={{ fontSize: 'small', color: 'gray' }}>
+              Copy this pipeline to use with GStreamer for streaming to Kinesis Video Streams
+            </Text>
           </Card>
         )}
         
@@ -315,6 +351,37 @@ const RTSPStreamTester: React.FC = () => {
                 ))}
               </View>
             )}
+          </Card>
+        )}
+
+        {/* SDP Contents */}
+        {testResult?.stream_analysis?.rtsp_analysis?.sdp_content && (
+          <Card style={{ padding: 'var(--amplify-space-medium)' }}>
+            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
+              <Text style={{ fontSize: 'large' }}>📄</Text>
+              <Heading level={5} style={{ margin: 0 }}>SDP Contents</Heading>
+            </Flex>
+            <View style={{ 
+              backgroundColor: 'var(--amplify-colors-background-secondary)',
+              padding: 'var(--amplify-space-medium)',
+              borderRadius: '8px',
+              border: '1px solid var(--amplify-colors-border-primary)',
+              maxHeight: '300px',
+              overflow: 'auto',
+              marginBottom: 'var(--amplify-space-small)'
+            }}>
+              <Text style={{ 
+                fontFamily: 'monospace',
+                fontSize: 'small',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all'
+              }}>
+                {testResult.stream_analysis.rtsp_analysis.sdp_content}
+              </Text>
+            </View>
+            <Text style={{ fontSize: 'small', color: 'gray' }}>
+              Raw Session Description Protocol (SDP) data from the RTSP stream
+            </Text>
           </Card>
         )}
       </View>
