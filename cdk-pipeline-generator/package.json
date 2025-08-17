@@ -9,8 +9,11 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy": "cdk deploy",
-    "destroy": "cdk destroy"
+    "deploy": "DOCKER_BUILDKIT=0 cdk deploy --profile malone-aws --require-approval never",
+    "deploy:dev": "DOCKER_BUILDKIT=0 cdk deploy --profile malone-aws",
+    "destroy": "cdk destroy --profile malone-aws",
+    "synth": "DOCKER_BUILDKIT=0 cdk synth --profile malone-aws",
+    "diff": "DOCKER_BUILDKIT=0 cdk diff --profile malone-aws"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",

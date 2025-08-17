@@ -56,17 +56,39 @@ npm install
 ```
 
 ### 2. Deploy the Stack
+
+**⚠️ IMPORTANT: Always use `DOCKER_BUILDKIT=0` for Lambda container compatibility**
+
+Choose one of these deployment methods:
+
+#### Method 1: Using the Deploy Script (Recommended)
+```bash
+./deploy.sh
+```
+
+#### Method 2: Using npm Scripts
+```bash
+npm run deploy        # Auto-deploy without approval
+npm run deploy:dev    # Deploy with approval prompts
+```
+
+#### Method 3: Manual CDK Command
 ```bash
 # IMPORTANT: Set Docker to use legacy builder for Lambda compatibility
 # This is required to avoid multi-platform manifest issues with AWS Lambda
 export DOCKER_BUILDKIT=0
 
 # Deploy with your AWS profile
-AWS_PROFILE=your-profile cdk deploy --require-approval never
+AWS_PROFILE=malone-aws cdk deploy --require-approval never
 
 # Alternative one-liner:
-DOCKER_BUILDKIT=0 AWS_PROFILE=your-profile cdk deploy --require-approval never
+DOCKER_BUILDKIT=0 AWS_PROFILE=malone-aws cdk deploy --require-approval never
 ```
+
+**Why DOCKER_BUILDKIT=0 is Required:**
+- AWS Lambda requires specific container image formats
+- The new Docker BuildKit creates multi-platform manifests that Lambda doesn't support
+- The legacy builder ensures compatibility with AWS Lambda container runtime
 
 ### 3. Note the Outputs
 The deployment will output:
