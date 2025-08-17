@@ -35,16 +35,21 @@ RUN echo "testuser:testpass" > /etc/rtsp-server/auth/basic.txt && \
     echo "digestuser:digestpass" > /etc/rtsp-server/auth/digest.txt && \
     echo "adminuser:adminpass123" > /etc/rtsp-server/auth/admin.txt
 
-# Copy our Python RTSP server script
+# Copy our Python RTSP server scripts
 COPY rtsp-server.py /rtsp-server.py
-RUN chmod +x /rtsp-server.py
+COPY rtsp-server-enhanced.py /rtsp-server-enhanced.py
+COPY rtsp-server-comprehensive.py /rtsp-server-comprehensive.py
+COPY rtsp-server-comprehensive-fixed.py /rtsp-server-comprehensive-fixed.py
+COPY rtsp-server-all-codecs.py /rtsp-server-all-codecs.py
+COPY rtsp-server-streamlined.py /rtsp-server-streamlined.py
+RUN chmod +x /rtsp-server.py /rtsp-server-enhanced.py /rtsp-server-comprehensive.py /rtsp-server-comprehensive-fixed.py /rtsp-server-all-codecs.py /rtsp-server-streamlined.py
 
 # Expose RTSP ports (standard and secure)
 EXPOSE 8554 8555 8556 8557 8558 8559 8322
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD pgrep -f "python3.*rtsp-server.py" || exit 1
+  CMD pgrep -f "python3.*rtsp-server" || exit 1
 
-# Run our RTSP server
-CMD ["python3", "/rtsp-server.py"]
+# Run our streamlined RTSP server by default
+CMD ["python3", "/rtsp-server-streamlined.py"]
