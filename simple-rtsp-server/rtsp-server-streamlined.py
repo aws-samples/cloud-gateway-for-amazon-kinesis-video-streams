@@ -276,14 +276,14 @@ class StreamlinedRTSPTestServer:
             bitrate = self.calculate_theora_bitrate(width, height, framerate)
             video_pipeline += f"theoraenc bitrate={bitrate} ! {payloader} name=pay0 pt={pt}"
         elif codec in ['vp8', 'vp9']:
-            # VP8/VP9 optimized for real-time streaming
+            # VP8/VP9 optimized for real-time streaming - CONSERVATIVE APPROACH
             bitrate = getattr(self, f'calculate_{codec}_bitrate')(width, height, framerate)
             if codec == 'vp8':
-                # VP8 with speed optimizations for real-time
-                video_pipeline += f"vp8enc target-bitrate={bitrate} deadline=1 cpu-used=16 ! {payloader} name=pay0 pt={pt}"
+                # VP8 with conservative settings that work in RTSP context
+                video_pipeline += f"vp8enc target-bitrate={bitrate} deadline=1 cpu-used=8 threads=2 ! {payloader} name=pay0 pt={pt}"
             else:  # vp9
-                # VP9 with speed optimizations for real-time  
-                video_pipeline += f"vp9enc target-bitrate={bitrate} deadline=1 cpu-used=8 ! {payloader} name=pay0 pt={pt}"
+                # VP9 with speed optimizations for real-time (WORKING CONFIGURATION)
+                video_pipeline += f"vp9enc target-bitrate={bitrate} deadline=1 cpu-used=8 threads=4 ! {payloader} name=pay0 pt={pt}"
         
         # Add audio if specified
         if audio != 'none':
