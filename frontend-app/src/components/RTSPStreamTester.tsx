@@ -290,42 +290,6 @@ const RTSPStreamTester: React.FC = () => {
           </Card>
         )}
 
-        {/* Frame Capture Information */}
-        {frame_capture && (
-          <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
-            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
-              <Text style={{ fontSize: 'large' }}>📸</Text>
-              <Heading level={5} style={{ margin: 0 }}>Frame Capture Results</Heading>
-            </Flex>
-            <Grid style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'var(--amplify-space-small)' }}>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Dimensions</Text>
-                <Text>{frame_capture.width}×{frame_capture.height}</Text>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Format</Text>
-                <Badge size="small">{frame_capture.format}</Badge>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>File Size</Text>
-                <Text>{frame_capture.size_bytes ? apiUtils.formatFileSize(frame_capture.size_bytes) : 'Unknown'}</Text>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Capture Time</Text>
-                <Text>{frame_capture.capture_time_ms ? apiUtils.formatDuration(frame_capture.capture_time_ms) : 'Unknown'}</Text>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Original Size</Text>
-                <Text>{frame_capture.original_width}×{frame_capture.original_height}</Text>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Method</Text>
-                <Badge variation="success" size="small">{frame_capture.extraction_method}</Badge>
-              </View>
-            </Grid>
-          </Card>
-        )}
-
         {/* Diagnostics */}
         {diagnostics && (diagnostics.warnings?.length || diagnostics.info?.length) && (
           <Card style={{ padding: 'var(--amplify-space-medium)' }}>
