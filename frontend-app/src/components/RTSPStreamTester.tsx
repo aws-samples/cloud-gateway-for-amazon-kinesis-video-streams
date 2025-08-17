@@ -107,7 +107,7 @@ const RTSPStreamTester: React.FC = () => {
       // If frame capture was successful, create preview image
       if (data.stream_characteristics?.frame_capture?.frame_data) {
         const frameData = data.stream_characteristics.frame_capture.frame_data;
-        setPreviewImage(`data:image/jpeg;base64,${frameData}`);
+        setPreviewImage(frameData); // Store just the base64 data
         console.log('📸 Frame extracted successfully');
       }
 
@@ -170,6 +170,27 @@ const RTSPStreamTester: React.FC = () => {
             }}>
               Frame extracted from RTSP stream using OpenCV
             </Text>
+            {testResult?.stream_characteristics?.frame_capture && (
+              <Flex style={{ 
+                justifyContent: 'center', 
+                gap: 'var(--amplify-space-large)', 
+                marginTop: 'var(--amplify-space-small)',
+                flexWrap: 'wrap'
+              }}>
+                <Text style={{ fontSize: 'small' }}>
+                  <Text style={{ fontWeight: 'bold' }}>Size:</Text> {apiUtils.formatFileSize(testResult.stream_characteristics.frame_capture.size_bytes || 0)}
+                </Text>
+                <Text style={{ fontSize: 'small' }}>
+                  <Text style={{ fontWeight: 'bold' }}>Time:</Text> {apiUtils.formatDuration(testResult.stream_characteristics.frame_capture.capture_time_ms || 0)}
+                </Text>
+                <Text style={{ fontSize: 'small' }}>
+                  <Text style={{ fontWeight: 'bold' }}>Resolution:</Text> {testResult.stream_characteristics.frame_capture.width}x{testResult.stream_characteristics.frame_capture.height}
+                </Text>
+                <Text style={{ fontSize: 'small' }}>
+                  <Text style={{ fontWeight: 'bold' }}>Original:</Text> {testResult.stream_characteristics.frame_capture.original_width}x{testResult.stream_characteristics.frame_capture.original_height}
+                </Text>
+              </Flex>
+            )}
           </Card>
         )}
         
