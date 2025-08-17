@@ -62,26 +62,62 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
           }}
         >
           <Button 
-            variation={activeTab === 'rtsp-tester' ? 'primary' : 'outlined'}
+            variation={activeTab === 'rtsp-tester' ? 'primary' : 'link'}
             onClick={() => setActiveTab('rtsp-tester')}
+            style={activeTab === 'rtsp-tester' ? {
+              backgroundColor: '#0073bb',
+              color: 'white',
+              border: '2px solid #0073bb'
+            } : {
+              backgroundColor: 'white',
+              color: '#0073bb',
+              border: '2px solid #0073bb'
+            }}
           >
             🔧 RTSP Stream Tester
           </Button>
           <Button 
-            variation={activeTab === 'dashboard' ? 'primary' : 'outlined'}
+            variation={activeTab === 'dashboard' ? 'primary' : 'link'}
             onClick={() => setActiveTab('dashboard')}
+            style={activeTab === 'dashboard' ? {
+              backgroundColor: '#0073bb',
+              color: 'white',
+              border: '2px solid #0073bb'
+            } : {
+              backgroundColor: 'white',
+              color: '#0073bb',
+              border: '2px solid #0073bb'
+            }}
           >
             📊 Stream Dashboard
           </Button>
           <Button 
-            variation={activeTab === 'pipeline' ? 'primary' : 'outlined'}
+            variation={activeTab === 'pipeline' ? 'primary' : 'link'}
             onClick={() => setActiveTab('pipeline')}
+            style={activeTab === 'pipeline' ? {
+              backgroundColor: '#0073bb',
+              color: 'white',
+              border: '2px solid #0073bb'
+            } : {
+              backgroundColor: 'white',
+              color: '#0073bb',
+              border: '2px solid #0073bb'
+            }}
           >
             ⚙️ Pipeline Generator
           </Button>
           <Button 
-            variation={activeTab === 'analytics' ? 'primary' : 'outlined'}
+            variation={activeTab === 'analytics' ? 'primary' : 'link'}
             onClick={() => setActiveTab('analytics')}
+            style={activeTab === 'analytics' ? {
+              backgroundColor: '#0073bb',
+              color: 'white',
+              border: '2px solid #0073bb'
+            } : {
+              backgroundColor: 'white',
+              color: '#0073bb',
+              border: '2px solid #0073bb'
+            }}
           >
             📈 Analytics
           </Button>

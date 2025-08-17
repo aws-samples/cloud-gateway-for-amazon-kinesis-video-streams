@@ -139,6 +139,40 @@ const RTSPStreamTester: React.FC = () => {
           </Flex>
         </Alert>
         
+        {/* Captured Frame Preview */}
+        {previewImage && (
+          <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
+            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
+              <Text style={{ fontSize: 'large' }}>📸</Text>
+              <Heading level={5} style={{ margin: 0 }}>Captured Frame Preview</Heading>
+            </Flex>
+            <View style={{ 
+              border: '2px solid var(--amplify-colors-border-primary)',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              backgroundColor: 'var(--amplify-colors-background-secondary)'
+            }}>
+              <Image
+                src={`data:image/jpeg;base64,${previewImage}`}
+                alt="RTSP Stream Preview"
+                style={{ 
+                  width: '100%',
+                  height: 'auto',
+                  display: 'block'
+                }}
+              />
+            </View>
+            <Text style={{ 
+              fontSize: 'small', 
+              color: 'gray', 
+              marginTop: 'var(--amplify-space-xs)',
+              textAlign: 'center'
+            }}>
+              Frame extracted from RTSP stream using OpenCV
+            </Text>
+          </Card>
+        )}
+        
         {/* Video Information */}
         {video && (
           <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
@@ -309,19 +343,26 @@ const RTSPStreamTester: React.FC = () => {
         Configure your camera settings and test the RTSP stream connection with real-time analysis
       </Text>
 
-      <Grid style={{ 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
-        gap: 'var(--amplify-space-large)' 
+      <Flex style={{ 
+        gap: 'var(--amplify-space-large)',
+        alignItems: 'flex-start',
+        flexDirection: 'row',
+        flexWrap: 'wrap'
       }}>
         {/* Configuration Form */}
+        <View style={{ 
+          flex: '1 1 400px',
+          minWidth: '400px'
+        }}>
         <Card style={{ padding: 'var(--amplify-space-large)' }}>
           <Heading level={3} style={{ marginBottom: 'var(--amplify-space-medium)' }}>Camera Configuration</Heading>
           
           <Flex style={{ flexDirection: 'column', gap: 'var(--amplify-space-medium)' }}>
             {/* Camera Name Field */}
             <View>
-              <Label htmlFor="cameraName">
-                Camera Name <Text style={{ color: 'red' }}>*</Text>
+              <Label htmlFor="cameraName" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                Camera Name 
+                <Text style={{ color: 'red' }}>*</Text>
               </Label>
               <Input
                 id="cameraName"
@@ -342,8 +383,9 @@ const RTSPStreamTester: React.FC = () => {
 
             {/* RTSP URL Field */}
             <View>
-              <Label htmlFor="rtspUrl">
-                RTSP URL <Text style={{ color: 'red' }}>*</Text>
+              <Label htmlFor="rtspUrl" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                RTSP URL 
+                <Text style={{ color: 'red' }}>*</Text>
               </Label>
               <Input
                 id="rtspUrl"
@@ -364,8 +406,8 @@ const RTSPStreamTester: React.FC = () => {
 
             {/* Stream Retention Field */}
             <View>
-              <Label htmlFor="streamRetention">Stream Retention Period</Label>
               <SelectField
+                label="Stream Retention Period"
                 id="streamRetention"
                 value={formData.streamRetention}
                 onChange={(e) => handleInputChange('streamRetention', e.target.value)}
@@ -440,8 +482,13 @@ const RTSPStreamTester: React.FC = () => {
             </View>
           </Flex>
         </Card>
+        </View>
 
-        {/* Results Panel */}
+        {/* Right Side - Test Results */}
+        <View style={{ 
+          flex: '1 1 400px',
+          minWidth: '400px'
+        }}>
         <Card style={{ padding: 'var(--amplify-space-large)' }}>
           <Heading level={3} style={{ marginBottom: 'var(--amplify-space-medium)' }}>Test Results</Heading>
           
@@ -513,49 +560,8 @@ const RTSPStreamTester: React.FC = () => {
             </View>
           )}
         </Card>
-      </Grid>
-
-      {/* Preview Image */}
-      {previewImage && (
-        <Card style={{ marginTop: 'var(--amplify-space-large)', padding: 'var(--amplify-space-large)' }}>
-          <Heading level={3} style={{ marginBottom: 'var(--amplify-space-medium)' }}>
-            📸 Captured Frame Preview - {formData.cameraName}
-          </Heading>
-          <View style={{ textAlign: 'center' }}>
-            <Image
-              src={previewImage}
-              alt={`RTSP Stream Preview for ${formData.cameraName}`}
-              style={{
-                maxWidth: '100%',
-                height: 'auto',
-                border: '2px solid var(--amplify-colors-brand-primary-60)',
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-              }}
-            />
-            <Text style={{ fontSize: 'small', color: 'gray', marginTop: 'var(--amplify-space-medium)' }}>
-              Frame extracted in real-time using OpenCV in AWS Lambda
-            </Text>
-            {testResult?.stream_characteristics?.frame_capture && (
-              <Flex style={{ 
-                justifyContent: 'center', 
-                gap: 'var(--amplify-space-large)', 
-                marginTop: 'var(--amplify-space-small)' 
-              }}>
-                <Text style={{ fontSize: 'small' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Size:</Text> {apiUtils.formatFileSize(testResult.stream_characteristics.frame_capture.size_bytes || 0)}
-                </Text>
-                <Text style={{ fontSize: 'small' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Time:</Text> {apiUtils.formatDuration(testResult.stream_characteristics.frame_capture.capture_time_ms || 0)}
-                </Text>
-                <Text style={{ fontSize: 'small' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Method:</Text> {testResult.stream_characteristics.frame_capture.extraction_method}
-                </Text>
-              </Flex>
-            )}
-          </View>
-        </Card>
-      )}
+        </View>
+      </Flex>
     </View>
   );
 };
