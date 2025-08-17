@@ -36,13 +36,8 @@ RUN echo "testuser:testpass" > /etc/rtsp-server/auth/basic.txt && \
     echo "adminuser:adminpass123" > /etc/rtsp-server/auth/admin.txt
 
 # Copy our Python RTSP server scripts
-COPY rtsp-server.py /rtsp-server.py
-COPY rtsp-server-enhanced.py /rtsp-server-enhanced.py
-COPY rtsp-server-comprehensive.py /rtsp-server-comprehensive.py
-COPY rtsp-server-comprehensive-fixed.py /rtsp-server-comprehensive-fixed.py
-COPY rtsp-server-all-codecs.py /rtsp-server-all-codecs.py
 COPY rtsp-server-streamlined.py /rtsp-server-streamlined.py
-RUN chmod +x /rtsp-server.py /rtsp-server-enhanced.py /rtsp-server-comprehensive.py /rtsp-server-comprehensive-fixed.py /rtsp-server-all-codecs.py /rtsp-server-streamlined.py
+RUN chmod +x /rtsp-server-streamlined.py
 
 # Expose RTSP ports (standard and secure)
 EXPOSE 8554 8555 8556 8557 8558 8559 8322

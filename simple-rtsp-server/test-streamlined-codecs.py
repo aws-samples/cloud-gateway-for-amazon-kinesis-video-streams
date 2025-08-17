@@ -51,11 +51,9 @@ class StreamlinedCodecTester:
             'opensource': {
                 'port': '8557',
                 'description': 'Open Source Codecs',
-                'codecs': ['theora', 'vp8', 'vp9'], 
+                'codecs': ['theora'], 
                 'streams': [
-                    '/theora_360p_15fps', '/theora_480p_20fps', '/theora_720p_25fps', '/theora_360p_15fps_aac',
-                    '/vp8_360p_15fps', '/vp8_480p_20fps', '/vp8_720p_25fps', '/vp8_360p_15fps_aac',
-                    '/vp9_360p_15fps', '/vp9_480p_20fps', '/vp9_720p_25fps', '/vp9_360p_15fps_aac'
+                    '/theora_360p_15fps', '/theora_480p_20fps', '/theora_720p_25fps', '/theora_360p_15fps_aac'
                 ]
             }
         }
@@ -99,9 +97,7 @@ class StreamlinedCodecTester:
             'mpeg4': 'mpeg4',
             'mpeg2': 'mpeg2video',
             'mjpeg': 'mjpeg',
-            'theora': 'theora',
-            'vp8': 'vp8',
-            'vp9': 'vp9'
+            'theora': 'theora'
         }
         return codec_map.get(codec, codec)
     

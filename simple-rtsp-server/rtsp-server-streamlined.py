@@ -57,20 +57,6 @@ class StreamlinedRTSPTestServer:
                 'pt': 96,
                 'description': 'Theora',
                 'bitrate_calc': self.calculate_theora_bitrate
-            },
-            'vp8': {
-                'encoder': 'vp8enc',
-                'payloader': 'rtpvp8pay',
-                'pt': 96,
-                'description': 'VP8',
-                'bitrate_calc': self.calculate_vp8_bitrate
-            },
-            'vp9': {
-                'encoder': 'vp9enc',
-                'payloader': 'rtpvp9pay',
-                'pt': 96,
-                'description': 'VP9',
-                'bitrate_calc': self.calculate_vp9_bitrate
             }
         }
         
@@ -126,9 +112,9 @@ class StreamlinedRTSPTestServer:
             'server': GstRtspServer.RTSPServer(),
             'port': '8557',
             'auth_type': 'none',
-            'description': 'Open Source Codecs (Theora, VP8, VP9)',
+            'description': 'Open Source Codecs (Theora)',
             'credentials': None,
-            'codecs': ['theora', 'vp8', 'vp9']
+            'codecs': ['theora']
         }
         
         # Configure each server
@@ -238,17 +224,18 @@ class StreamlinedRTSPTestServer:
         # Choose test pattern based on codec
         patterns = {
             'h264': 'smpte75', 'h265': 'zone-plate', 'mpeg4': 'smpte',
-            'mpeg2': 'solid-color', 'mjpeg': 'ball', 'theora': 'circular',
-            'vp8': 'checkers-8', 'vp9': 'gamut'
+            'mpeg2': 'solid-color', 'mjpeg': 'ball', 'theora': 'circular'
         }
         pattern = patterns.get(codec, 'smpte75')
         
-        # Video pipeline base
+        # Video pipeline base with memory optimization
         video_pipeline = (
             f"videotestsrc pattern={pattern} ! "
             f"video/x-raw,width={width},height={height},framerate={framerate}/1 ! "
+            f"queue max-size-buffers=10 max-size-time=1000000000 ! "  # 1 second buffer limit
             f"textoverlay text='{description}\\nServer: {server_name}\\nAuth: {auth_info}\\nPort: {port}\\nTime: %T' "
             "valignment=top halignment=left font-desc='DejaVu Sans Bold 14' ! "
+            f"queue max-size-buffers=5 max-size-time=500000000 ! "  # 0.5 second buffer limit
         )
         
         # Add codec-specific encoding
@@ -259,31 +246,22 @@ class StreamlinedRTSPTestServer:
         
         if codec == 'h264':
             bitrate = self.calculate_h264_bitrate(width, height, framerate)
-            video_pipeline += f"x264enc tune=zerolatency bitrate={bitrate} speed-preset=ultrafast ! {payloader} name=pay0 pt={pt}"
+            video_pipeline += f"x264enc tune=zerolatency bitrate={bitrate} speed-preset=ultrafast ! queue max-size-buffers=5 ! {payloader} name=pay0 pt={pt}"
         elif codec == 'h265':
             bitrate = self.calculate_h265_bitrate(width, height, framerate)
-            video_pipeline += f"x265enc tune=zerolatency bitrate={bitrate} speed-preset=ultrafast ! {payloader} name=pay0 pt={pt}"
+            video_pipeline += f"x265enc tune=zerolatency bitrate={bitrate} speed-preset=ultrafast ! queue max-size-buffers=5 ! {payloader} name=pay0 pt={pt}"
         elif codec == 'mpeg4':
             bitrate = self.calculate_mpeg4_bitrate(width, height, framerate)
-            video_pipeline += f"{encoder} bitrate={bitrate} ! {payloader} name=pay0 pt={pt}"
+            video_pipeline += f"{encoder} bitrate={bitrate} ! queue max-size-buffers=5 ! {payloader} name=pay0 pt={pt}"
         elif codec == 'mpeg2':
             bitrate = self.calculate_mpeg2_bitrate(width, height, framerate)
-            video_pipeline += f"{encoder} bitrate={bitrate} ! {payloader} name=pay0 pt={pt}"
+            video_pipeline += f"{encoder} bitrate={bitrate} ! queue max-size-buffers=5 ! {payloader} name=pay0 pt={pt}"
         elif codec == 'mjpeg':
             # MJPEG FIXED pipeline - key fix: add videoconvert and specify format
-            video_pipeline += f"video/x-raw,format=I420 ! videoconvert ! jpegenc quality=85 ! {payloader} name=pay0 pt={pt}"
+            video_pipeline += f"video/x-raw,format=I420 ! videoconvert ! jpegenc quality=85 ! queue max-size-buffers=5 ! {payloader} name=pay0 pt={pt}"
         elif codec == 'theora':
             bitrate = self.calculate_theora_bitrate(width, height, framerate)
-            video_pipeline += f"theoraenc bitrate={bitrate} ! {payloader} name=pay0 pt={pt}"
-        elif codec in ['vp8', 'vp9']:
-            # VP8/VP9 optimized for real-time streaming - CONSERVATIVE APPROACH
-            bitrate = getattr(self, f'calculate_{codec}_bitrate')(width, height, framerate)
-            if codec == 'vp8':
-                # VP8 with conservative settings that work in RTSP context
-                video_pipeline += f"vp8enc target-bitrate={bitrate} deadline=1 cpu-used=8 threads=2 ! {payloader} name=pay0 pt={pt}"
-            else:  # vp9
-                # VP9 with speed optimizations for real-time (WORKING CONFIGURATION)
-                video_pipeline += f"vp9enc target-bitrate={bitrate} deadline=1 cpu-used=8 threads=4 ! {payloader} name=pay0 pt={pt}"
+            video_pipeline += f"theoraenc bitrate={bitrate} ! queue max-size-buffers=5 ! {payloader} name=pay0 pt={pt}"
         
         # Add audio if specified
         if audio != 'none':
@@ -327,15 +305,6 @@ class StreamlinedRTSPTestServer:
         pixels = width * height
         base_bitrate = pixels * framerate * 0.09 / 1000
         return max(400, min(5000, int(base_bitrate)))
-    
-    def calculate_vp8_bitrate(self, width, height, framerate):
-        pixels = width * height
-        base_bitrate = pixels * framerate * 0.08 / 1000
-        return max(400, min(6000, int(base_bitrate)))
-    
-    def calculate_vp9_bitrate(self, width, height, framerate):
-        vp8_bitrate = self.calculate_vp8_bitrate(width, height, framerate)
-        return max(300, int(vp8_bitrate * 0.7))
     
     def start_servers(self):
         """Start all RTSP servers"""
