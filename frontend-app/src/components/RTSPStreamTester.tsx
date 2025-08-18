@@ -413,17 +413,8 @@ const RTSPStreamTester: React.FC = () => {
 
   return (
     <View style={{ padding: 'var(--amplify-space-large)' }}>
-      <Flex style={{ 
-        gap: 'var(--amplify-space-large)',
-        alignItems: 'flex-start',
-        flexDirection: 'row',
-        flexWrap: 'wrap'
-      }}>
-        {/* Configuration Form */}
-        <View style={{ 
-          flex: '1 1 400px',
-          minWidth: '400px'
-        }}>
+      {/* Configuration Form */}
+      <View style={{ marginBottom: 'var(--amplify-space-large)' }}>
         <Card style={{ padding: 'var(--amplify-space-large)' }}>
           <Heading level={3} style={{ marginBottom: 'var(--amplify-space-medium)' }}>Camera Configuration</Heading>
           
@@ -508,13 +499,10 @@ const RTSPStreamTester: React.FC = () => {
             </View>
           </Flex>
         </Card>
-        </View>
+      </View>
 
-        {/* Right Side - Test Results */}
-        <View style={{ 
-          flex: '1 1 400px',
-          minWidth: '400px'
-        }}>
+      {/* Test Results Section - Now below the form */}
+      <View>
         <Card style={{ padding: 'var(--amplify-space-large)' }}>
           <Heading level={3} style={{ marginBottom: 'var(--amplify-space-medium)' }}>Test Results</Heading>
           
@@ -581,13 +569,12 @@ const RTSPStreamTester: React.FC = () => {
                 Ready to test your RTSP stream
               </Text>
               <Text style={{ fontSize: 'small', color: 'gray' }}>
-                Fill in the camera name and RTSP URL above, then click "Test RTSP Stream" to begin analysis
+                Fill in the RTSP URL above, then click "Test RTSP Stream" to begin analysis
               </Text>
             </View>
           )}
         </Card>
-        </View>
-      </Flex>
+      </View>
     </View>
   );
 };
