@@ -96,7 +96,17 @@ export const apiUtils = {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      return await response.json();
+      const responseData = await response.json();
+      
+      // Handle Lambda response structure - the actual data is in the 'body' field as a JSON string
+      if (responseData.statusCode && responseData.body) {
+        // This is a Lambda response, parse the body
+        const parsedBody = JSON.parse(responseData.body);
+        return parsedBody;
+      }
+      
+      // Direct API response (not Lambda)
+      return responseData;
     } catch (error) {
       clearTimeout(timeoutId);
       
