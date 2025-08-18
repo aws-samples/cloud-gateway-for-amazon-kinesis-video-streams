@@ -1,0 +1,1055 @@
+{
+ "Description": "Serverless RTSP server deployment using AWS managed networking",
+ "Resources": {
+  "RTSPVpcD347C430": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/21",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/Resource"
+   }
+  },
+  "RTSPVpcPublicSubnet1Subnet0464229A": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    },
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.0.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet1/Subnet"
+   }
+  },
+  "RTSPVpcPublicSubnet1RouteTableD79AF352": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet1/RouteTable"
+   }
+  },
+  "RTSPVpcPublicSubnet1RouteTableAssociation777F21DD": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "RTSPVpcPublicSubnet1RouteTableD79AF352"
+    },
+    "SubnetId": {
+     "Ref": "RTSPVpcPublicSubnet1Subnet0464229A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet1/RouteTableAssociation"
+   }
+  },
+  "RTSPVpcPublicSubnet1DefaultRoute0D48F7E1": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "RTSPVpcPublicSubnet1RouteTableD79AF352"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "RTSPVpcIGWCD4D5EDE"
+    }
+   },
+   "DependsOn": [
+    "RTSPVpcVPCGW0E464734"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet1/DefaultRoute"
+   }
+  },
+  "RTSPVpcPublicSubnet1EIPF294772E": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet1/EIP"
+   }
+  },
+  "RTSPVpcPublicSubnet1NATGateway696364CA": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "SubnetId": {
+     "Ref": "RTSPVpcPublicSubnet1Subnet0464229A"
+    },
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "RTSPVpcPublicSubnet1EIPF294772E",
+      "AllocationId"
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PublicSubnet1"
+     }
+    ]
+   },
+   "DependsOn": [
+    "RTSPVpcPublicSubnet1DefaultRoute0D48F7E1",
+    "RTSPVpcPublicSubnet1RouteTableAssociation777F21DD"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet1/NATGateway"
+   }
+  },
+  "RTSPVpcPublicSubnet2Subnet8EE0B71A": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    },
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.1.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PublicSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet2/Subnet"
+   }
+  },
+  "RTSPVpcPublicSubnet2RouteTable505D76E4": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PublicSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet2/RouteTable"
+   }
+  },
+  "RTSPVpcPublicSubnet2RouteTableAssociation1D38330B": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "RTSPVpcPublicSubnet2RouteTable505D76E4"
+    },
+    "SubnetId": {
+     "Ref": "RTSPVpcPublicSubnet2Subnet8EE0B71A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet2/RouteTableAssociation"
+   }
+  },
+  "RTSPVpcPublicSubnet2DefaultRoute1693711D": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "RTSPVpcPublicSubnet2RouteTable505D76E4"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "RTSPVpcIGWCD4D5EDE"
+    }
+   },
+   "DependsOn": [
+    "RTSPVpcVPCGW0E464734"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet2/DefaultRoute"
+   }
+  },
+  "RTSPVpcPublicSubnet2EIP83DD5302": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PublicSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet2/EIP"
+   }
+  },
+  "RTSPVpcPublicSubnet2NATGatewayEB88698A": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "SubnetId": {
+     "Ref": "RTSPVpcPublicSubnet2Subnet8EE0B71A"
+    },
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "RTSPVpcPublicSubnet2EIP83DD5302",
+      "AllocationId"
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PublicSubnet2"
+     }
+    ]
+   },
+   "DependsOn": [
+    "RTSPVpcPublicSubnet2DefaultRoute1693711D",
+    "RTSPVpcPublicSubnet2RouteTableAssociation1D38330B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PublicSubnet2/NATGateway"
+   }
+  },
+  "RTSPVpcPrivateSubnet1Subnet75838765": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    },
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.2.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet1/Subnet"
+   }
+  },
+  "RTSPVpcPrivateSubnet1RouteTable4743FFA3": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet1/RouteTable"
+   }
+  },
+  "RTSPVpcPrivateSubnet1RouteTableAssociationBFE5FFBB": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "RTSPVpcPrivateSubnet1RouteTable4743FFA3"
+    },
+    "SubnetId": {
+     "Ref": "RTSPVpcPrivateSubnet1Subnet75838765"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet1/RouteTableAssociation"
+   }
+  },
+  "RTSPVpcPrivateSubnet1DefaultRoute362B9CF0": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "RTSPVpcPrivateSubnet1RouteTable4743FFA3"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "RTSPVpcPublicSubnet1NATGateway696364CA"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet1/DefaultRoute"
+   }
+  },
+  "RTSPVpcPrivateSubnet2SubnetB3B509AF": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    },
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.3.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet2/Subnet"
+   }
+  },
+  "RTSPVpcPrivateSubnet2RouteTable94929F73": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet2/RouteTable"
+   }
+  },
+  "RTSPVpcPrivateSubnet2RouteTableAssociation21082F71": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "RTSPVpcPrivateSubnet2RouteTable94929F73"
+    },
+    "SubnetId": {
+     "Ref": "RTSPVpcPrivateSubnet2SubnetB3B509AF"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet2/RouteTableAssociation"
+   }
+  },
+  "RTSPVpcPrivateSubnet2DefaultRoute28EADD0B": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "RTSPVpcPrivateSubnet2RouteTable94929F73"
+    },
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "RTSPVpcPublicSubnet2NATGatewayEB88698A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/PrivateSubnet2/DefaultRoute"
+   }
+  },
+  "RTSPVpcIGWCD4D5EDE": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleRtspServerStack/RTSPVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/IGW"
+   }
+  },
+  "RTSPVpcVPCGW0E464734": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    },
+    "InternetGatewayId": {
+     "Ref": "RTSPVpcIGWCD4D5EDE"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/VPCGW"
+   }
+  },
+  "RTSPVpcRestrictDefaultSecurityGroupCustomResourceD04D91B8": {
+   "Type": "Custom::VpcRestrictDefaultSG",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+      "Arn"
+     ]
+    },
+    "DefaultSecurityGroupId": {
+     "Fn::GetAtt": [
+      "RTSPVpcD347C430",
+      "DefaultSecurityGroup"
+     ]
+    },
+    "Account": "418265330172"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPVpc/RestrictDefaultSecurityGroupCustomResource/Default"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ],
+    "Policies": [
+     {
+      "PolicyName": "Inline",
+      "PolicyDocument": {
+       "Version": "2012-10-17",
+       "Statement": [
+        {
+         "Effect": "Allow",
+         "Action": [
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress"
+         ],
+         "Resource": [
+          {
+           "Fn::Join": [
+            "",
+            [
+             "arn:aws:ec2:us-east-1:418265330172:security-group/",
+             {
+              "Fn::GetAtt": [
+               "RTSPVpcD347C430",
+               "DefaultSecurityGroup"
+              ]
+             }
+            ]
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-418265330172-us-east-1",
+     "S3Key": "e77031893275c08bcaa0a774aa8b611727afd045b3b5d8e1e6f0f04063d9d386.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "__entrypoint__.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs16.x",
+    "Description": "Lambda function for removing all inbound/outbound rules from the VPC default security group"
+   },
+   "DependsOn": [
+    "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.e77031893275c08bcaa0a774aa8b611727afd045b3b5d8e1e6f0f04063d9d386",
+    "aws:asset:property": "Code"
+   }
+  },
+  "RTSPCluster8B3F2E1B": {
+   "Type": "AWS::ECS::Cluster",
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPCluster/Resource"
+   }
+  },
+  "RTSPServerLogGroupC8F9985E": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/ecs/rtsp-server",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPServerLogGroup/Resource"
+   }
+  },
+  "RTSPServiceLBE05B9C72": {
+   "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+   "Properties": {
+    "LoadBalancerAttributes": [
+     {
+      "Key": "deletion_protection.enabled",
+      "Value": "false"
+     }
+    ],
+    "Scheme": "internet-facing",
+    "Subnets": [
+     {
+      "Ref": "RTSPVpcPublicSubnet1Subnet0464229A"
+     },
+     {
+      "Ref": "RTSPVpcPublicSubnet2Subnet8EE0B71A"
+     }
+    ],
+    "Type": "network"
+   },
+   "DependsOn": [
+    "RTSPVpcPublicSubnet1DefaultRoute0D48F7E1",
+    "RTSPVpcPublicSubnet1RouteTableAssociation777F21DD",
+    "RTSPVpcPublicSubnet2DefaultRoute1693711D",
+    "RTSPVpcPublicSubnet2RouteTableAssociation1D38330B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPService/LB/Resource"
+   }
+  },
+  "RTSPServiceLBPublicListenerC9409ED7": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "RTSPServiceLBPublicListenerECSGroupB52F5955"
+      },
+      "Type": "forward"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "RTSPServiceLBE05B9C72"
+    },
+    "Port": 8554,
+    "Protocol": "TCP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPService/LB/PublicListener/Resource"
+   }
+  },
+  "RTSPServiceLBPublicListenerECSGroupB52F5955": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckIntervalSeconds": 30,
+    "HealthCheckPort": "8554",
+    "HealthCheckProtocol": "TCP",
+    "HealthCheckTimeoutSeconds": 10,
+    "HealthyThresholdCount": 2,
+    "Port": 8554,
+    "Protocol": "TCP",
+    "TargetType": "ip",
+    "UnhealthyThresholdCount": 2,
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPService/LB/PublicListener/ECSGroup/Resource"
+   }
+  },
+  "RTSPServiceTaskDefTaskRole41E0B56B": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPService/TaskDef/TaskRole/Resource"
+   }
+  },
+  "RTSPServiceTaskDef3FB066F7": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Environment": [
+       {
+        "Name": "AWS_DEFAULT_REGION",
+        "Value": "us-east-1"
+       },
+       {
+        "Name": "RTSP_SERVER_MODE",
+        "Value": "production"
+       }
+      ],
+      "Essential": true,
+      "Image": {
+       "Fn::Sub": "418265330172.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-418265330172-us-east-1:2e0b8133096611fd9e316e3164ba3cfe75d2c8c3b1f568074b9289942697e87a"
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "RTSPServerLogGroupC8F9985E"
+        },
+        "awslogs-stream-prefix": "rtsp-server",
+        "awslogs-region": "us-east-1"
+       }
+      },
+      "Name": "web",
+      "PortMappings": [
+       {
+        "ContainerPort": 8554,
+        "Protocol": "tcp"
+       },
+       {
+        "ContainerPort": 8555,
+        "Name": "rtsp-8555",
+        "Protocol": "tcp"
+       },
+       {
+        "ContainerPort": 8556,
+        "Name": "rtsp-8556",
+        "Protocol": "tcp"
+       },
+       {
+        "ContainerPort": 8557,
+        "Name": "rtsp-8557",
+        "Protocol": "tcp"
+       }
+      ]
+     }
+    ],
+    "Cpu": "1024",
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "RTSPServiceTaskDefExecutionRole4C332F8C",
+      "Arn"
+     ]
+    },
+    "Family": "SimpleRtspServerStackRTSPServiceTaskDefF68D2A64",
+    "Memory": "2048",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "RTSPServiceTaskDefTaskRole41E0B56B",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPService/TaskDef/Resource"
+   }
+  },
+  "RTSPServiceTaskDefExecutionRole4C332F8C": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPService/TaskDef/ExecutionRole/Resource"
+   }
+  },
+  "RTSPServiceTaskDefExecutionRoleDefaultPolicyD1A522AA": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+       ],
+       "Effect": "Allow",
+       "Resource": "arn:aws:ecr:us-east-1:418265330172:repository/cdk-hnb659fds-container-assets-418265330172-us-east-1"
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "RTSPServerLogGroupC8F9985E",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "RTSPServiceTaskDefExecutionRoleDefaultPolicyD1A522AA",
+    "Roles": [
+     {
+      "Ref": "RTSPServiceTaskDefExecutionRole4C332F8C"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPService/TaskDef/ExecutionRole/DefaultPolicy/Resource"
+   }
+  },
+  "RTSPServiceF675F32E": {
+   "Type": "AWS::ECS::Service",
+   "Properties": {
+    "Cluster": {
+     "Ref": "RTSPCluster8B3F2E1B"
+    },
+    "DeploymentConfiguration": {
+     "Alarms": {
+      "AlarmNames": [],
+      "Enable": false,
+      "Rollback": false
+     },
+     "MaximumPercent": 200,
+     "MinimumHealthyPercent": 50
+    },
+    "DesiredCount": 1,
+    "EnableECSManagedTags": false,
+    "HealthCheckGracePeriodSeconds": 60,
+    "LaunchType": "FARGATE",
+    "LoadBalancers": [
+     {
+      "ContainerName": "web",
+      "ContainerPort": 8554,
+      "TargetGroupArn": {
+       "Ref": "RTSPServiceLBPublicListenerECSGroupB52F5955"
+      }
+     }
+    ],
+    "NetworkConfiguration": {
+     "AwsvpcConfiguration": {
+      "AssignPublicIp": "DISABLED",
+      "SecurityGroups": [
+       {
+        "Fn::GetAtt": [
+         "RTSPServiceSecurityGroup7940500F",
+         "GroupId"
+        ]
+       }
+      ],
+      "Subnets": [
+       {
+        "Ref": "RTSPVpcPrivateSubnet1Subnet75838765"
+       },
+       {
+        "Ref": "RTSPVpcPrivateSubnet2SubnetB3B509AF"
+       }
+      ]
+     }
+    },
+    "ServiceName": "rtsp-server",
+    "TaskDefinition": {
+     "Ref": "RTSPServiceTaskDef3FB066F7"
+    }
+   },
+   "DependsOn": [
+    "RTSPServiceLBPublicListenerECSGroupB52F5955",
+    "RTSPServiceLBPublicListenerC9409ED7",
+    "RTSPServiceTaskDefTaskRole41E0B56B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPService/Service/Service"
+   }
+  },
+  "RTSPServiceSecurityGroup7940500F": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "SimpleRtspServerStack/RTSPService/Service/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "RTSPVpcD347C430"
+    }
+   },
+   "DependsOn": [
+    "RTSPServiceTaskDefTaskRole41E0B56B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/RTSPService/Service/SecurityGroup/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21SXU/rMAz9Lfc9Cxde4BXGBU1CUHWI18lNTTFtkypxOk3V/jtOu9KJy1OOjx37+ONK31zrv39gH1amrFcNFXrYMphaCbUb0Fzp4a0zav1u37K1ymLRkNnGwiInbkG5i4yvUDS48At3G4IzBEzOfgcn8G+TpecZ+BEY93BQmade4JJ4Yxm94DlgUnKyblm0frRoWW3RRE98ePQudqOGc+Ko0AQ9rJsYJF1yz/ABfAVJZqjv8Z0szSJ/Ms4ykEV/xp3+btH3ZKbGJ3hUjauk3pOrvvXMeJSy64BTX0E/I++dr58clHfQgDVY/kiLDQQm00hEMUaQrXrZy/8//VTnzJ5jSHq1J/+MT75XqSbjnWWemUdF0Oohd9NSxzdzcgDjFiaUuvE7CAE56HtnavSbFqq0cdmf+HSOnQvEzh/uIMhkcgwu+jQuWYBrF1Mq/O7KvOupFMVjUjnPSiaQ4l8id5GPyroS9We46C9v9GW6589AtPLRMrWo8+n9AvHM0NbrAgAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleRtspServerStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "RTSPServiceLoadBalancerDNS11C3DB08": {
+   "Value": {
+    "Fn::GetAtt": [
+     "RTSPServiceLBE05B9C72",
+     "DNSName"
+    ]
+   }
+  },
+  "RTSPEndpoint8554": {
+   "Description": "RTSP endpoint for H.264/H.265 streams",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "rtsp://",
+      {
+       "Fn::GetAtt": [
+        "RTSPServiceLBE05B9C72",
+        "DNSName"
+       ]
+      },
+      ":8554/"
+     ]
+    ]
+   }
+  },
+  "RTSPEndpoint8555": {
+   "Description": "RTSP endpoint for MPEG-4/MPEG-2 streams",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "rtsp://",
+      {
+       "Fn::GetAtt": [
+        "RTSPServiceLBE05B9C72",
+        "DNSName"
+       ]
+      },
+      ":8555/"
+     ]
+    ]
+   }
+  },
+  "RTSPEndpoint8556": {
+   "Description": "RTSP endpoint for MJPEG streams",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "rtsp://",
+      {
+       "Fn::GetAtt": [
+        "RTSPServiceLBE05B9C72",
+        "DNSName"
+       ]
+      },
+      ":8556/"
+     ]
+    ]
+   }
+  },
+  "RTSPEndpoint8557": {
+   "Description": "RTSP endpoint for Theora streams",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "rtsp://",
+      {
+       "Fn::GetAtt": [
+        "RTSPServiceLBE05B9C72",
+        "DNSName"
+       ]
+      },
+      ":8557/"
+     ]
+    ]
+   }
+  },
+  "PrimaryRTSPEndpoint": {
+   "Description": "Primary RTSP endpoint (H.264/H.265 streams)",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "rtsp://",
+      {
+       "Fn::GetAtt": [
+        "RTSPServiceLBE05B9C72",
+        "DNSName"
+       ]
+      },
+      ":8554/"
+     ]
+    ]
+   }
+  },
+  "LogGroup": {
+   "Description": "CloudWatch Log Group for RTSP server logs",
+   "Value": {
+    "Ref": "RTSPServerLogGroupC8F9985E"
+   }
+  },
+  "ServiceName": {
+   "Description": "ECS Fargate service name",
+   "Value": {
+    "Fn::GetAtt": [
+     "RTSPServiceF675F32E",
+     "Name"
+    ]
+   }
+  },
+  "ClusterName": {
+   "Description": "ECS cluster name",
+   "Value": {
+    "Ref": "RTSPCluster8B3F2E1B"
+   }
+  },
+  "VpcId": {
+   "Description": "VPC ID",
+   "Value": {
+    "Ref": "RTSPVpcD347C430"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

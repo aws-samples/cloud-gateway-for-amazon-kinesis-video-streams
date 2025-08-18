@@ -1,0 +1,25 @@
+services:
+  rtsp-server:
+    build: .
+    container_name: gstreamer-rtsp-streamlined
+    ports:
+      - "8554:8554"  # Modern Codecs (H.264, H.265)
+      - "8555:8555"  # MPEG Codecs (MPEG-2, MPEG-4)
+      - "8556:8556"  # MJPEG (IP Camera Standard)
+      - "8557:8557"  # Open Source Codecs (Theora)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python3.*rtsp-server-streamlined.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      - GST_DEBUG=2
+    deploy:
+      resources:
+        limits:
+          memory: 2G  # Limit container to 2GB
+        reservations:
+          memory: 512M  # Reserve 512MB
+    command: python3 rtsp-server-streamlined.py

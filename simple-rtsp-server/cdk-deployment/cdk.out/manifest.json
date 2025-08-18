@@ -1,0 +1,346 @@
+{
+  "version": "32.0.0",
+  "artifacts": {
+    "SimpleRtspServerStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "SimpleRtspServerStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "SimpleRtspServerStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://418265330172/us-east-1",
+      "properties": {
+        "templateFile": "SimpleRtspServerStack.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::418265330172:role/cdk-hnb659fds-deploy-role-418265330172-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::418265330172:role/cdk-hnb659fds-cfn-exec-role-418265330172-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-418265330172-us-east-1/144e26227959f1e97daa18ac0aba74590f25d12f1a930edb18a42adb773fc73d.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "SimpleRtspServerStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::418265330172:role/cdk-hnb659fds-lookup-role-418265330172-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "SimpleRtspServerStack.assets"
+      ],
+      "metadata": {
+        "/SimpleRtspServerStack/RTSPVpc/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcD347C430"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet1/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet1Subnet0464229A"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet1/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet1RouteTableD79AF352"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet1/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet1RouteTableAssociation777F21DD"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet1/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet1DefaultRoute0D48F7E1"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet1/EIP": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet1EIPF294772E"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet1/NATGateway": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet1NATGateway696364CA"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet2/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet2Subnet8EE0B71A"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet2/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet2RouteTable505D76E4"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet2/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet2RouteTableAssociation1D38330B"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet2/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet2DefaultRoute1693711D"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet2/EIP": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet2EIP83DD5302"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PublicSubnet2/NATGateway": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPublicSubnet2NATGatewayEB88698A"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PrivateSubnet1/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPrivateSubnet1Subnet75838765"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PrivateSubnet1/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPrivateSubnet1RouteTable4743FFA3"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PrivateSubnet1/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPrivateSubnet1RouteTableAssociationBFE5FFBB"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PrivateSubnet1/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPrivateSubnet1DefaultRoute362B9CF0"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PrivateSubnet2/Subnet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPrivateSubnet2SubnetB3B509AF"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PrivateSubnet2/RouteTable": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPrivateSubnet2RouteTable94929F73"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PrivateSubnet2/RouteTableAssociation": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPrivateSubnet2RouteTableAssociation21082F71"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/PrivateSubnet2/DefaultRoute": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcPrivateSubnet2DefaultRoute28EADD0B"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/IGW": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcIGWCD4D5EDE"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/VPCGW": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcVPCGW0E464734"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPVpc/RestrictDefaultSecurityGroupCustomResource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPVpcRestrictDefaultSecurityGroupCustomResourceD04D91B8"
+          }
+        ],
+        "/SimpleRtspServerStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0"
+          }
+        ],
+        "/SimpleRtspServerStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPCluster/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPCluster8B3F2E1B"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPServerLogGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServerLogGroupC8F9985E"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPService/LB/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServiceLBE05B9C72"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPService/LB/PublicListener/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServiceLBPublicListenerC9409ED7"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPService/LB/PublicListener/ECSGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServiceLBPublicListenerECSGroupB52F5955"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPService/LoadBalancerDNS": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServiceLoadBalancerDNS11C3DB08"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPService/TaskDef/TaskRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServiceTaskDefTaskRole41E0B56B"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPService/TaskDef/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServiceTaskDef3FB066F7"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPService/TaskDef/ExecutionRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServiceTaskDefExecutionRole4C332F8C"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPService/TaskDef/ExecutionRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServiceTaskDefExecutionRoleDefaultPolicyD1A522AA"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPService/Service/Service": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServiceF675F32E"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPService/Service/SecurityGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPServiceSecurityGroup7940500F"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPEndpoint8554": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPEndpoint8554"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPEndpoint8555": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPEndpoint8555"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPEndpoint8556": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPEndpoint8556"
+          }
+        ],
+        "/SimpleRtspServerStack/RTSPEndpoint8557": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RTSPEndpoint8557"
+          }
+        ],
+        "/SimpleRtspServerStack/PrimaryRTSPEndpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PrimaryRTSPEndpoint"
+          }
+        ],
+        "/SimpleRtspServerStack/LogGroup": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LogGroup"
+          }
+        ],
+        "/SimpleRtspServerStack/ServiceName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ServiceName"
+          }
+        ],
+        "/SimpleRtspServerStack/ClusterName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ClusterName"
+          }
+        ],
+        "/SimpleRtspServerStack/VpcId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcId"
+          }
+        ],
+        "/SimpleRtspServerStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/SimpleRtspServerStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/SimpleRtspServerStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "SimpleRtspServerStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}
