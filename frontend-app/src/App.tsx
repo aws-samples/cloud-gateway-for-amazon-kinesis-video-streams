@@ -73,14 +73,41 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
   const renderContent = () => {
     switch (activeTab) {
       case 'quick-tester':
-        return <QuickStreamTester />;
+        return <QuickStreamTester user={user} />;
       case 'rtsp-tester':
-        return <RTSPStreamTester />;
+        return (
+          <Container>
+            <SpaceBetween size="l">
+              <Header 
+                variant="h1" 
+                description="Configure and test your own RTSP streams with detailed analysis and pipeline generation"
+                info={
+                  <Box display="inline" color="text-body-secondary">
+                    Welcome back, {user?.username}
+                  </Box>
+                }
+              >
+                🔧 RTSP Stream Tester
+              </Header>
+              <RTSPStreamTester />
+            </SpaceBetween>
+          </Container>
+        );
       case 'dashboard':
         return (
           <Container>
             <SpaceBetween size="l">
-              <Header variant="h1">Stream Dashboard</Header>
+              <Header 
+                variant="h1" 
+                description="Monitor your active RTSP streams and Kinesis Video Streams"
+                info={
+                  <Box display="inline" color="text-body-secondary">
+                    Welcome back, {user?.username}
+                  </Box>
+                }
+              >
+                📊 Stream Dashboard
+              </Header>
               <Box textAlign="center" color="text-body-secondary">
                 <SpaceBetween size="m">
                   <Box fontSize="body-m">
@@ -98,7 +125,17 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
         return (
           <Container>
             <SpaceBetween size="l">
-              <Header variant="h1">GStreamer Pipeline Generator</Header>
+              <Header 
+                variant="h1" 
+                description="Generate optimized GStreamer pipelines for your cameras"
+                info={
+                  <Box display="inline" color="text-body-secondary">
+                    Welcome back, {user?.username}
+                  </Box>
+                }
+              >
+                ⚙️ GStreamer Pipeline Generator
+              </Header>
               <Box textAlign="center" color="text-body-secondary">
                 <SpaceBetween size="m">
                   <Box fontSize="body-m">
@@ -116,7 +153,17 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
         return (
           <Container>
             <SpaceBetween size="l">
-              <Header variant="h1">Stream Analytics</Header>
+              <Header 
+                variant="h1" 
+                description="View performance metrics and stream health"
+                info={
+                  <Box display="inline" color="text-body-secondary">
+                    Welcome back, {user?.username}
+                  </Box>
+                }
+              >
+                📈 Stream Analytics
+              </Header>
               <Box textAlign="center" color="text-body-secondary">
                 <SpaceBetween size="m">
                   <Box fontSize="body-m">
@@ -196,26 +243,7 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
           />
         }
         content={
-          <ContentLayout
-            header={
-              <SpaceBetween size="m">
-                <Header
-                  variant="h1"
-                  info={
-                    <Box display="inline" color="text-body-secondary">
-                      Welcome back, {user?.username}
-                    </Box>
-                  }
-                >
-                  {activeTab === 'quick-tester' && '🚀 Quick Stream Tester'}
-                  {activeTab === 'rtsp-tester' && '🔧 RTSP Stream Tester'}
-                  {activeTab === 'dashboard' && '📊 Stream Dashboard'}
-                  {activeTab === 'pipeline' && '⚙️ Pipeline Generator'}
-                  {activeTab === 'analytics' && '📈 Analytics'}
-                </Header>
-              </SpaceBetween>
-            }
-          >
+          <ContentLayout>
             {renderContent()}
           </ContentLayout>
         }
