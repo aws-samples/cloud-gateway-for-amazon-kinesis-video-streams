@@ -1,3 +1,6 @@
+# Test results and captured frames
+test-results/
+
 # Docker artifacts
 docker-images/set-aws-env
 docker-images/intel/
