@@ -24,6 +24,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
   const [rtspUrl, setRtspUrl] = useState('');
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [generatedPipeline, setGeneratedPipeline] = useState<string>('');
+  const [formattedPipeline, setFormattedPipeline] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -44,6 +45,56 @@ const GStreamerPipelineGenerator: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
+  const formatPipelineForCLI = (pipeline: string): string => {
+    if (!pipeline) return '';
+    
+    // Split the pipeline by spaces but keep quoted strings together
+    const parts = pipeline.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+    
+    // Group related parameters together for better readability
+    const formattedParts: string[] = [];
+    let currentLine = '';
+    
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      
+      // Start new line for major pipeline elements
+      if (part.includes('rtspsrc') || 
+          part.includes('rtph264depay') || 
+          part.includes('rtph265depay') ||
+          part.includes('h264parse') || 
+          part.includes('h265parse') ||
+          part.includes('kvssink')) {
+        if (currentLine) {
+          formattedParts.push(currentLine.trim());
+          currentLine = '';
+        }
+        currentLine = part;
+      } else if (part.startsWith('!')) {
+        // Pipeline connectors on same line
+        currentLine += ' ' + part;
+      } else if (part.includes('=')) {
+        // Parameters - add to current line but check length
+        const newLine = currentLine + ' ' + part;
+        if (newLine.length > 80) {
+          formattedParts.push(currentLine.trim());
+          currentLine = '    ' + part; // Indent continuation
+        } else {
+          currentLine = newLine;
+        }
+      } else {
+        currentLine += ' ' + part;
+      }
+    }
+    
+    if (currentLine) {
+      formattedParts.push(currentLine.trim());
+    }
+    
+    // Join with line continuations for bash
+    return formattedParts.join(' \\\n');
+  };
+
   const generatePipeline = async () => {
     if (!validateForm()) {
       return;
@@ -52,6 +103,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
     setIsLoading(true);
     setError('');
     setGeneratedPipeline('');
+    setFormattedPipeline('');
 
     try {
       // Call the lambda function in pipeline mode
@@ -67,6 +119,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
 
       if (response.generated_pipeline) {
         setGeneratedPipeline(response.generated_pipeline);
+        setFormattedPipeline(formatPipelineForCLI(response.generated_pipeline));
       } else if (response.error) {
         setError(response.error);
       } else {
@@ -157,14 +210,14 @@ const GStreamerPipelineGenerator: React.FC = () => {
       )}
 
       {/* Generated Pipeline Display */}
-      {generatedPipeline && (
+      {formattedPipeline && (
         <Container
           header={
             <Header 
               variant="h3"
               actions={
                 <Button
-                  onClick={() => navigator.clipboard.writeText(generatedPipeline)}
+                  onClick={() => navigator.clipboard.writeText(formattedPipeline)}
                   iconName="copy"
                 >
                   Copy Pipeline
@@ -195,23 +248,26 @@ const GStreamerPipelineGenerator: React.FC = () => {
                 maxHeight: '400px'
               }}
             >
-              {generatedPipeline}
+              {formattedPipeline}
             </Box>
 
             <Box>
               <Header variant="h4">📋 Usage Instructions</Header>
               <SpaceBetween size="s">
                 <Box>
-                  1. Copy the pipeline command above
+                  <strong>1. Copy the pipeline command</strong> - Click "Copy Pipeline" or select and copy the formatted command above
                 </Box>
                 <Box>
-                  2. Install GStreamer and the Kinesis Video Streams plugin on your system
+                  <strong>2. Open your terminal</strong> - The command is formatted with line continuations (\) for easy reading
                 </Box>
                 <Box>
-                  3. Set your AWS credentials and region
+                  <strong>3. Set AWS credentials</strong> - Ensure AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_DEFAULT_REGION are set
                 </Box>
                 <Box>
-                  4. Run the pipeline command to start streaming to Kinesis Video Streams
+                  <strong>4. Install dependencies</strong> - Make sure GStreamer and the Kinesis Video Streams plugin are installed
+                </Box>
+                <Box>
+                  <strong>5. Paste and run</strong> - The command can be pasted directly into your terminal and will execute properly
                 </Box>
               </SpaceBetween>
             </Box>
@@ -220,7 +276,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
       )}
 
       {/* Help Section */}
-      {!generatedPipeline && !isLoading && !error && (
+      {!formattedPipeline && !isLoading && !error && (
         <Container
           header={<Header variant="h3">💡 How It Works</Header>}
         >
