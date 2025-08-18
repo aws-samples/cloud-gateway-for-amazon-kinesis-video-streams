@@ -1,6 +1,6 @@
 MODEL=/work/intel/person-vehicle-bike-detection-2000/FP32/person-vehicle-bike-detection-2000.xml
 PROC=/opt/intel/dlstreamer/samples/model_proc/intel/person-vehicle-bike-detection-2000.json
-RTSP_URL="rtsp://rtspgateway:qOjicr6ro7ER@192.168.4.119/Preview_01_main"
+RTSP_URL="rtsp://username:password@your-camera-ip:554/stream"
 KVS_STREAM_NAME="dlstreamer-test"
 
 gst-launch-1.0 -e \

@@ -24,7 +24,7 @@ echo "⏳ Testing frame extraction (this may take 10-15 seconds)..."
 
 RESPONSE=$(curl -s -X POST "$API_ENDPOINT" \
     -H "Content-Type: application/json" \
-    -d '{"rtsp_url": "rtsp://rtspgateway:qOjicr6ro7ER@47.198.161.34/Preview_05_main", "mode": "characteristics", "capture_frame": true}' \
+    -d '{"rtsp_url": "rtsp://testuser:testpass@demo-camera.example.com:554/stream", "mode": "characteristics", "capture_frame": true}' \
     -w "HTTP_STATUS:%{http_code}" \
     --max-time 60)
 
@@ -78,7 +78,7 @@ echo "Test 2: Stream analysis without frame extraction"
 echo "-----------------------------------------------"
 RESPONSE=$(curl -s -X POST "$API_ENDPOINT" \
     -H "Content-Type: application/json" \
-    -d '{"rtsp_url": "rtsp://rtspgateway:qOjicr6ro7ER@47.198.161.34/Preview_05_main", "mode": "characteristics", "capture_frame": false}' \
+    -d '{"rtsp_url": "rtsp://testuser:testpass@demo-camera.example.com:554/stream", "mode": "characteristics", "capture_frame": false}' \
     -w "HTTP_STATUS:%{http_code}" \
     --max-time 30)
 

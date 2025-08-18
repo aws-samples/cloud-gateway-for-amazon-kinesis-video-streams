@@ -1,0 +1,22 @@
+# AWS Environment Variables Template
+# Copy this file to 'set-aws-env' and fill in your AWS credentials
+# 
+# SECURITY WARNING: Never commit the actual 'set-aws-env' file to version control!
+# The 'set-aws-env' file is already in .gitignore to prevent accidental commits.
+
+export AWS_DEFAULT_REGION=us-east-1
+export AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY_HERE
+export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY_HERE
+
+# Optional: If using temporary credentials (STS/assume role)
+# export AWS_SESSION_TOKEN=YOUR_SESSION_TOKEN_HERE
+
+# Usage:
+# 1. Copy this template: cp set-aws-env.template set-aws-env
+# 2. Edit set-aws-env with your actual credentials
+# 3. Source the file: source set-aws-env
+# 4. Run your Docker commands
+
+# Alternative: Use AWS CLI profiles instead of environment variables
+# aws configure --profile your-profile-name
+# export AWS_PROFILE=your-profile-name

@@ -48,7 +48,7 @@ def main():
     print("=" * 70)
     
     # Test URL
-    test_url = "rtsp://rtspgateway:qOjicr6ro7ER@47.198.161.34/Preview_05_main"
+    test_url = "rtsp://testuser:testpass@demo-camera.example.com:554/stream"
     
     # Test cases
     tests = [

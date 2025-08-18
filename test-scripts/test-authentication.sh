@@ -22,7 +22,7 @@ echo "Test 1: DIGEST Authentication"
 echo "-----------------------------"
 RESPONSE=$(curl -s -X POST "$API_ENDPOINT" \
     -H "Content-Type: application/json" \
-    -d '{"rtsp_url": "rtsp://rtspgateway:qOjicr6ro7ER@47.198.161.34/Preview_05_main", "mode": "characteristics"}' \
+    -d '{"rtsp_url": "rtsp://testuser:testpass@demo-camera.example.com:554/stream", "mode": "characteristics"}' \
     -w "HTTP_STATUS:%{http_code}" \
     --max-time 30)
 
@@ -73,7 +73,7 @@ echo "Test 3: Invalid Credentials"
 echo "---------------------------"
 RESPONSE=$(curl -s -X POST "$API_ENDPOINT" \
     -H "Content-Type: application/json" \
-    -d '{"rtsp_url": "rtsp://wronguser:wrongpass@47.198.161.34/Preview_05_main", "mode": "characteristics"}' \
+    -d '{"rtsp_url": "rtsp://wronguser:wrongpass@demo-camera.example.com:554/stream", "mode": "characteristics"}' \
     -w "HTTP_STATUS:%{http_code}" \
     --max-time 30)
 
