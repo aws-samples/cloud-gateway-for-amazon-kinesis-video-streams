@@ -7,7 +7,6 @@ import {
   Input,
   Button,
   Alert,
-  CodeView,
   Box,
   Spinner
 } from '@cloudscape-design/components';
@@ -183,10 +182,21 @@ const GStreamerPipelineGenerator: React.FC = () => {
               to Amazon Kinesis Video Streams.
             </Alert>
 
-            <CodeView
-              content={generatedPipeline}
-              highlight="bash"
-            />
+            <Box
+              padding="m"
+              style={{
+                backgroundColor: '#f2f3f3',
+                borderRadius: '4px',
+                fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                fontSize: '14px',
+                whiteSpace: 'pre-wrap',
+                overflow: 'auto',
+                border: '1px solid #d5dbdb',
+                maxHeight: '400px'
+              }}
+            >
+              {generatedPipeline}
+            </Box>
 
             <Box>
               <Header variant="h4">📋 Usage Instructions</Header>
