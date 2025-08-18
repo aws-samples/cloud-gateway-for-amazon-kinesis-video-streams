@@ -72,14 +72,12 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
     {
       type: "link" as const,
       text: "🚀 Quick Tester",
-      href: "#quick-tester",
-      info: "Test demo streams"
+      href: "#quick-tester"
     },
     {
       type: "link" as const,
       text: "🔧 RTSP Stream Tester", 
-      href: "#rtsp-tester",
-      info: "Full stream testing"
+      href: "#rtsp-tester"
     },
     {
       type: "divider" as const
@@ -87,20 +85,17 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
     {
       type: "link" as const,
       text: "📊 Stream Dashboard",
-      href: "#dashboard",
-      info: "Monitor streams"
+      href: "#dashboard"
     },
     {
       type: "link" as const,
       text: "⚙️ Pipeline Generator",
-      href: "#pipeline",
-      info: "Generate pipelines"
+      href: "#pipeline"
     },
     {
       type: "link" as const,
       text: "📈 Analytics",
-      href: "#analytics",
-      info: "View metrics"
+      href: "#analytics"
     }
   ];
 
