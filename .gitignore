@@ -12,6 +12,36 @@ cdk-pipeline-generator/**/*.d.ts
 cdk-pipeline-generator/.env
 cdk-pipeline-generator/cdk.context.json
 
+# Simple RTSP Server CDK artifacts
+simple-rtsp-server/cdk-deployment/node_modules/
+simple-rtsp-server/cdk-deployment/cdk.out/
+simple-rtsp-server/cdk-deployment/dist/
+simple-rtsp-server/cdk-deployment/**/*.js
+simple-rtsp-server/cdk-deployment/**/*.js.map
+simple-rtsp-server/cdk-deployment/**/*.d.ts
+simple-rtsp-server/cdk-deployment/.env
+simple-rtsp-server/cdk-deployment/cdk.context.json
+
+# Fargate CDK artifacts
+fargate-cdk-app/node_modules/
+fargate-cdk-app/cdk.out/
+fargate-cdk-app/dist/
+fargate-cdk-app/**/*.js
+fargate-cdk-app/**/*.js.map
+fargate-cdk-app/**/*.d.ts
+fargate-cdk-app/.env
+fargate-cdk-app/cdk.context.json
+
+# EC2 CDK artifacts
+ec2-cdk-app/node_modules/
+ec2-cdk-app/cdk.out/
+ec2-cdk-app/dist/
+ec2-cdk-app/**/*.js
+ec2-cdk-app/**/*.js.map
+ec2-cdk-app/**/*.d.ts
+ec2-cdk-app/.env
+ec2-cdk-app/cdk.context.json
+
 # Python artifacts
 __pycache__/
 *.py[cod]
