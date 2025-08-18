@@ -10,9 +10,9 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy": "npm run build && cdk deploy --profile malone-aws --require-approval never",
-    "destroy": "cdk destroy --profile malone-aws --force",
-    "bootstrap": "cdk bootstrap --profile malone-aws"
+    "deploy": "npm run build && cdk deploy --require-approval never",
+    "destroy": "cdk destroy --force",
+    "bootstrap": "cdk bootstrap"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",

@@ -52,8 +52,8 @@ RUN echo "Testing GStreamer installation..." && \
     python3 -c "import gi; gi.require_version('Gst', '1.0'); gi.require_version('GstRtspServer', '1.0'); from gi.repository import Gst, GstRtspServer; print('GStreamer Python bindings OK')" && \
     echo "GStreamer test completed successfully"
 
-# Expose RTSP ports (standard and secure)
-EXPOSE 8554 8555 8556 8557 8558 8559 8322
+# Expose RTSP ports (standard and secure) and HTTP REST API port
+EXPOSE 8554 8555 8556 8557 8558 8559 8322 8080
 
 # Enhanced health check for AWS deployment - tests actual RTSP functionality
 HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=3 \

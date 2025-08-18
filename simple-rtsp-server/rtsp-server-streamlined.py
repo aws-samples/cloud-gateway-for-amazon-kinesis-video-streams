@@ -9,10 +9,64 @@ import time
 import hashlib
 import base64
 import itertools
+import json
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import socket
+
+class RTSPURLHandler(BaseHTTPRequestHandler):
+    """HTTP handler to serve RTSP URL information"""
+    
+    def do_GET(self):
+        if self.path == '/rtsp-urls' or self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')  # Enable CORS
+            self.end_headers()
+            
+            # Get the server's public IP
+            try:
+                # Try to get public IP from metadata service (works in AWS)
+                import urllib.request
+                public_ip = urllib.request.urlopen('http://169.254.169.254/latest/meta-data/public-ipv4', timeout=2).read().decode()
+            except:
+                # Fallback to local IP
+                try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    s.connect(("8.8.8.8", 80))
+                    public_ip = s.getsockname()[0]
+                    s.close()
+                except:
+                    public_ip = "localhost"
+            
+            # Get RTSP URLs from the server instance
+            rtsp_urls = self.server.rtsp_server_instance.get_all_rtsp_urls(public_ip)
+            
+            response = {
+                "server_info": {
+                    "name": "Streamlined RTSP Test Server",
+                    "version": "1.0",
+                    "public_ip": public_ip,
+                    "total_streams": len(rtsp_urls)
+                },
+                "rtsp_urls": rtsp_urls
+            }
+            
+            self.wfile.write(json.dumps(response, indent=2).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b'Not Found')
+    
+    def log_message(self, format, *args):
+        # Suppress HTTP server logs to keep output clean
+        pass
 
 class StreamlinedRTSPTestServer:
     def __init__(self):
         Gst.init(None)
+        
+        # Store all created streams for REST API
+        self.all_streams = []
         
         # Define practical codec matrix (removed obsolete legacy codecs)
         self.video_codecs = {
@@ -150,6 +204,20 @@ class StreamlinedRTSPTestServer:
                 factory.set_launch(stream['pipeline'])
                 factory.set_shared(True)
                 mounts.add_factory(stream['path'], factory)
+                
+                # Store stream info for REST API
+                stream_info = {
+                    'path': stream['path'],
+                    'description': stream['description'],
+                    'codec': stream['codec'],
+                    'resolution': stream['resolution'],
+                    'framerate': stream['framerate'],
+                    'audio': stream['audio'],
+                    'port': config['port'],
+                    'server_name': server_name
+                }
+                self.all_streams.append(stream_info)
+                
                 print(f"✅ Added {stream['description']} to {server_name} server at {stream['path']}")
             except Exception as e:
                 print(f"❌ Failed to add {stream['description']}: {e}")
@@ -344,9 +412,53 @@ class StreamlinedRTSPTestServer:
         print("  python3 test-streamlined-codecs.py")
         print()
 
+    def get_all_rtsp_urls(self, public_ip):
+        """Generate all RTSP URLs for REST API"""
+        rtsp_urls = []
+        
+        for stream in self.all_streams:
+            url = f"rtsp://{public_ip}:{stream['port']}{stream['path']}"
+            rtsp_urls.append({
+                "url": url,
+                "description": stream['description'],
+                "codec": stream['codec'],
+                "resolution": stream['resolution'],
+                "framerate": stream['framerate'],
+                "audio": stream['audio'],
+                "port": int(stream['port']),
+                "path": stream['path'],
+                "server": stream['server_name']
+            })
+        
+        # Sort by port, then by codec, then by resolution
+        rtsp_urls.sort(key=lambda x: (x['port'], x['codec'], x['resolution']))
+        return rtsp_urls
+
+    def start_http_server(self):
+        """Start HTTP server for REST API"""
+        try:
+            http_port = 8080
+            httpd = HTTPServer(('0.0.0.0', http_port), RTSPURLHandler)
+            httpd.rtsp_server_instance = self  # Pass reference to RTSP server
+            
+            print(f"🌐 HTTP REST API server started on port {http_port}")
+            print(f"📋 REST API endpoint: http://[CONTAINER-IP]:{http_port}/rtsp-urls")
+            
+            # Start HTTP server in a separate thread
+            http_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+            http_thread.start()
+            
+            return httpd
+        except Exception as e:
+            print(f"❌ Failed to start HTTP server: {e}")
+            return None
+
 def main():
     server = StreamlinedRTSPTestServer()
     server.start_servers()
+    
+    # Start HTTP REST API server
+    server.start_http_server()
     
     # Keep the server running
     loop = GLib.MainLoop()
