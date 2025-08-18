@@ -12,8 +12,7 @@ import {
   Alert,
   Loader,
   Image,
-  Badge,
-  SelectField
+  Badge
 } from '@aws-amplify/ui-react';
 import { apiUtils } from '../config/api';
 import type { 
@@ -23,15 +22,12 @@ import type {
 } from '../config/api';
 
 interface ValidationErrors {
-  cameraName?: string;
   rtspUrl?: string;
 }
 
 const RTSPStreamTester: React.FC = () => {
   const [formData, setFormData] = useState({
-    cameraName: '',
     rtspUrl: '',
-    streamRetention: '24', // hours
     captureFrame: true
   });
   
@@ -57,13 +53,6 @@ const RTSPStreamTester: React.FC = () => {
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
-    
-    // Validate camera name
-    if (!formData.cameraName.trim()) {
-      errors.cameraName = 'Camera name is required';
-    } else if (formData.cameraName.trim().length < 2) {
-      errors.cameraName = 'Camera name must be at least 2 characters long';
-    }
     
     // Validate RTSP URL
     if (!formData.rtspUrl.trim()) {
@@ -152,7 +141,7 @@ const RTSPStreamTester: React.FC = () => {
             <View>
               <Text style={{ fontWeight: 'bold' }}>Stream Analysis Successful!</Text>
               <Text style={{ fontSize: 'small' }}>
-                Connection established and stream characteristics detected for "{formData.cameraName}"
+                Connection established and stream characteristics detected
               </Text>
             </View>
           </Flex>
@@ -444,29 +433,6 @@ const RTSPStreamTester: React.FC = () => {
           <Heading level={3} style={{ marginBottom: 'var(--amplify-space-medium)' }}>Camera Configuration</Heading>
           
           <Flex style={{ flexDirection: 'column', gap: 'var(--amplify-space-medium)' }}>
-            {/* Camera Name Field */}
-            <View>
-              <Label htmlFor="cameraName" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                Camera Name 
-                <Text style={{ color: 'red' }}>*</Text>
-              </Label>
-              <Input
-                id="cameraName"
-                placeholder="e.g., Front Door Camera"
-                value={formData.cameraName}
-                onChange={(e) => handleInputChange('cameraName', e.target.value)}
-                hasError={!!validationErrors.cameraName}
-              />
-              {validationErrors.cameraName && (
-                <Text style={{ fontSize: 'small', color: 'red', marginTop: 'var(--amplify-space-xs)' }}>
-                  {validationErrors.cameraName}
-                </Text>
-              )}
-              <Text style={{ fontSize: 'small', color: 'gray' }}>
-                Friendly name for this camera stream
-              </Text>
-            </View>
-
             {/* RTSP URL Field */}
             <View>
               <Label htmlFor="rtspUrl" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -487,27 +453,6 @@ const RTSPStreamTester: React.FC = () => {
               )}
               <Text style={{ fontSize: 'small', color: 'gray' }}>
                 Include credentials: rtsp://user:pass@host:port/path
-              </Text>
-            </View>
-
-            {/* Stream Retention Field */}
-            <View>
-              <SelectField
-                label="Stream Retention Period"
-                id="streamRetention"
-                value={formData.streamRetention}
-                onChange={(e) => handleInputChange('streamRetention', e.target.value)}
-              >
-                <option value="1">1 hour</option>
-                <option value="6">6 hours</option>
-                <option value="12">12 hours</option>
-                <option value="24">24 hours (default)</option>
-                <option value="48">48 hours</option>
-                <option value="72">72 hours</option>
-                <option value="168">1 week</option>
-              </SelectField>
-              <Text style={{ fontSize: 'small', color: 'gray' }}>
-                How long to retain video data in Kinesis Video Streams
               </Text>
             </View>
 
@@ -594,7 +539,7 @@ const RTSPStreamTester: React.FC = () => {
                 textAlign: 'center', 
                 marginTop: 'var(--amplify-space-small)' 
               }}>
-                • Connecting to "{formData.cameraName}"<br/>
+                • Connecting to RTSP stream<br/>
                 • Detecting codecs and stream properties<br/>
                 • Extracting frame (if enabled)<br/>
                 • Analyzing characteristics
@@ -609,7 +554,7 @@ const RTSPStreamTester: React.FC = () => {
                   <Flex style={{ alignItems: 'flex-start', gap: 'var(--amplify-space-small)' }}>
                     <Text style={{ fontSize: 'large' }}>❌</Text>
                     <View>
-                      <Text style={{ fontWeight: 'bold' }}>Test Failed for "{formData.cameraName}"</Text>
+                      <Text style={{ fontWeight: 'bold' }}>Stream Test Failed</Text>
                       <Text style={{ marginTop: 'var(--amplify-space-xs)' }}>{testResult.error}</Text>
                       {testResult.suggestion && (
                         <View style={{ 
