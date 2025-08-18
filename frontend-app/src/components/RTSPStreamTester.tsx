@@ -413,11 +413,6 @@ const RTSPStreamTester: React.FC = () => {
 
   return (
     <View style={{ padding: 'var(--amplify-space-large)' }}>
-      <Heading level={2}>RTSP Stream Configuration & Testing</Heading>
-      <Text style={{ color: 'gray', marginBottom: 'var(--amplify-space-large)' }}>
-        Configure your camera settings and test the RTSP stream connection with real-time analysis
-      </Text>
-
       <Flex style={{ 
         gap: 'var(--amplify-space-large)',
         alignItems: 'flex-start',
