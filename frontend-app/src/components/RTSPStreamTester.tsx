@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import {
-  Button,
-  Card,
-  Flex,
-  Grid,
-  Heading,
+  Container,
+  Header,
+  SpaceBetween,
+  FormField,
   Input,
-  Label,
-  Text,
-  View,
+  Button,
   Alert,
-  Loader,
-  Image,
+  Box,
+  Spinner,
+  Checkbox,
+  Grid,
   Badge
-} from '@aws-amplify/ui-react';
+} from '@cloudscape-design/components';
 import { apiUtils } from '../config/api';
 import type { 
   APIResponse, 
@@ -134,125 +133,148 @@ const RTSPStreamTester: React.FC = () => {
     const { video, audio, connection, diagnostics } = characteristics;
 
     return (
-      <View>
-        <Alert variation="success" style={{ marginBottom: 'var(--amplify-space-medium)' }}>
-          <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)' }}>
-            <Text style={{ fontSize: 'large' }}>✅</Text>
-            <View>
-              <Text style={{ fontWeight: 'bold' }}>Stream Analysis Successful!</Text>
-              <Text style={{ fontSize: 'small' }}>
-                Connection established and stream characteristics detected
-              </Text>
-            </View>
-          </Flex>
+      <SpaceBetween size="m">
+        <Alert type="success" header="✅ Stream Analysis Successful!">
+          Connection established and stream characteristics detected
         </Alert>
         
         {/* Diagnostics */}
         {testResult?.stream_characteristics && (() => {
           const { diagnostics } = testResult.stream_characteristics;
           return diagnostics && (diagnostics.warnings?.length || diagnostics.info?.length) && (
-            <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
-              <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
-                <Text style={{ fontSize: 'large' }}>🔍</Text>
-                <Heading level={5} style={{ margin: 0 }}>Diagnostics</Heading>
-              </Flex>
-              {diagnostics.warnings && diagnostics.warnings.length > 0 && (
-                <View style={{ marginBottom: 'var(--amplify-space-small)' }}>
-                  {diagnostics.warnings.map((warning, index) => (
-                    <Alert key={index} variation="warning" style={{ marginBottom: 'var(--amplify-space-xs)' }}>
-                      <Text style={{ fontSize: 'small' }}>{warning}</Text>
-                    </Alert>
-                  ))}
-                </View>
-              )}
-              {diagnostics.info && diagnostics.info.length > 0 && (
-                <View>
-                  {diagnostics.info.map((info, index) => (
-                    <Alert key={index} variation="info" style={{ marginBottom: 'var(--amplify-space-xs)' }}>
-                      <Text style={{ fontSize: 'small' }}>{info}</Text>
-                    </Alert>
-                  ))}
-                </View>
-              )}
-            </Card>
+            <Container header={<Header variant="h4">🔍 Diagnostics</Header>}>
+              <SpaceBetween size="s">
+                {diagnostics.warnings && diagnostics.warnings.length > 0 && (
+                  <SpaceBetween size="xs">
+                    {diagnostics.warnings.map((warning, index) => (
+                      <Alert key={index} type="warning">
+                        {warning}
+                      </Alert>
+                    ))}
+                  </SpaceBetween>
+                )}
+                {diagnostics.info && diagnostics.info.length > 0 && (
+                  <SpaceBetween size="xs">
+                    {diagnostics.info.map((info, index) => (
+                      <Alert key={index} type="info">
+                        {info}
+                      </Alert>
+                    ))}
+                  </SpaceBetween>
+                )}
+              </SpaceBetween>
+            </Container>
           );
         })()}
         
         {/* Captured Frame Preview */}
         {previewImage && (
-          <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
-            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
-              <Text style={{ fontSize: 'large' }}>📸</Text>
-              <Heading level={5} style={{ margin: 0 }}>Captured Frame Preview</Heading>
-            </Flex>
-            <View style={{ 
-              border: '2px solid var(--amplify-colors-border-primary)',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              backgroundColor: 'var(--amplify-colors-background-secondary)'
-            }}>
-              <Image
-                src={`data:image/jpeg;base64,${previewImage}`}
-                alt="RTSP Stream Preview"
-                style={{ 
-                  width: '100%',
-                  height: 'auto',
-                  display: 'block'
+          <Container header={<Header variant="h4">📸 Captured Frame Preview</Header>}>
+            <SpaceBetween size="s">
+              <Box
+                padding="s"
+                style={{
+                  border: '2px solid #0073bb',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  backgroundColor: '#f9f9f9',
+                  textAlign: 'center'
                 }}
-              />
-            </View>
-            <Text style={{ 
-              fontSize: 'small', 
-              color: 'gray', 
-              marginTop: 'var(--amplify-space-xs)',
-              textAlign: 'center'
-            }}>
-              Frame extracted from RTSP stream using OpenCV
-            </Text>
-            {testResult?.stream_characteristics?.frame_capture && (
-              <Flex style={{ 
-                justifyContent: 'center', 
-                gap: 'var(--amplify-space-large)', 
-                marginTop: 'var(--amplify-space-small)',
-                flexWrap: 'wrap'
-              }}>
-                <Text style={{ fontSize: 'small' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Size:</Text> {apiUtils.formatFileSize(testResult.stream_characteristics.frame_capture.size_bytes || 0)}
-                </Text>
-                <Text style={{ fontSize: 'small' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Time:</Text> {apiUtils.formatDuration(testResult.stream_characteristics.frame_capture.capture_time_ms || 0)}
-                </Text>
-                <Text style={{ fontSize: 'small' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Resolution:</Text> {testResult.stream_characteristics.frame_capture.width}x{testResult.stream_characteristics.frame_capture.height}
-                </Text>
-                <Text style={{ fontSize: 'small' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Original:</Text> {testResult.stream_characteristics.frame_capture.original_width}x{testResult.stream_characteristics.frame_capture.original_height}
-                </Text>
-              </Flex>
-            )}
-          </Card>
+              >
+                <img
+                  src={`data:image/jpeg;base64,${previewImage}`}
+                  alt="RTSP Stream Preview"
+                  style={{ 
+                    width: '100%',
+                    height: 'auto',
+                    display: 'block'
+                  }}
+                />
+              </Box>
+              <Box fontSize="body-s" color="text-body-secondary" textAlign="center">
+                Frame extracted from RTSP stream using OpenCV
+              </Box>
+              {testResult?.stream_characteristics?.frame_capture && (
+                <Grid gridDefinition={[
+                  { colspan: { default: 12, xs: 6, s: 3 } },
+                  { colspan: { default: 12, xs: 6, s: 3 } },
+                  { colspan: { default: 12, xs: 6, s: 3 } },
+                  { colspan: { default: 12, xs: 6, s: 3 } }
+                ]}>
+                  <Box fontSize="body-s">
+                    <Box fontWeight="bold">Size:</Box> {apiUtils.formatFileSize(testResult.stream_characteristics.frame_capture.size_bytes || 0)}
+                  </Box>
+                  <Box fontSize="body-s">
+                    <Box fontWeight="bold">Time:</Box> {apiUtils.formatDuration(testResult.stream_characteristics.frame_capture.capture_time_ms || 0)}
+                  </Box>
+                  <Box fontSize="body-s">
+                    <Box fontWeight="bold">Resolution:</Box> {testResult.stream_characteristics.frame_capture.width}x{testResult.stream_characteristics.frame_capture.height}
+                  </Box>
+                  <Box fontSize="body-s">
+                    <Box fontWeight="bold">Original:</Box> {testResult.stream_characteristics.frame_capture.original_width}x{testResult.stream_characteristics.frame_capture.original_height}
+                  </Box>
+                </Grid>
+              )}
+            </SpaceBetween>
+          </Container>
         )}
         
         {/* Recommended GStreamer Pipeline */}
         {testResult?.generated_pipeline && (
-          <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
-            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
-              <Text style={{ fontSize: 'large' }}>🔧</Text>
-              <Heading level={5} style={{ margin: 0 }}>Recommended GStreamer Pipeline</Heading>
-            </Flex>
-            <View style={{ 
-              backgroundColor: 'var(--amplify-colors-background-secondary)',
-              padding: 'var(--amplify-space-medium)',
-              borderRadius: '8px',
-              border: '1px solid var(--amplify-colors-border-primary)',
-              marginBottom: 'var(--amplify-space-small)'
-            }}>
-              <Text style={{ 
-                fontFamily: 'monospace',
-                fontSize: 'small',
-                wordBreak: 'break-all',
-                whiteSpace: 'pre-wrap'
-              }}>
+          <Container
+            header={
+              <Header 
+                variant="h4"
+                actions={
+                  <Button
+                    onClick={() => {
+                      const pipelineText = (() => {
+                        try {
+                          const pipeline = JSON.parse(testResult.generated_pipeline);
+                          const pipelineText = pipeline.pipeline || testResult.generated_pipeline;
+                          
+                          // Format as multiline bash command
+                          return pipelineText
+                            .replace(/gst-launch-1\.0\s+/, 'gst-launch-1.0 \\\n  ')
+                            .replace(/\s+!\s+/g, ' \\\n  ! ')
+                            .replace(/\s+rtpmp4adepay/g, ' \\\n  rtpmp4adepay')
+                            .replace(/\s+kvssink/g, ' \\\n  kvssink');
+                        } catch {
+                          // If not JSON, format the raw pipeline text
+                          return testResult.generated_pipeline
+                            .replace(/gst-launch-1\.0\s+/, 'gst-launch-1.0 \\\n  ')
+                            .replace(/\s+!\s+/g, ' \\\n  ! ')
+                            .replace(/\s+rtpmp4adepay/g, ' \\\n  rtpmp4adepay')
+                            .replace(/\s+kvssink/g, ' \\\n  kvssink');
+                        }
+                      })();
+                      navigator.clipboard.writeText(pipelineText);
+                    }}
+                    iconName="copy"
+                  >
+                    Copy Pipeline
+                  </Button>
+                }
+              >
+                🔧 Recommended GStreamer Pipeline
+              </Header>
+            }
+          >
+            <SpaceBetween size="s">
+              <pre
+                style={{
+                  backgroundColor: '#f2f3f3',
+                  borderRadius: '4px',
+                  fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                  fontSize: '14px',
+                  overflow: 'auto',
+                  border: '1px solid #d5dbdb',
+                  padding: '16px',
+                  margin: 0,
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-all'
+                }}
+              >
                 {(() => {
                   try {
                     const pipeline = JSON.parse(testResult.generated_pipeline);
@@ -273,309 +295,269 @@ const RTSPStreamTester: React.FC = () => {
                       .replace(/\s+kvssink/g, ' \\\n  kvssink');
                   }
                 })()}
-              </Text>
-            </View>
-            <Text style={{ fontSize: 'small', color: 'gray' }}>
-              Copy this pipeline to use with GStreamer for streaming to Kinesis Video Streams
-            </Text>
-          </Card>
+              </pre>
+              <Box fontSize="body-s" color="text-body-secondary">
+                Copy this pipeline to use with GStreamer for streaming to Kinesis Video Streams
+              </Box>
+            </SpaceBetween>
+          </Container>
         )}
         
         {/* Video Information */}
         {video && (
-          <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
-            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
-              <Text style={{ fontSize: 'large' }}>🎥</Text>
-              <Heading level={5} style={{ margin: 0 }}>Video Stream</Heading>
-            </Flex>
-            <Grid style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--amplify-space-small)' }}>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Codec</Text>
-                <Badge variation="info" size="small">{video.codec || 'Unknown'}</Badge>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Framerate</Text>
-                <Text>{video.framerate || 'Unknown'}</Text>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Bitrate</Text>
-                <Text>{video.bitrate || 'Unknown'}</Text>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Clock Rate</Text>
-                <Text>{video.clock_rate || 'Unknown'}</Text>
-              </View>
+          <Container header={<Header variant="h4">🎥 Video Stream</Header>}>
+            <Grid gridDefinition={[
+              { colspan: { default: 12, xs: 6, s: 3 } },
+              { colspan: { default: 12, xs: 6, s: 3 } },
+              { colspan: { default: 12, xs: 6, s: 3 } },
+              { colspan: { default: 12, xs: 6, s: 3 } }
+            ]}>
+              <Box>
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Codec</Box>
+                <Badge color="blue">{video.codec || 'Unknown'}</Badge>
+              </Box>
+              <Box>
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Framerate</Box>
+                <Box>{video.framerate || 'Unknown'}</Box>
+              </Box>
+              <Box>
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Bitrate</Box>
+                <Box>{video.bitrate || 'Unknown'}</Box>
+              </Box>
+              <Box>
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Clock Rate</Box>
+                <Box>{video.clock_rate || 'Unknown'}</Box>
+              </Box>
             </Grid>
             {video.resolution_info && (
-              <View style={{ 
-                marginTop: 'var(--amplify-space-small)', 
-                padding: 'var(--amplify-space-small)', 
-                backgroundColor: 'var(--amplify-colors-background-secondary)' 
-              }}>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Resolution Info</Text>
-                <Text style={{ fontSize: 'small' }}>{video.resolution_info}</Text>
-              </View>
+              <Box 
+                margin={{ top: 's' }}
+                padding="s"
+                style={{ backgroundColor: '#f9f9f9', borderRadius: '4px' }}
+              >
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Resolution Info</Box>
+                <Box fontSize="body-s">{video.resolution_info}</Box>
+              </Box>
             )}
-          </Card>
+          </Container>
         )}
 
         {/* Audio Information */}
         {audio && (
-          <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
-            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
-              <Text style={{ fontSize: 'large' }}>🔊</Text>
-              <Heading level={5} style={{ margin: 0 }}>Audio Stream</Heading>
-            </Flex>
-            <Grid style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--amplify-space-small)' }}>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Codec</Text>
-                <Badge variation="success" size="small">{audio.codec || 'Unknown'}</Badge>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Sample Rate</Text>
-                <Text>{audio.sample_rate || 'Unknown'}</Text>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Bitrate</Text>
-                <Text>{audio.bitrate || 'Unknown'}</Text>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Profile</Text>
-                <Text>{audio.profile || 'Unknown'}</Text>
-              </View>
+          <Container header={<Header variant="h4">🔊 Audio Stream</Header>}>
+            <Grid gridDefinition={[
+              { colspan: { default: 12, xs: 6, s: 3 } },
+              { colspan: { default: 12, xs: 6, s: 3 } },
+              { colspan: { default: 12, xs: 6, s: 3 } },
+              { colspan: { default: 12, xs: 6, s: 3 } }
+            ]}>
+              <Box>
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Codec</Box>
+                <Badge color="green">{audio.codec || 'Unknown'}</Badge>
+              </Box>
+              <Box>
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Sample Rate</Box>
+                <Box>{audio.sample_rate || 'Unknown'}</Box>
+              </Box>
+              <Box>
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Bitrate</Box>
+                <Box>{audio.bitrate || 'Unknown'}</Box>
+              </Box>
+              <Box>
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Profile</Box>
+                <Box>{audio.profile || 'Unknown'}</Box>
+              </Box>
             </Grid>
             {audio.config && (
-              <View style={{ 
-                marginTop: 'var(--amplify-space-small)', 
-                padding: 'var(--amplify-space-small)', 
-                backgroundColor: 'var(--amplify-colors-background-secondary)' 
-              }}>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Audio Config</Text>
-                <Text style={{ fontSize: 'small', fontFamily: 'monospace' }}>{audio.config}</Text>
-              </View>
+              <Box 
+                margin={{ top: 's' }}
+                padding="s"
+                style={{ backgroundColor: '#f9f9f9', borderRadius: '4px' }}
+              >
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Audio Config</Box>
+                <Box fontSize="body-s" fontFamily="monospace">{audio.config}</Box>
+              </Box>
             )}
-          </Card>
+          </Container>
         )}
 
         {/* Connection Information */}
         {connection && (
-          <Card style={{ marginBottom: 'var(--amplify-space-medium)', padding: 'var(--amplify-space-medium)' }}>
-            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
-              <Text style={{ fontSize: 'large' }}>🔗</Text>
-              <Heading level={5} style={{ margin: 0 }}>Connection Details</Heading>
-            </Flex>
-            <Grid style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--amplify-space-small)' }}>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Authentication</Text>
-                <Badge variation="warning" size="small">{connection.authentication_method || 'Unknown'}</Badge>
-              </View>
-              <View>
-                <Text style={{ fontSize: 'small', fontWeight: 'bold', color: 'gray' }}>Connection Time</Text>
-                <Text>{connection.connection_time || 'Unknown'}</Text>
-              </View>
+          <Container header={<Header variant="h4">🔗 Connection Details</Header>}>
+            <Grid gridDefinition={[
+              { colspan: { default: 12, xs: 6 } },
+              { colspan: { default: 12, xs: 6 } }
+            ]}>
+              <Box>
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Authentication</Box>
+                <Badge color="orange">{connection.authentication_method || 'Unknown'}</Badge>
+              </Box>
+              <Box>
+                <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Connection Time</Box>
+                <Box>{connection.connection_time || 'Unknown'}</Box>
+              </Box>
             </Grid>
-          </Card>
+          </Container>
         )}
 
         {/* SDP Contents */}
         {testResult?.stream_characteristics?.raw_sdp && (
-          <Card style={{ padding: 'var(--amplify-space-medium)' }}>
-            <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)', marginBottom: 'var(--amplify-space-small)' }}>
-              <Text style={{ fontSize: 'large' }}>📄</Text>
-              <Heading level={5} style={{ margin: 0 }}>SDP Contents</Heading>
-            </Flex>
-            <View style={{ 
-              backgroundColor: 'var(--amplify-colors-background-secondary)',
-              padding: 'var(--amplify-space-medium)',
-              borderRadius: '8px',
-              border: '1px solid var(--amplify-colors-border-primary)',
-              maxHeight: '300px',
-              overflow: 'auto',
-              marginBottom: 'var(--amplify-space-small)'
-            }}>
-              <Text style={{ 
-                fontFamily: 'monospace',
-                fontSize: 'small',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-all'
-              }}>
+          <Container header={<Header variant="h4">📄 SDP Contents</Header>}>
+            <SpaceBetween size="s">
+              <pre
+                style={{
+                  backgroundColor: '#f2f3f3',
+                  borderRadius: '4px',
+                  fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                  fontSize: '12px',
+                  overflow: 'auto',
+                  border: '1px solid #d5dbdb',
+                  padding: '16px',
+                  margin: 0,
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-all',
+                  maxHeight: '300px'
+                }}
+              >
                 {testResult.stream_characteristics.raw_sdp}
-              </Text>
-            </View>
-            <Text style={{ fontSize: 'small', color: 'gray' }}>
-              Raw Session Description Protocol (SDP) data from the RTSP stream
-            </Text>
-          </Card>
+              </pre>
+              <Box fontSize="body-s" color="text-body-secondary">
+                Raw Session Description Protocol (SDP) data from the RTSP stream
+              </Box>
+            </SpaceBetween>
+          </Container>
         )}
-      </View>
+      </SpaceBetween>
     );
   };
 
   return (
-    <View style={{ padding: 'var(--amplify-space-large)' }}>
+    <SpaceBetween size="l">
       {/* Configuration Form */}
-      <View style={{ marginBottom: 'var(--amplify-space-large)' }}>
-        <Card style={{ padding: 'var(--amplify-space-large)' }}>
-          <Heading level={3} style={{ marginBottom: 'var(--amplify-space-medium)' }}>Camera Configuration</Heading>
-          
-          <Flex style={{ flexDirection: 'column', gap: 'var(--amplify-space-medium)' }}>
-            {/* RTSP URL Field */}
-            <View>
-              <Label htmlFor="rtspUrl" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                RTSP URL 
-                <Text style={{ color: 'red' }}>*</Text>
-              </Label>
-              <Input
-                id="rtspUrl"
-                placeholder="rtsp://username:password@camera-ip:554/stream"
-                value={formData.rtspUrl}
-                onChange={(e) => handleInputChange('rtspUrl', e.target.value)}
-                hasError={!!validationErrors.rtspUrl}
-              />
-              {validationErrors.rtspUrl && (
-                <Text style={{ fontSize: 'small', color: 'red', marginTop: 'var(--amplify-space-xs)' }}>
-                  {validationErrors.rtspUrl}
-                </Text>
-              )}
-              <Text style={{ fontSize: 'small', color: 'gray' }}>
-                Include credentials: rtsp://user:pass@host:port/path
-              </Text>
-            </View>
+      <Container
+        header={
+          <Header variant="h2">
+            🎥 RTSP Stream Tester
+          </Header>
+        }
+      >
+        <SpaceBetween size="m">
+          <Box>
+            Test and analyze your RTSP camera streams to verify connectivity, 
+            extract stream characteristics, and get optimized GStreamer pipeline recommendations.
+          </Box>
 
-            {/* Frame Capture Checkbox */}
-            <View>
-              <Label htmlFor="captureFrame">
-                <input
-                  id="captureFrame"
-                  type="checkbox"
-                  checked={formData.captureFrame}
-                  onChange={(e) => handleInputChange('captureFrame', e.target.checked)}
-                  style={{ marginRight: '8px' }}
-                />
-                Capture test frame
-              </Label>
-              <Text style={{ fontSize: 'small', color: 'gray', marginTop: 'var(--amplify-space-xs)' }}>
-                Extract a preview frame using OpenCV for visual verification
-              </Text>
-            </View>
+          <FormField
+            label="RTSP URL"
+            description="Enter the complete RTSP URL including credentials (e.g., rtsp://user:pass@host:port/path)"
+            errorText={validationErrors.rtspUrl}
+          >
+            <Input
+              value={formData.rtspUrl}
+              onChange={({ detail }) => handleInputChange('rtspUrl', detail.value)}
+              placeholder="rtsp://username:password@camera-ip:554/stream"
+              invalid={!!validationErrors.rtspUrl}
+              ariaLabel="RTSP URL"
+            />
+          </FormField>
 
-            {/* Test Stream Button - Made more prominent */}
-            <View style={{ 
-              marginTop: 'var(--amplify-space-medium)',
-              padding: 'var(--amplify-space-small)',
-              backgroundColor: 'var(--amplify-colors-background-secondary)',
-              borderRadius: '8px',
-              border: '2px solid var(--amplify-colors-brand-primary-20)'
-            }}>
-              <Button
-                variation="primary"
-                onClick={testRTSPStream}
-                isLoading={isLoading}
-                loadingText="Testing Stream..."
-                size="large"
-                isFullWidth
-                style={{
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  padding: '16px',
-                  backgroundColor: '#0073bb',
-                  color: 'white',
-                  border: 'none'
-                }}
-              >
-                {isLoading ? '🔄 Testing RTSP Stream...' : '🚀 Test RTSP Stream'}
-              </Button>
-              
-              {isLoading && (
-                <Text style={{ 
-                  fontSize: 'small', 
-                  color: 'gray', 
-                  textAlign: 'center',
-                  marginTop: 'var(--amplify-space-small)'
-                }}>
-                  ⏱️ This may take 5-15 seconds depending on stream quality
-                </Text>
-              )}
-            </View>
-          </Flex>
-        </Card>
-      </View>
+          <FormField
+            label="Frame Capture"
+            description="Extract a preview frame using OpenCV for visual verification"
+          >
+            <Checkbox
+              checked={formData.captureFrame}
+              onChange={({ detail }) => handleInputChange('captureFrame', detail.checked)}
+            >
+              Capture test frame
+            </Checkbox>
+          </FormField>
 
-      {/* Test Results Section - Now below the form */}
-      <View>
-        <Card style={{ padding: 'var(--amplify-space-large)' }}>
-          <Heading level={3} style={{ marginBottom: 'var(--amplify-space-medium)' }}>Test Results</Heading>
-          
+          <Box textAlign="center">
+            <Button
+              variant="primary"
+              onClick={testRTSPStream}
+              loading={isLoading}
+              loadingText="Testing Stream..."
+              size="large"
+            >
+              {isLoading ? '🔄 Testing RTSP Stream...' : '🚀 Test RTSP Stream'}
+            </Button>
+          </Box>
+
           {isLoading && (
-            <Flex style={{ 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              padding: 'var(--amplify-space-large)' 
-            }}>
-              <Loader size="large" />
-              <Text style={{ marginTop: 'var(--amplify-space-medium)', textAlign: 'center', fontWeight: 'bold' }}>
+            <Box textAlign="center">
+              <SpaceBetween size="s">
+                <Spinner size="large" />
+                <Box fontSize="body-s" color="text-body-secondary">
+                  ⏱️ This may take 5-15 seconds depending on stream quality
+                </Box>
+                <Box fontSize="body-s" color="text-body-secondary">
+                  • Connecting to RTSP stream<br/>
+                  • Detecting codecs and stream properties<br/>
+                  • Extracting frame (if enabled)<br/>
+                  • Analyzing characteristics
+                </Box>
+              </SpaceBetween>
+            </Box>
+          )}
+        </SpaceBetween>
+      </Container>
+
+      {/* Test Results Section */}
+      <Container
+        header={<Header variant="h3">Test Results</Header>}
+      >
+        {isLoading && (
+          <Box textAlign="center" padding="l">
+            <SpaceBetween size="m">
+              <Spinner size="large" />
+              <Box fontSize="heading-m" fontWeight="bold">
                 🔍 Analyzing RTSP stream...
-              </Text>
-              <Text style={{ 
-                fontSize: 'small', 
-                color: 'gray', 
-                textAlign: 'center', 
-                marginTop: 'var(--amplify-space-small)' 
-              }}>
-                • Connecting to RTSP stream<br/>
-                • Detecting codecs and stream properties<br/>
-                • Extracting frame (if enabled)<br/>
-                • Analyzing characteristics
-              </Text>
-            </Flex>
-          )}
+              </Box>
+            </SpaceBetween>
+          </Box>
+        )}
 
-          {testResult && !isLoading && (
-            <View>
-              {testResult.error ? (
-                <Alert variation="error" style={{ marginBottom: 'var(--amplify-space-medium)' }}>
-                  <Flex style={{ alignItems: 'flex-start', gap: 'var(--amplify-space-small)' }}>
-                    <Text style={{ fontSize: 'large' }}>❌</Text>
-                    <View>
-                      <Text style={{ fontWeight: 'bold' }}>Stream Test Failed</Text>
-                      <Text style={{ marginTop: 'var(--amplify-space-xs)' }}>{testResult.error}</Text>
-                      {testResult.suggestion && (
-                        <View style={{ 
-                          marginTop: 'var(--amplify-space-small)', 
-                          padding: 'var(--amplify-space-small)', 
-                          backgroundColor: 'var(--amplify-colors-background-secondary)' 
-                        }}>
-                          <Text style={{ fontSize: 'small', fontWeight: 'bold' }}>💡 Suggestion:</Text>
-                          <Text style={{ fontSize: 'small', marginTop: 'var(--amplify-space-xs)' }}>{testResult.suggestion}</Text>
-                        </View>
-                      )}
-                    </View>
-                  </Flex>
-                </Alert>
-              ) : testResult.stream_characteristics ? (
-                renderStreamInfo(testResult.stream_characteristics)
-              ) : (
-                <Alert variation="warning">
-                  <Text>Unexpected response format received from server</Text>
-                </Alert>
-              )}
-            </View>
-          )}
+        {testResult && !isLoading && (
+          <SpaceBetween size="m">
+            {testResult.error ? (
+              <Alert type="error" header="❌ Stream Test Failed">
+                <SpaceBetween size="s">
+                  <Box>{testResult.error}</Box>
+                  {testResult.suggestion && (
+                    <Box>
+                      <Box fontWeight="bold">💡 Suggestion:</Box>
+                      <Box fontSize="body-s">{testResult.suggestion}</Box>
+                    </Box>
+                  )}
+                </SpaceBetween>
+              </Alert>
+            ) : testResult.stream_characteristics ? (
+              renderStreamInfo(testResult.stream_characteristics)
+            ) : (
+              <Alert type="warning" header="Unexpected Response">
+                Unexpected response format received from server
+              </Alert>
+            )}
+          </SpaceBetween>
+        )}
 
-          {!testResult && !isLoading && (
-            <View style={{ textAlign: 'center', padding: 'var(--amplify-space-large)' }}>
-              <Text style={{ fontSize: 'xx-large', marginBottom: 'var(--amplify-space-medium)' }}>🎥</Text>
-              <Text style={{ color: 'gray', marginBottom: 'var(--amplify-space-small)', fontSize: 'large' }}>
+        {!testResult && !isLoading && (
+          <Box textAlign="center" padding="l">
+            <SpaceBetween size="m">
+              <Box fontSize="display-l">🎥</Box>
+              <Box fontSize="heading-m" color="text-body-secondary">
                 Ready to test your RTSP stream
-              </Text>
-              <Text style={{ fontSize: 'small', color: 'gray' }}>
+              </Box>
+              <Box fontSize="body-s" color="text-body-secondary">
                 Fill in the RTSP URL above, then click "Test RTSP Stream" to begin analysis
-              </Text>
-            </View>
-          )}
-        </Card>
-      </View>
-    </View>
+              </Box>
+            </SpaceBetween>
+          </Box>
+        )}
+      </Container>
+    </SpaceBetween>
   );
 };
 

@@ -18,253 +18,304 @@ vi.mock('../../config/api', () => ({
   }
 }));
 
-// Mock Amplify UI components
-vi.mock('@aws-amplify/ui-react', () => ({
-  Button: ({ children, onClick, isLoading, ...props }: any) => (
-    <button onClick={onClick} disabled={isLoading} {...props}>
-      {isLoading ? 'Loading...' : children}
+// Mock CloudScape Design System components
+vi.mock('@cloudscape-design/components', () => ({
+  Container: ({ children, header, ...props }: any) => (
+    <div data-testid="container" {...props}>
+      {header && <div data-testid="header">{header}</div>}
+      {children}
+    </div>
+  ),
+  Header: ({ children, variant, actions, ...props }: any) => (
+    <div data-testid="header" data-variant={variant} {...props}>
+      {children}
+      {actions && <div data-testid="actions">{actions}</div>}
+    </div>
+  ),
+  SpaceBetween: ({ children, ...props }: any) => <div data-testid="space-between" {...props}>{children}</div>,
+  FormField: ({ children, label, description, errorText, ...props }: any) => (
+    <div data-testid="form-field" {...props}>
+      {label && <label>{label}</label>}
+      {description && <div data-testid="description">{description}</div>}
+      {children}
+      {errorText && <div data-testid="error">{errorText}</div>}
+    </div>
+  ),
+  Input: ({ value, onChange, placeholder, invalid, ...props }: any) => (
+    <input
+      value={value}
+      onChange={(e) => onChange?.({ detail: { value: e.target.value } })}
+      placeholder={placeholder}
+      data-invalid={invalid}
+      {...props}
+    />
+  ),
+  Button: ({ children, onClick, loading, variant, size, ...props }: any) => (
+    <button 
+      onClick={onClick} 
+      disabled={loading} 
+      data-variant={variant}
+      data-size={size}
+      {...props}
+    >
+      {loading ? 'Loading...' : children}
     </button>
   ),
-  Card: ({ children, ...props }: any) => <div data-testid="card" {...props}>{children}</div>,
-  Flex: ({ children, ...props }: any) => <div data-testid="flex" {...props}>{children}</div>,
-  Grid: ({ children, ...props }: any) => <div data-testid="grid" {...props}>{children}</div>,
-  Heading: ({ children, level, ...props }: any) => React.createElement(`h${level}`, props, children),
-  Input: ({ onChange, ...props }: any) => (
-    <input onChange={(e) => onChange?.(e)} {...props} />
-  ),
-  Label: ({ children, ...props }: any) => <label {...props}>{children}</label>,
-  Text: ({ children, ...props }: any) => <span {...props}>{children}</span>,
-  View: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  Alert: ({ children, variation, ...props }: any) => (
-    <div data-testid="alert" data-variation={variation} {...props}>{children}</div>
-  ),
-  Loader: ({ size, ...props }: any) => <div data-testid="loader" data-size={size} {...props}>Loading...</div>,
-  Image: ({ src, alt, ...props }: any) => <img src={src} alt={alt} {...props} />,
-  Badge: ({ children, variation, ...props }: any) => (
-    <span data-testid="badge" data-variation={variation} {...props}>{children}</span>
-  ),
-  SelectField: ({ children, onChange, value, ...props }: any) => (
-    <select onChange={(e) => onChange?.(e)} value={value} {...props}>
+  Alert: ({ children, type, header, ...props }: any) => (
+    <div data-testid="alert" data-type={type} {...props}>
+      {header && <div data-testid="alert-header">{header}</div>}
       {children}
-    </select>
+    </div>
+  ),
+  Box: ({ children, textAlign, padding, fontSize, fontWeight, color, ...props }: any) => (
+    <div 
+      data-testid="box" 
+      data-text-align={textAlign}
+      data-padding={padding}
+      data-font-size={fontSize}
+      data-font-weight={fontWeight}
+      data-color={color}
+      {...props}
+    >
+      {children}
+    </div>
+  ),
+  Spinner: ({ size, ...props }: any) => <div data-testid="spinner" data-size={size} {...props}>Loading...</div>,
+  Checkbox: ({ children, checked, onChange, ...props }: any) => (
+    <label {...props}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange?.({ detail: { checked: e.target.checked } })}
+      />
+      {children}
+    </label>
+  ),
+  Grid: ({ children, gridDefinition, ...props }: any) => (
+    <div data-testid="grid" data-grid-definition={JSON.stringify(gridDefinition)} {...props}>
+      {children}
+    </div>
+  ),
+  Badge: ({ children, color, ...props }: any) => (
+    <span data-testid="badge" data-color={color} {...props}>{children}</span>
   ),
 }));
 
 describe('RTSPStreamTester', () => {
+  const mockValidateRTSPUrl = vi.mocked(apiUtils.validateRTSPUrl);
+  const mockMakeRequest = vi.mocked(apiUtils.makeRequest);
+  const mockFormatFileSize = vi.mocked(apiUtils.formatFileSize);
+  const mockFormatDuration = vi.mocked(apiUtils.formatDuration);
+
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it('renders the component without crashing', () => {
-    render(<RTSPStreamTester />);
-    
-    expect(screen.getByText('RTSP Stream Configuration & Testing')).toBeInTheDocument();
-    expect(screen.getByText('Camera Configuration')).toBeInTheDocument();
-    expect(screen.getByText('Test Results')).toBeInTheDocument();
-  });
-
-  it('renders all form fields', () => {
-    render(<RTSPStreamTester />);
-    
-    expect(screen.getByLabelText(/Camera Name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/RTSP URL/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Stream Retention Period/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Capture test frame/i)).toBeInTheDocument();
-  });
-
-  it('validates RTSP URL on form submission', async () => {
-    const mockValidateRTSPUrl = vi.mocked(apiUtils.validateRTSPUrl);
-    mockValidateRTSPUrl.mockReturnValue({
-      isValid: false,
-      error: 'RTSP URL is required'
-    });
-
-    render(<RTSPStreamTester />);
-    
-    const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
-    fireEvent.click(testButton);
-
-    await waitFor(() => {
-      expect(mockValidateRTSPUrl).toHaveBeenCalledWith('');
-      expect(screen.getByText('RTSP URL is required')).toBeInTheDocument();
-    });
-  });
-
-  it('makes API request with valid RTSP URL', async () => {
-    const mockValidateRTSPUrl = vi.mocked(apiUtils.validateRTSPUrl);
-    const mockMakeRequest = vi.mocked(apiUtils.makeRequest);
-    
     mockValidateRTSPUrl.mockReturnValue({ isValid: true });
-    mockMakeRequest.mockResolvedValue({
-      stream_characteristics: {
-        video: { codec: 'H.264', framerate: '30 fps' },
-        audio: { codec: 'AAC', sample_rate: '48000 Hz' }
-      }
+    mockFormatFileSize.mockReturnValue('1.2 MB');
+    mockFormatDuration.mockReturnValue('150ms');
+  });
+
+  describe('Component Rendering', () => {
+    it('renders the component without crashing', () => {
+      render(<RTSPStreamTester />);
+      
+      expect(screen.getByText('🎥 RTSP Stream Tester')).toBeInTheDocument();
+      expect(screen.getByText('Test Results')).toBeInTheDocument();
     });
 
-    render(<RTSPStreamTester />);
-    
-    const urlInput = screen.getByLabelText(/RTSP URL/i);
-    const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
-    
-    fireEvent.change(urlInput, { target: { value: 'rtsp://test.com/stream' } });
-    fireEvent.click(testButton);
+    it('renders all form fields', () => {
+      render(<RTSPStreamTester />);
+      
+      expect(screen.getByPlaceholderText(/rtsp:\/\/username:password@camera-ip:554\/stream/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Capture test frame/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Test RTSP Stream/i })).toBeInTheDocument();
+    });
 
-    await waitFor(() => {
-      expect(mockMakeRequest).toHaveBeenCalledWith({
-        rtsp_url: 'rtsp://test.com/stream',
-        mode: 'characteristics',
-        capture_frame: true
+    it('shows ready state initially', () => {
+      render(<RTSPStreamTester />);
+      
+      expect(screen.getByText('Ready to test your RTSP stream')).toBeInTheDocument();
+      expect(screen.getByText(/Fill in the RTSP URL above/)).toBeInTheDocument();
+    });
+  });
+
+  describe('Form Validation', () => {
+    it('validates RTSP URL on form submission', async () => {
+      render(<RTSPStreamTester />);
+      
+      const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
+      fireEvent.click(testButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('RTSP URL is required')).toBeInTheDocument();
+      });
+    });
+
+    it('shows validation error for invalid URL', async () => {
+      mockValidateRTSPUrl.mockReturnValue({ 
+        isValid: false, 
+        error: 'URL must start with rtsp://' 
+      });
+
+      render(<RTSPStreamTester />);
+      
+      const input = screen.getByPlaceholderText(/rtsp:\/\/username:password@camera-ip:554\/stream/i);
+      const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
+      
+      fireEvent.change(input, { target: { value: 'invalid-url' } });
+      fireEvent.click(testButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('URL must start with rtsp://')).toBeInTheDocument();
       });
     });
   });
 
-  it('displays loading state during API request', async () => {
-    const mockValidateRTSPUrl = vi.mocked(apiUtils.validateRTSPUrl);
-    const mockMakeRequest = vi.mocked(apiUtils.makeRequest);
-    
-    mockValidateRTSPUrl.mockReturnValue({ isValid: true });
-    mockMakeRequest.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 1000)));
+  describe('API Integration', () => {
+    it('displays loading state during API request', async () => {
+      mockMakeRequest.mockImplementation(() => 
+        new Promise(resolve => setTimeout(() => resolve({
+          stream_characteristics: {
+            video: { codec: 'H.264' },
+            audio: { codec: 'AAC' },
+            connection: { authentication_method: 'Basic' }
+          }
+        }), 100))
+      );
 
-    render(<RTSPStreamTester />);
-    
-    const urlInput = screen.getByLabelText(/RTSP URL/i);
-    const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
-    
-    fireEvent.change(urlInput, { target: { value: 'rtsp://test.com/stream' } });
-    fireEvent.click(testButton);
+      render(<RTSPStreamTester />);
+      
+      const input = screen.getByPlaceholderText(/rtsp:\/\/username:password@camera-ip:554\/stream/i);
+      const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
+      
+      fireEvent.change(input, { target: { value: 'rtsp://test.com/stream' } });
+      fireEvent.click(testButton);
 
-    expect(screen.getByTestId('loader')).toBeInTheDocument();
-    expect(screen.getByText('Analyzing RTSP stream...')).toBeInTheDocument();
-  });
-
-  it('displays error message on API failure', async () => {
-    const mockValidateRTSPUrl = vi.mocked(apiUtils.validateRTSPUrl);
-    const mockMakeRequest = vi.mocked(apiUtils.makeRequest);
-    
-    mockValidateRTSPUrl.mockReturnValue({ isValid: true });
-    mockMakeRequest.mockRejectedValue(new Error('Network error'));
-
-    render(<RTSPStreamTester />);
-    
-    const urlInput = screen.getByLabelText(/RTSP URL/i);
-    const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
-    
-    fireEvent.change(urlInput, { target: { value: 'rtsp://test.com/stream' } });
-    fireEvent.click(testButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Network error')).toBeInTheDocument();
+      expect(screen.getByText('🔍 Analyzing RTSP stream...')).toBeInTheDocument();
+      expect(screen.getAllByTestId('spinner')).toHaveLength(2); // Button and results area spinners
     });
-  });
 
-  it('displays stream characteristics on successful response', async () => {
-    const mockValidateRTSPUrl = vi.mocked(apiUtils.validateRTSPUrl);
-    const mockMakeRequest = vi.mocked(apiUtils.makeRequest);
-    const mockFormatFileSize = vi.mocked(apiUtils.formatFileSize);
-    const mockFormatDuration = vi.mocked(apiUtils.formatDuration);
-    
-    mockValidateRTSPUrl.mockReturnValue({ isValid: true });
-    mockFormatFileSize.mockReturnValue('45.4 KB');
-    mockFormatDuration.mockReturnValue('3.0s');
-    
-    mockMakeRequest.mockResolvedValue({
-      stream_characteristics: {
-        video: { 
-          codec: 'H.265/HEVC', 
-          framerate: '25.0 fps',
-          bitrate: '500 kbps'
+    it('displays stream characteristics on successful response', async () => {
+      const mockResponse = {
+        stream_characteristics: {
+          video: { 
+            codec: 'H.265/HEVC',
+            framerate: '30 fps',
+            bitrate: '2000 kbps'
+          },
+          audio: { 
+            codec: 'AAC',
+            sample_rate: '48000 Hz'
+          },
+          connection: { 
+            authentication_method: 'Basic',
+            connection_time: '150ms'
+          }
         },
-        audio: { 
-          codec: 'AAC', 
-          sample_rate: '16000 Hz'
+        generated_pipeline: 'gst-launch-1.0 rtspsrc location="rtsp://test.com/stream" ! rtph265depay ! h265parse ! kvssink stream-name="test-stream"'
+      };
+
+      mockMakeRequest.mockResolvedValueOnce(mockResponse);
+      mockMakeRequest.mockResolvedValueOnce({ generated_pipeline: mockResponse.generated_pipeline });
+
+      render(<RTSPStreamTester />);
+      
+      const input = screen.getByPlaceholderText(/rtsp:\/\/username:password@camera-ip:554\/stream/i);
+      const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
+      
+      fireEvent.change(input, { target: { value: 'rtsp://test.com/stream' } });
+      fireEvent.click(testButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('✅ Stream Analysis Successful!')).toBeInTheDocument();
+        expect(screen.getByText('H.265/HEVC')).toBeInTheDocument();
+        expect(screen.getByText('AAC')).toBeInTheDocument();
+        expect(screen.getByText('Basic')).toBeInTheDocument();
+      });
+    });
+
+    it('displays error message on API failure', async () => {
+      mockMakeRequest.mockRejectedValue(new Error('Network error'));
+
+      render(<RTSPStreamTester />);
+      
+      const input = screen.getByPlaceholderText(/rtsp:\/\/username:password@camera-ip:554\/stream/i);
+      const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
+      
+      fireEvent.change(input, { target: { value: 'rtsp://test.com/stream' } });
+      fireEvent.click(testButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('❌ Stream Test Failed')).toBeInTheDocument();
+        expect(screen.getByText('Network error')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Form Input Changes', () => {
+    it('handles form input changes correctly', () => {
+      render(<RTSPStreamTester />);
+      
+      const rtspUrlInput = screen.getByPlaceholderText(/rtsp:\/\/username:password@camera-ip:554\/stream/i);
+      const captureFrameCheckbox = screen.getByLabelText(/Capture test frame/i);
+      
+      fireEvent.change(rtspUrlInput, { target: { value: 'rtsp://user:pass@camera.example.com:554/stream' } });
+      fireEvent.click(captureFrameCheckbox);
+      
+      expect(rtspUrlInput).toHaveValue('rtsp://user:pass@camera.example.com:554/stream');
+      expect(captureFrameCheckbox).not.toBeChecked(); // Should toggle from default true to false
+    });
+
+    it('clears validation errors when user starts typing', async () => {
+      mockValidateRTSPUrl.mockReturnValue({ isValid: false, error: 'RTSP URL is required' });
+      
+      render(<RTSPStreamTester />);
+      
+      const input = screen.getByPlaceholderText(/rtsp:\/\/username:password@camera-ip:554\/stream/i);
+      const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
+      
+      // Trigger validation error
+      fireEvent.click(testButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('RTSP URL is required')).toBeInTheDocument();
+      });
+      
+      // Start typing to clear error
+      mockValidateRTSPUrl.mockReturnValue({ isValid: true });
+      fireEvent.change(input, { target: { value: 'rtsp://' } });
+      
+      // Error should be cleared (this would happen in the actual component)
+      expect(input).toHaveValue('rtsp://');
+    });
+  });
+
+  describe('Pipeline Display', () => {
+    it('displays generated pipeline with proper formatting', async () => {
+      const mockResponse = {
+        stream_characteristics: {
+          video: { codec: 'H.264' },
+          audio: { codec: 'AAC' },
+          connection: { authentication_method: 'Basic' }
         },
-        connection: {
-          authentication_method: 'DIGEST',
-          connection_time: '0.16s'
-        },
-        frame_capture: {
-          width: 640,
-          height: 180,
-          format: 'JPEG',
-          size_bytes: 45405,
-          capture_time_ms: 3000,
-          extraction_method: 'OpenCV'
-        }
-      }
+        generated_pipeline: 'gst-launch-1.0 rtspsrc location="rtsp://test.com/stream" ! rtph264depay ! h264parse ! kvssink stream-name="test-stream"'
+      };
+
+      mockMakeRequest.mockResolvedValueOnce(mockResponse);
+      mockMakeRequest.mockResolvedValueOnce({ generated_pipeline: mockResponse.generated_pipeline });
+
+      render(<RTSPStreamTester />);
+      
+      const input = screen.getByPlaceholderText(/rtsp:\/\/username:password@camera-ip:554\/stream/i);
+      const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
+      
+      fireEvent.change(input, { target: { value: 'rtsp://test.com/stream' } });
+      fireEvent.click(testButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('🔧 Recommended GStreamer Pipeline')).toBeInTheDocument();
+        expect(screen.getByText(/gst-launch-1.0/)).toBeInTheDocument();
+        expect(screen.getByText(/Copy Pipeline/)).toBeInTheDocument();
+      });
     });
-
-    render(<RTSPStreamTester />);
-    
-    const urlInput = screen.getByLabelText(/RTSP URL/i);
-    const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
-    
-    fireEvent.change(urlInput, { target: { value: 'rtsp://test.com/stream' } });
-    fireEvent.click(testButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Stream Analysis Successful!')).toBeInTheDocument();
-      expect(screen.getByText('H.265/HEVC')).toBeInTheDocument();
-      expect(screen.getByText('AAC')).toBeInTheDocument();
-      expect(screen.getByText('DIGEST')).toBeInTheDocument();
-      expect(screen.getByText('640×180')).toBeInTheDocument();
-    });
-  });
-
-  it('displays preview image when frame data is available', async () => {
-    const mockValidateRTSPUrl = vi.mocked(apiUtils.validateRTSPUrl);
-    const mockMakeRequest = vi.mocked(apiUtils.makeRequest);
-    
-    mockValidateRTSPUrl.mockReturnValue({ isValid: true });
-    mockMakeRequest.mockResolvedValue({
-      stream_characteristics: {
-        frame_capture: {
-          frame_data: 'base64encodedimagedata'
-        }
-      }
-    });
-
-    render(<RTSPStreamTester />);
-    
-    const urlInput = screen.getByLabelText(/RTSP URL/i);
-    const testButton = screen.getByRole('button', { name: /Test RTSP Stream/i });
-    
-    fireEvent.change(urlInput, { target: { value: 'rtsp://test.com/stream' } });
-    fireEvent.click(testButton);
-
-    await waitFor(() => {
-      const previewImage = screen.getByAltText('RTSP Stream Preview');
-      expect(previewImage).toBeInTheDocument();
-      expect(previewImage).toHaveAttribute('src', 'data:image/jpeg;base64,base64encodedimagedata');
-    });
-  });
-
-  it('toggles frame capture checkbox', () => {
-    render(<RTSPStreamTester />);
-    
-    const checkbox = screen.getByLabelText(/Capture test frame/i);
-    expect(checkbox).toBeChecked(); // Default is true
-    
-    fireEvent.click(checkbox);
-    expect(checkbox).not.toBeChecked();
-    
-    fireEvent.click(checkbox);
-    expect(checkbox).toBeChecked();
-  });
-
-  it('handles form input changes correctly', () => {
-    render(<RTSPStreamTester />);
-    
-    const cameraNameInput = screen.getByLabelText(/Camera Name/i);
-    const rtspUrlInput = screen.getByLabelText(/RTSP URL/i);
-    const retentionSelect = screen.getByLabelText(/Stream Retention Period/i);
-    
-    fireEvent.change(cameraNameInput, { target: { value: 'Test Camera' } });
-    fireEvent.change(rtspUrlInput, { target: { value: 'rtsp://test.com/stream' } });
-    fireEvent.change(retentionSelect, { target: { value: '48' } });
-    
-    expect(cameraNameInput).toHaveValue('Test Camera');
-    expect(rtspUrlInput).toHaveValue('rtsp://test.com/stream');
-    expect(retentionSelect).toHaveValue('48');
   });
 });

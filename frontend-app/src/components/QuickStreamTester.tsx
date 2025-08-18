@@ -269,7 +269,7 @@ const QuickStreamTester: React.FC = () => {
         <SpaceBetween size="l">
           <Header 
             variant="h1" 
-            description="Test our demo RTSP streams with various codecs and configurations. Simply select a stream and click 'Test Stream' to analyze its characteristics and get a recommended GStreamer pipeline."
+            description="Select from 24 pre-configured test streams with various codecs and configurations. Simply select a stream and click 'Test Stream' to analyze its characteristics and get a recommended GStreamer pipeline."
           >
             🚀 Quick Stream Tester
           </Header>

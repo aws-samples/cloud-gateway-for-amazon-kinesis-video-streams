@@ -17,6 +17,7 @@ import {
 import './App.css'
 import { RTSPStreamTester, QuickStreamTester, KinesisVideoStreamsIcon } from './components';
 import GStreamerPipelineGenerator from './components/GStreamerPipelineGenerator';
+import ErrorBoundary from './components/ErrorBoundary';
 
 type AppProps = {
   signOut?: UseAuthenticator["signOut"];
@@ -28,7 +29,13 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
   const getInitialTab = () => {
     const hash = window.location.hash.replace('#', '');
     if (hash) return hash;
-    return localStorage.getItem('activeTab') || 'quick-tester';
+    
+    try {
+      return localStorage.getItem('activeTab') || 'quick-tester';
+    } catch (error) {
+      console.warn('localStorage access failed:', error);
+      return 'quick-tester';
+    }
   };
 
   const [activeTab, setActiveTab] = useState(getInitialTab);
@@ -39,7 +46,11 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') || 'quick-tester';
       setActiveTab(hash);
-      localStorage.setItem('activeTab', hash);
+      try {
+        localStorage.setItem('activeTab', hash);
+      } catch (error) {
+        console.warn('localStorage write failed:', error);
+      }
     };
 
     // Set initial URL if not present
@@ -54,7 +65,11 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
   // Save activeTab to localStorage and update URL
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
-    localStorage.setItem('activeTab', newTab);
+    try {
+      localStorage.setItem('activeTab', newTab);
+    } catch (error) {
+      console.warn('localStorage write failed:', error);
+    }
     // Update browser URL without triggering a page reload
     window.history.pushState(null, '', `#${newTab}`);
   };
@@ -104,7 +119,20 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
   const navigationItems = [
     {
       type: "link" as const,
-      text: "🚀 Quick Tester",
+      text: "📊 Stream Dashboard",
+      href: "#dashboard"
+    },
+    {
+      type: "link" as const,
+      text: "📊 Analytics",
+      href: "#analytics"
+    },
+    {
+      type: "divider" as const
+    },
+    {
+      type: "link" as const,
+      text: "🚀 Quick Stream Tester",
       href: "#quick-tester"
     },
     {
@@ -113,22 +141,9 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
       href: "#rtsp-tester"
     },
     {
-      type: "divider" as const
-    },
-    {
-      type: "link" as const,
-      text: "📊 Stream Dashboard",
-      href: "#dashboard"
-    },
-    {
       type: "link" as const,
       text: "⚙️ GStreamer Pipeline Generator",
       href: "#pipeline"
-    },
-    {
-      type: "link" as const,
-      text: "📈 Analytics",
-      href: "#analytics"
     }
   ];
 
@@ -189,14 +204,14 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
             <SpaceBetween size="l">
               <Header 
                 variant="h1" 
-                description="View performance metrics and stream health"
+                description="Advanced analytics and insights for your video streams"
               >
                 📈 Stream Analytics
               </Header>
               <Box textAlign="center" color="text-body-secondary">
                 <SpaceBetween size="m">
                   <Box fontSize="body-m">
-                    View performance metrics and stream health
+                    Advanced analytics and insights for your video streams
                   </Box>
                   <Box fontSize="body-s">
                     🚧 Coming soon - Analytics and monitoring dashboard
@@ -212,7 +227,8 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
   };
 
   return (
-    <div style={{ width: '100%', minHeight: '100vh' }}>
+    <ErrorBoundary>
+      <div style={{ width: '100%', minHeight: '100vh' }}>
       <TopNavigation
         identity={{
           href: "#",
@@ -241,7 +257,7 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
         }}
         utilities={[
           {
-            type: "menu-dropdown",
+            type: "button-dropdown",
             text: getUserDisplayName(user),
             description: user?.signInDetails?.loginId || user?.username || "User",
             iconName: "user-profile",
@@ -272,13 +288,20 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
           />
         }
         content={
-          <ContentLayout>
+          <ContentLayout
+            header={
+              <Header variant="h1">
+                Welcome back, {getUserDisplayName(user)}
+              </Header>
+            }
+          >
             {renderContent()}
           </ContentLayout>
         }
         toolsHide
       />
     </div>
+    </ErrorBoundary>
   )
 };
 
