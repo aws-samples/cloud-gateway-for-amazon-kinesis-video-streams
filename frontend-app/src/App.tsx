@@ -163,7 +163,7 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
   };
 
   return (
-    <div style={{ width: '95%', margin: '0 auto', minHeight: '100vh' }}>
+    <div style={{ width: '100%', minHeight: '100vh' }}>
       <TopNavigation
         identity={{
           href: "#",
