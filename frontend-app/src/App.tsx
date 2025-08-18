@@ -12,7 +12,7 @@ import {
 } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import './App.css'
-import { RTSPStreamTester } from './components';
+import { RTSPStreamTester, QuickStreamTester } from './components';
 
 type AppProps = {
   signOut?: UseAuthenticator["signOut"];
@@ -77,6 +77,21 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
             🔧 RTSP Stream Tester
           </Button>
           <Button 
+            variation={activeTab === 'quick-tester' ? 'primary' : 'link'}
+            onClick={() => setActiveTab('quick-tester')}
+            style={activeTab === 'quick-tester' ? {
+              backgroundColor: '#0073bb',
+              color: 'white',
+              border: '2px solid #0073bb'
+            } : {
+              backgroundColor: 'white',
+              color: '#0073bb',
+              border: '2px solid #0073bb'
+            }}
+          >
+            🚀 Quick Tester
+          </Button>
+          <Button 
             variation={activeTab === 'dashboard' ? 'primary' : 'link'}
             onClick={() => setActiveTab('dashboard')}
             style={activeTab === 'dashboard' ? {
@@ -125,6 +140,8 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
 
         {/* Tab Content */}
         {activeTab === 'rtsp-tester' && <RTSPStreamTester />}
+        
+        {activeTab === 'quick-tester' && <QuickStreamTester />}
         
         {activeTab === 'dashboard' && (
           <Card style={{ padding: 'var(--amplify-space-large)', textAlign: 'center' }}>
