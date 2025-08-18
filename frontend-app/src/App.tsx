@@ -26,6 +26,48 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
   const [activeTab, setActiveTab] = useState('quick-tester');
   const [navigationOpen, setNavigationOpen] = useState(true);
 
+  // Helper function to get user display name
+  const getUserDisplayName = (user?: AuthUser): string => {
+    if (!user) return "User";
+    
+    // Debug: Log user object to understand structure
+    console.log('User object:', user);
+    console.log('User attributes:', (user as any).attributes);
+    
+    // Try to get first and last name from user attributes
+    const firstName = user.signInDetails?.loginId || user.username;
+    const userAttributes = (user as any).attributes;
+    
+    if (userAttributes) {
+      const givenName = userAttributes.given_name || userAttributes['custom:given_name'];
+      const familyName = userAttributes.family_name || userAttributes['custom:family_name'];
+      const name = userAttributes.name;
+      
+      // Return full name if available
+      if (givenName && familyName) {
+        return `${givenName} ${familyName}`;
+      }
+      
+      // Return single name if available
+      if (name) {
+        return name;
+      }
+      
+      // Return given name only if available
+      if (givenName) {
+        return givenName;
+      }
+    }
+    
+    // Fallback to username or email if it looks like an email
+    const fallbackName = user.signInDetails?.loginId || user.username || "User";
+    if (fallbackName.includes('@')) {
+      return fallbackName.split('@')[0]; // Use part before @ for emails
+    }
+    
+    return fallbackName;
+  };
+
   const navigationItems = [
     {
       type: "link" as const,
@@ -193,8 +235,8 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
         utilities={[
           {
             type: "menu-dropdown",
-            text: user?.username || "User",
-            description: user?.username || "User",
+            text: getUserDisplayName(user),
+            description: user?.signInDetails?.loginId || user?.username || "User",
             iconName: "user-profile",
             items: [
               {
