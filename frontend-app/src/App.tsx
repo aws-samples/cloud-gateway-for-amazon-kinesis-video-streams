@@ -24,8 +24,17 @@ type AppProps = {
 };
 
 const App: React.FC<AppProps> = ({ signOut, user }) => {
-  const [activeTab, setActiveTab] = useState('quick-tester');
+  // Initialize activeTab from localStorage or default to 'quick-tester'
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('activeTab') || 'quick-tester';
+  });
   const [navigationOpen, setNavigationOpen] = useState(true);
+
+  // Save activeTab to localStorage whenever it changes
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    localStorage.setItem('activeTab', newTab);
+  };
 
   // Helper function to get user display name
   const getUserDisplayName = (user?: AuthUser): string => {
@@ -104,7 +113,7 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
     event.preventDefault();
     if (event.detail.href) {
       const tabName = event.detail.href.replace('#', '');
-      setActiveTab(tabName);
+      handleTabChange(tabName);
     }
   };
 
