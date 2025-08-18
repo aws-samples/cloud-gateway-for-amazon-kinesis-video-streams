@@ -79,10 +79,10 @@ npm run deploy:dev    # Deploy with approval prompts
 export DOCKER_BUILDKIT=0
 
 # Deploy with your AWS profile
-AWS_PROFILE=malone-aws cdk deploy --require-approval never
+cdk deploy --require-approval never
 
 # Alternative one-liner:
-DOCKER_BUILDKIT=0 AWS_PROFILE=malone-aws cdk deploy --require-approval never
+DOCKER_BUILDKIT=0 cdk deploy --require-approval never
 ```
 
 **Why DOCKER_BUILDKIT=0 is Required:**

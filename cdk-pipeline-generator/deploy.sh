@@ -10,7 +10,8 @@ echo "=========================================="
 
 # Set required environment variables
 export DOCKER_BUILDKIT=0
-export AWS_PROFILE=malone-aws
+# Use AWS_PROFILE environment variable if set, otherwise use default profile
+# export AWS_PROFILE=your-profile-name
 
 # Colors for output
 RED='\033[0;31m'

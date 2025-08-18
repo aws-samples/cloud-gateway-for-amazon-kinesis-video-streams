@@ -7,7 +7,7 @@ echo "🧪 Testing Basic Pipeline Generator Functionality"
 echo "================================================"
 
 # Get the API endpoint from CDK outputs
-API_ENDPOINT=$(cd cdk-pipeline-generator && AWS_PROFILE=malone-aws aws cloudformation describe-stacks --stack-name PipelineGeneratorStack --query 'Stacks[0].Outputs[?OutputKey==`ApiEndpoint`].OutputValue' --output text 2>/dev/null || echo "")
+API_ENDPOINT=$(cd cdk-pipeline-generator && aws cloudformation describe-stacks --stack-name PipelineGeneratorStack --query 'Stacks[0].Outputs[?OutputKey==`ApiEndpoint`].OutputValue' --output text 2>/dev/null || echo "")
 
 if [ -z "$API_ENDPOINT" ]; then
     echo "❌ Could not find API endpoint. Make sure the stack is deployed."

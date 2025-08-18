@@ -1,6 +1,11 @@
 # Test results and captured frames
 test-results/
 
+# Amplify configuration files (contain personal AWS profiles)
+frontend-app/amplify/.config/local-aws-info.json
+frontend-app/amplify/.config/local-env-info.json
+frontend-app/amplify/.config/project-config.json
+
 # Docker artifacts
 docker-images/set-aws-env
 docker-images/intel/
