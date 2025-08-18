@@ -19,7 +19,6 @@ import type {
   StreamCharacteristics, 
   RTSPTestRequest
 } from '../config/api';
-import type { AuthUser } from "aws-amplify/auth";
 
 // Test server URLs from our RTSP test server
 const TEST_STREAM_OPTIONS = [
@@ -50,11 +49,7 @@ const TEST_STREAM_OPTIONS = [
   { value: 'rtsp://44.215.108.66:8557/theora_720p_25fps', label: 'Theora 720p 25fps (No Audio)' }
 ];
 
-interface QuickStreamTesterProps {
-  user?: AuthUser;
-}
-
-const QuickStreamTester: React.FC<QuickStreamTesterProps> = ({ user }) => {
+const QuickStreamTester: React.FC = () => {
   const [selectedStream, setSelectedStream] = useState({ value: '', label: 'Select a test stream...' });
   const [testResult, setTestResult] = useState<APIResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -275,13 +270,6 @@ const QuickStreamTester: React.FC<QuickStreamTesterProps> = ({ user }) => {
           <Header 
             variant="h1" 
             description="Test our demo RTSP streams with various codecs and configurations. Simply select a stream and click 'Test Stream' to analyze its characteristics and get a recommended GStreamer pipeline."
-            info={
-              user && (
-                <Box display="inline" color="text-body-secondary">
-                  Welcome back, {user.username}
-                </Box>
-              )
-            }
           >
             🚀 Quick Stream Tester
           </Header>

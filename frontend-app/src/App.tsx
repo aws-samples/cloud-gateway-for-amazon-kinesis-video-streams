@@ -73,7 +73,7 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
   const renderContent = () => {
     switch (activeTab) {
       case 'quick-tester':
-        return <QuickStreamTester user={user} />;
+        return <QuickStreamTester />;
       case 'rtsp-tester':
         return (
           <Container>
@@ -81,11 +81,6 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
               <Header 
                 variant="h1" 
                 description="Configure and test your own RTSP streams with detailed analysis and pipeline generation"
-                info={
-                  <Box display="inline" color="text-body-secondary">
-                    Welcome back, {user?.username}
-                  </Box>
-                }
               >
                 🔧 RTSP Stream Tester
               </Header>
@@ -100,11 +95,6 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
               <Header 
                 variant="h1" 
                 description="Monitor your active RTSP streams and Kinesis Video Streams"
-                info={
-                  <Box display="inline" color="text-body-secondary">
-                    Welcome back, {user?.username}
-                  </Box>
-                }
               >
                 📊 Stream Dashboard
               </Header>
@@ -128,11 +118,6 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
               <Header 
                 variant="h1" 
                 description="Generate optimized GStreamer pipelines for your cameras"
-                info={
-                  <Box display="inline" color="text-body-secondary">
-                    Welcome back, {user?.username}
-                  </Box>
-                }
               >
                 ⚙️ GStreamer Pipeline Generator
               </Header>
@@ -156,11 +141,6 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
               <Header 
                 variant="h1" 
                 description="View performance metrics and stream health"
-                info={
-                  <Box display="inline" color="text-body-secondary">
-                    Welcome back, {user?.username}
-                  </Box>
-                }
               >
                 📈 Stream Analytics
               </Header>
