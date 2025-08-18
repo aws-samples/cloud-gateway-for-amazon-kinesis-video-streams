@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { type AuthUser } from "aws-amplify/auth";
 import { type UseAuthenticator } from "@aws-amplify/ui-react-core";
 import { withAuthenticator } from '@aws-amplify/ui-react';
@@ -24,16 +24,39 @@ type AppProps = {
 };
 
 const App: React.FC<AppProps> = ({ signOut, user }) => {
-  // Initialize activeTab from localStorage or default to 'quick-tester'
-  const [activeTab, setActiveTab] = useState(() => {
+  // Get initial tab from URL hash or localStorage or default
+  const getInitialTab = () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) return hash;
     return localStorage.getItem('activeTab') || 'quick-tester';
-  });
+  };
+
+  const [activeTab, setActiveTab] = useState(getInitialTab);
   const [navigationOpen, setNavigationOpen] = useState(true);
 
-  // Save activeTab to localStorage whenever it changes
+  // Listen for browser back/forward navigation
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '') || 'quick-tester';
+      setActiveTab(hash);
+      localStorage.setItem('activeTab', hash);
+    };
+
+    // Set initial URL if not present
+    if (!window.location.hash) {
+      window.history.replaceState(null, '', `#${activeTab}`);
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [activeTab]);
+
+  // Save activeTab to localStorage and update URL
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
     localStorage.setItem('activeTab', newTab);
+    // Update browser URL without triggering a page reload
+    window.history.pushState(null, '', `#${newTab}`);
   };
 
   // Helper function to get user display name
@@ -110,7 +133,7 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
   ];
 
   const handleNavigationChange = (event: any) => {
-    event.preventDefault();
+    // Don't prevent default - let the URL change naturally
     if (event.detail.href) {
       const tabName = event.detail.href.replace('#', '');
       handleTabChange(tabName);
