@@ -24,7 +24,7 @@ type AppProps = {
 
 const App: React.FC<AppProps> = ({ signOut, user }) => {
   const [activeTab, setActiveTab] = useState('quick-tester');
-  const [navigationOpen, setNavigationOpen] = useState(false);
+  const [navigationOpen, setNavigationOpen] = useState(true);
 
   const navigationItems = [
     {
