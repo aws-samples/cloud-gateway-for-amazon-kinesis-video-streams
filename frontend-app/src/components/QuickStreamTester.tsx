@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import {
+  Container,
+  Header,
+  SpaceBetween,
+  Select,
   Button,
-  Card,
-  Flex,
-  Grid,
-  Heading,
-  Text,
-  View,
   Alert,
-  Loader,
-  Image,
+  Spinner,
+  Box,
   Badge,
-  SelectField
-} from '@aws-amplify/ui-react';
+  ColumnLayout,
+  StatusIndicator,
+  CodeEditor
+} from '@cloudscape-design/components';
 import { apiUtils } from '../config/api';
 import type { 
   APIResponse, 
@@ -50,13 +50,13 @@ const TEST_STREAM_OPTIONS = [
 ];
 
 const QuickStreamTester: React.FC = () => {
-  const [selectedStream, setSelectedStream] = useState('');
+  const [selectedStream, setSelectedStream] = useState({ value: '', label: 'Select a test stream...' });
   const [testResult, setTestResult] = useState<APIResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const testRTSPStream = async () => {
-    if (!selectedStream) {
+    if (!selectedStream.value) {
       return;
     }
 
@@ -68,7 +68,7 @@ const QuickStreamTester: React.FC = () => {
     try {
       // Get stream characteristics with frame capture
       const characteristicsPayload: RTSPTestRequest = {
-        rtsp_url: selectedStream,
+        rtsp_url: selectedStream.value,
         mode: 'characteristics',
         capture_frame: true
       };
@@ -79,7 +79,7 @@ const QuickStreamTester: React.FC = () => {
 
       // Then, get the pipeline recommendation
       const pipelinePayload: RTSPTestRequest = {
-        rtsp_url: selectedStream,
+        rtsp_url: selectedStream.value,
         mode: 'pipeline',
         capture_frame: false
       };
@@ -119,295 +119,224 @@ const QuickStreamTester: React.FC = () => {
     const { video, audio, connection, diagnostics } = characteristics;
 
     return (
-      <View>
-        <Alert variation="success" style={{ marginBottom: 'var(--amplify-space-medium)' }}>
-          <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)' }}>
-            <Text style={{ fontWeight: 'bold' }}>✅ Stream Analysis Complete</Text>
-          </Flex>
+      <SpaceBetween size="l">
+        <Alert type="success">
+          <Box fontWeight="bold">✅ Stream Analysis Complete</Box>
         </Alert>
 
-        <Grid templateColumns="1fr 1fr" gap="var(--amplify-space-medium)">
+        <ColumnLayout columns={2} variant="text-grid">
           {/* Video Information */}
-          <Card style={{ padding: 'var(--amplify-space-medium)' }}>
-            <Heading level={4} style={{ marginBottom: 'var(--amplify-space-small)' }}>
-              📹 Video Stream
-            </Heading>
+          <Container header={<Header variant="h3">📹 Video Stream</Header>}>
             {video ? (
-              <View>
-                <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Codec:</Text>
-                  <Badge variation="info">{video.codec || 'Unknown'}</Badge>
-                </Flex>
-                <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Frame Rate:</Text>
-                  <Text>{video.framerate || 'Unknown'}</Text>
-                </Flex>
-                <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Bitrate:</Text>
-                  <Text>{video.bitrate || 'Unknown'}</Text>
-                </Flex>
+              <SpaceBetween size="xs">
+                <Box>
+                  <Box display="inline" fontWeight="bold">Codec: </Box>
+                  <Badge color="blue">{video.codec || 'Unknown'}</Badge>
+                </Box>
+                <Box>
+                  <Box display="inline" fontWeight="bold">Frame Rate: </Box>
+                  {video.framerate || 'Unknown'}
+                </Box>
+                <Box>
+                  <Box display="inline" fontWeight="bold">Bitrate: </Box>
+                  {video.bitrate || 'Unknown'}
+                </Box>
                 {video.profile && (
-                  <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                    <Text style={{ fontWeight: 'bold' }}>Profile:</Text>
-                    <Text>{video.profile}</Text>
-                  </Flex>
+                  <Box>
+                    <Box display="inline" fontWeight="bold">Profile: </Box>
+                    {video.profile}
+                  </Box>
                 )}
-              </View>
+              </SpaceBetween>
             ) : (
-              <Text style={{ color: 'var(--amplify-colors-font-secondary)' }}>
-                No video stream detected
-              </Text>
+              <Box color="text-body-secondary">No video stream detected</Box>
             )}
-          </Card>
+          </Container>
 
           {/* Audio Information */}
-          <Card style={{ padding: 'var(--amplify-space-medium)' }}>
-            <Heading level={4} style={{ marginBottom: 'var(--amplify-space-small)' }}>
-              🔊 Audio Stream
-            </Heading>
+          <Container header={<Header variant="h3">🔊 Audio Stream</Header>}>
             {audio && Object.keys(audio).length > 0 ? (
-              <View>
-                <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Codec:</Text>
-                  <Badge variation="success">{audio.codec || 'Unknown'}</Badge>
-                </Flex>
-                <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                  <Text style={{ fontWeight: 'bold' }}>Sample Rate:</Text>
-                  <Text>{audio.sample_rate || 'Unknown'}</Text>
-                </Flex>
+              <SpaceBetween size="xs">
+                <Box>
+                  <Box display="inline" fontWeight="bold">Codec: </Box>
+                  <Badge color="green">{audio.codec || 'Unknown'}</Badge>
+                </Box>
+                <Box>
+                  <Box display="inline" fontWeight="bold">Sample Rate: </Box>
+                  {audio.sample_rate || 'Unknown'}
+                </Box>
                 {audio.channels && (
-                  <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                    <Text style={{ fontWeight: 'bold' }}>Channels:</Text>
-                    <Text>{audio.channels}</Text>
-                  </Flex>
+                  <Box>
+                    <Box display="inline" fontWeight="bold">Channels: </Box>
+                    {audio.channels}
+                  </Box>
                 )}
-              </View>
+              </SpaceBetween>
             ) : (
-              <Text style={{ color: 'var(--amplify-colors-font-secondary)' }}>
-                No audio stream detected
-              </Text>
+              <Box color="text-body-secondary">No audio stream detected</Box>
             )}
-          </Card>
-        </Grid>
+          </Container>
+        </ColumnLayout>
 
         {/* Connection Information */}
-        <Card style={{ padding: 'var(--amplify-space-medium)', marginTop: 'var(--amplify-space-medium)' }}>
-          <Heading level={4} style={{ marginBottom: 'var(--amplify-space-small)' }}>
-            🔗 Connection Details
-          </Heading>
-          <Grid templateColumns="1fr 1fr" gap="var(--amplify-space-medium)">
-            <View>
-              <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                <Text style={{ fontWeight: 'bold' }}>Authentication:</Text>
-                <Badge variation={connection?.authentication_method === 'None' ? 'success' : 'warning'}>
+        <Container header={<Header variant="h3">🔗 Connection Details</Header>}>
+          <ColumnLayout columns={2} variant="text-grid">
+            <SpaceBetween size="xs">
+              <Box>
+                <Box display="inline" fontWeight="bold">Authentication: </Box>
+                <StatusIndicator type={connection?.authentication_method === 'None' ? 'success' : 'warning'}>
                   {connection?.authentication_method || 'Unknown'}
-                </Badge>
-              </Flex>
-              <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                <Text style={{ fontWeight: 'bold' }}>Connection Time:</Text>
-                <Text>{connection?.connection_time || 'Not measured'}</Text>
-              </Flex>
-            </View>
-            <View>
-              {diagnostics && (
-                <>
-                  <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                    <Text style={{ fontWeight: 'bold' }}>Errors:</Text>
-                    <Badge variation={diagnostics.errors?.length > 0 ? 'error' : 'success'}>
-                      {diagnostics.errors?.length || 0}
-                    </Badge>
-                  </Flex>
-                  <Flex style={{ justifyContent: 'space-between', marginBottom: 'var(--amplify-space-xs)' }}>
-                    <Text style={{ fontWeight: 'bold' }}>Warnings:</Text>
-                    <Badge variation={diagnostics.warnings?.length > 0 ? 'warning' : 'success'}>
-                      {diagnostics.warnings?.length || 0}
-                    </Badge>
-                  </Flex>
-                </>
-              )}
-            </View>
-          </Grid>
-        </Card>
+                </StatusIndicator>
+              </Box>
+              <Box>
+                <Box display="inline" fontWeight="bold">Connection Time: </Box>
+                {connection?.connection_time || 'Not measured'}
+              </Box>
+            </SpaceBetween>
+            {diagnostics && (
+              <SpaceBetween size="xs">
+                <Box>
+                  <Box display="inline" fontWeight="bold">Errors: </Box>
+                  <Badge color={diagnostics.errors?.length > 0 ? 'red' : 'green'}>
+                    {diagnostics.errors?.length || 0}
+                  </Badge>
+                </Box>
+                <Box>
+                  <Box display="inline" fontWeight="bold">Warnings: </Box>
+                  <Badge color={diagnostics.warnings?.length > 0 ? 'grey' : 'green'}>
+                    {diagnostics.warnings?.length || 0}
+                  </Badge>
+                </Box>
+              </SpaceBetween>
+            )}
+          </ColumnLayout>
+        </Container>
 
         {/* Diagnostics Details */}
         {diagnostics && (diagnostics.errors?.length > 0 || diagnostics.warnings?.length > 0) && (
-          <Card style={{ padding: 'var(--amplify-space-medium)', marginTop: 'var(--amplify-space-medium)' }}>
-            <Heading level={4} style={{ marginBottom: 'var(--amplify-space-small)' }}>
-              🔍 Diagnostics
-            </Heading>
-            
-            {diagnostics.errors?.length > 0 && (
-              <View style={{ marginBottom: 'var(--amplify-space-small)' }}>
-                <Text style={{ fontWeight: 'bold', color: 'var(--amplify-colors-font-error)' }}>
-                  Errors:
-                </Text>
-                {diagnostics.errors.map((error, index) => (
-                  <Alert key={index} variation="error" style={{ marginTop: 'var(--amplify-space-xs)' }}>
-                    {error}
-                  </Alert>
-                ))}
-              </View>
-            )}
-            
-            {diagnostics.warnings?.length > 0 && (
-              <View>
-                <Text style={{ fontWeight: 'bold', color: 'var(--amplify-colors-font-warning)' }}>
-                  Warnings:
-                </Text>
-                {diagnostics.warnings.map((warning, index) => (
-                  <Alert key={index} variation="warning" style={{ marginTop: 'var(--amplify-space-xs)' }}>
-                    {warning}
-                  </Alert>
-                ))}
-              </View>
-            )}
-          </Card>
+          <Container header={<Header variant="h3">🔍 Diagnostics</Header>}>
+            <SpaceBetween size="m">
+              {diagnostics.errors?.length > 0 && (
+                <SpaceBetween size="xs">
+                  <Box fontWeight="bold" color="text-status-error">Errors:</Box>
+                  {diagnostics.errors.map((error, index) => (
+                    <Alert key={index} type="error">{error}</Alert>
+                  ))}
+                </SpaceBetween>
+              )}
+              
+              {diagnostics.warnings?.length > 0 && (
+                <SpaceBetween size="xs">
+                  <Box fontWeight="bold" color="text-status-warning">Warnings:</Box>
+                  {diagnostics.warnings.map((warning, index) => (
+                    <Alert key={index} type="warning">{warning}</Alert>
+                  ))}
+                </SpaceBetween>
+              )}
+            </SpaceBetween>
+          </Container>
         )}
-      </View>
+      </SpaceBetween>
     );
   };
 
   const renderPipelineRecommendation = (pipeline: string) => {
     return (
-      <Card style={{ padding: 'var(--amplify-space-medium)', marginTop: 'var(--amplify-space-medium)' }}>
-        <Heading level={4} style={{ marginBottom: 'var(--amplify-space-small)' }}>
-          ⚙️ Recommended GStreamer Pipeline
-        </Heading>
-        <View 
-          style={{ 
-            backgroundColor: 'var(--amplify-colors-background-tertiary)',
-            padding: 'var(--amplify-space-medium)',
-            borderRadius: 'var(--amplify-radii-small)',
-            fontFamily: 'monospace',
-            fontSize: 'var(--amplify-font-sizes-small)',
-            overflowX: 'auto',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-all'
-          }}
-        >
-          {pipeline}
-        </View>
-        <Text 
-          style={{ 
-            fontSize: 'var(--amplify-font-sizes-small)', 
-            color: 'var(--amplify-colors-font-secondary)',
-            marginTop: 'var(--amplify-space-small)'
-          }}
-        >
-          💡 This pipeline is optimized for your stream's characteristics and can be used with GStreamer or AWS services.
-        </Text>
-      </Card>
+      <Container header={<Header variant="h3">⚙️ Recommended GStreamer Pipeline</Header>}>
+        <SpaceBetween size="m">
+          <Box 
+            padding="m"
+            backgroundColor="background-code-editor"
+            borderRadius="s"
+            fontFamily="monospace"
+            fontSize="body-s"
+          >
+            <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+              {pipeline}
+            </pre>
+          </Box>
+          <Box fontSize="body-s" color="text-body-secondary">
+            💡 This pipeline is optimized for your stream's characteristics and can be used with GStreamer or AWS services.
+          </Box>
+        </SpaceBetween>
+      </Container>
     );
   };
 
   return (
-    <View>
-      <Card style={{ padding: 'var(--amplify-space-large)' }}>
-        <Heading level={2} style={{ marginBottom: 'var(--amplify-space-medium)' }}>
-          🚀 Quick Stream Tester
-        </Heading>
-        
-        <Text style={{ 
-          color: 'var(--amplify-colors-font-secondary)', 
-          marginBottom: 'var(--amplify-space-large)' 
-        }}>
-          Test our demo RTSP streams with various codecs and configurations. Simply select a stream and click "Test Stream" to analyze its characteristics and get a recommended GStreamer pipeline.
-        </Text>
+    <SpaceBetween size="l">
+      <Container>
+        <SpaceBetween size="l">
+          <Header variant="h2" description="Test our demo RTSP streams with various codecs and configurations. Simply select a stream and click 'Test Stream' to analyze its characteristics and get a recommended GStreamer pipeline.">
+            🚀 Quick Stream Tester
+          </Header>
 
-        {/* Stream Selection Form */}
-        <Card style={{ padding: 'var(--amplify-space-medium)', marginBottom: 'var(--amplify-space-large)' }}>
-          <Heading level={3} style={{ marginBottom: 'var(--amplify-space-medium)' }}>
-            📺 Select Test Stream
-          </Heading>
-          
-          <Flex direction="column" gap="var(--amplify-space-medium)">
-            <SelectField
-              label="Test Stream"
-              value={selectedStream}
-              onChange={(e) => setSelectedStream(e.target.value)}
-              placeholder="Choose a test stream..."
-              size="large"
-            >
-              {TEST_STREAM_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </SelectField>
-
-            <Flex style={{ justifyContent: 'flex-end', gap: 'var(--amplify-space-small)' }}>
-              <Button
-                onClick={testRTSPStream}
-                disabled={!selectedStream || isLoading}
-                variation="primary"
-                size="large"
-                style={{ 
-                  minWidth: '150px',
-                  backgroundColor: '#0073bb',
-                  color: 'white',
-                  border: '2px solid #0073bb',
-                  fontWeight: 'bold'
-                }}
-              >
-                {isLoading ? (
-                  <Flex style={{ alignItems: 'center', gap: 'var(--amplify-space-small)' }}>
-                    <Loader size="small" />
-                    <span style={{ color: 'white' }}>Testing...</span>
-                  </Flex>
-                ) : (
-                  <span style={{ color: 'white' }}>🧪 Test Stream</span>
-                )}
-              </Button>
-            </Flex>
-          </Flex>
-        </Card>
-
-        {/* Preview Image */}
-        {previewImage && (
-          <Card style={{ padding: 'var(--amplify-space-medium)', marginBottom: 'var(--amplify-space-medium)' }}>
-            <Heading level={4} style={{ marginBottom: 'var(--amplify-space-small)' }}>
-              📸 Captured Frame
-            </Heading>
-            <View style={{ textAlign: 'center' }}>
-              <Image
-                src={`data:image/jpeg;base64,${previewImage}`}
-                alt="Captured frame from RTSP stream"
-                style={{
-                  maxWidth: '100%',
-                  height: 'auto',
-                  border: '2px solid var(--amplify-colors-border-primary)',
-                  borderRadius: 'var(--amplify-radii-small)'
-                }}
+          {/* Stream Selection Form */}
+          <Container header={<Header variant="h3">📺 Select Test Stream</Header>}>
+            <SpaceBetween size="m">
+              <Select
+                selectedOption={selectedStream}
+                onChange={({ detail }) => setSelectedStream(detail.selectedOption)}
+                options={TEST_STREAM_OPTIONS}
+                placeholder="Choose a test stream..."
+                expandToViewport
               />
-            </View>
-          </Card>
-        )}
 
-        {/* Results */}
-        {testResult && (
-          <View>
-            {testResult.error ? (
-              <Alert variation="error" style={{ marginBottom: 'var(--amplify-space-medium)' }}>
-                <Heading level={4} style={{ margin: 0, marginBottom: 'var(--amplify-space-small)' }}>
-                  ❌ Test Failed
-                </Heading>
-                <Text>{testResult.error}</Text>
-                {testResult.error_type && (
-                  <Text style={{ fontSize: 'var(--amplify-font-sizes-small)', marginTop: 'var(--amplify-space-small)' }}>
-                    Error Type: {testResult.error_type}
-                  </Text>
-                )}
-              </Alert>
-            ) : (
-              <View>
-                {testResult.stream_characteristics && renderStreamInfo(testResult.stream_characteristics)}
-                {testResult.generated_pipeline && renderPipelineRecommendation(testResult.generated_pipeline)}
-              </View>
-            )}
-          </View>
-        )}
-      </Card>
-    </View>
+              <Box textAlign="right">
+                <Button
+                  onClick={testRTSPStream}
+                  disabled={!selectedStream.value || isLoading}
+                  variant="primary"
+                  loading={isLoading}
+                  loadingText="Testing..."
+                >
+                  🧪 Test Stream
+                </Button>
+              </Box>
+            </SpaceBetween>
+          </Container>
+
+          {/* Preview Image */}
+          {previewImage && (
+            <Container header={<Header variant="h3">📸 Captured Frame</Header>}>
+              <Box textAlign="center">
+                <img
+                  src={`data:image/jpeg;base64,${previewImage}`}
+                  alt="Captured frame from RTSP stream"
+                  style={{
+                    maxWidth: '100%',
+                    height: 'auto',
+                    border: '2px solid var(--color-border-divider-default)',
+                    borderRadius: '8px'
+                  }}
+                />
+              </Box>
+            </Container>
+          )}
+
+          {/* Results */}
+          {testResult && (
+            <SpaceBetween size="l">
+              {testResult.error ? (
+                <Alert type="error" header="❌ Test Failed">
+                  <SpaceBetween size="s">
+                    <Box>{testResult.error}</Box>
+                    {testResult.error_type && (
+                      <Box fontSize="body-s">Error Type: {testResult.error_type}</Box>
+                    )}
+                  </SpaceBetween>
+                </Alert>
+              ) : (
+                <SpaceBetween size="l">
+                  {testResult.stream_characteristics && renderStreamInfo(testResult.stream_characteristics)}
+                  {testResult.generated_pipeline && renderPipelineRecommendation(testResult.generated_pipeline)}
+                </SpaceBetween>
+              )}
+            </SpaceBetween>
+          )}
+        </SpaceBetween>
+      </Container>
+    </SpaceBetween>
   );
 };
 
