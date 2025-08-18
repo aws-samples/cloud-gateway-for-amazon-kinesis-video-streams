@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { type AuthUser } from "aws-amplify/auth";
-import { type UseAuthenticator } from "@aws-amplify/ui-react-core";
-import { withAuthenticator } from '@aws-amplify/ui-react';
+import { useAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import {
   AppLayout,
@@ -15,16 +14,12 @@ import {
   Container
 } from '@cloudscape-design/components';
 import './App.css'
-import { RTSPStreamTester, QuickStreamTester, KinesisVideoStreamsIcon } from './components';
+import { RTSPStreamTester, QuickStreamTester, KinesisVideoStreamsIcon, AddNewCamera, CameraList } from './components';
 import GStreamerPipelineGenerator from './components/GStreamerPipelineGenerator';
 import ErrorBoundary from './components/ErrorBoundary';
 
-type AppProps = {
-  signOut?: UseAuthenticator["signOut"];
-  user?: AuthUser;
-};
-
-const App: React.FC<AppProps> = ({ signOut, user }) => {
+const App: React.FC = () => {
+  const { user, signOut } = useAuthenticator((context) => [context.user, context.signOut]);
   // Get initial tab from URL hash or localStorage or default
   const getInitialTab = () => {
     const hash = window.location.hash.replace('#', '');
@@ -40,6 +35,47 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
 
   const [activeTab, setActiveTab] = useState(getInitialTab);
   const [navigationOpen, setNavigationOpen] = useState(true);
+
+  // Helper function to get user display name
+  const getUserDisplayName = (user?: AuthUser): string => {
+    if (!user) return "User";
+    
+    // Check for attributes first (for test compatibility)
+    const attributes = (user as any).attributes;
+    if (attributes) {
+      const firstName = attributes.given_name;
+      const lastName = attributes.family_name;
+      
+      // Return full name if both are available
+      if (firstName && lastName) {
+        return `${firstName} ${lastName}`;
+      }
+      
+      // Return just first name if available
+      if (firstName) {
+        return firstName;
+      }
+      
+      // Return email username if available
+      if (attributes.email) {
+        return attributes.email.split('@')[0];
+      }
+    }
+    
+    // For real Amplify users, check signInDetails.loginId (which contains the email)
+    const signInDetails = (user as any)?.signInDetails;
+    if (signInDetails?.loginId) {
+      const email = signInDetails.loginId;
+      if (email.includes('@')) {
+        // Extract the part before @ from email
+        return email.split('@')[0];
+      }
+      return signInDetails.loginId;
+    }
+    
+    // Fallback to username (but this will be the UUID)
+    return user.username || "User";
+  };
 
   // Listen for browser back/forward navigation
   useEffect(() => {
@@ -74,48 +110,6 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
     window.history.pushState(null, '', `#${newTab}`);
   };
 
-  // Helper function to get user display name
-  const getUserDisplayName = (user?: AuthUser): string => {
-    if (!user) return "User";
-    
-    // Debug: Log user object to understand structure
-    console.log('User object:', user);
-    console.log('User attributes:', (user as any).attributes);
-    
-    // Try to get first and last name from user attributes
-    const firstName = user.signInDetails?.loginId || user.username;
-    const userAttributes = (user as any).attributes;
-    
-    if (userAttributes) {
-      const givenName = userAttributes.given_name || userAttributes['custom:given_name'];
-      const familyName = userAttributes.family_name || userAttributes['custom:family_name'];
-      const name = userAttributes.name;
-      
-      // Return full name if available
-      if (givenName && familyName) {
-        return `${givenName} ${familyName}`;
-      }
-      
-      // Return single name if available
-      if (name) {
-        return name;
-      }
-      
-      // Return given name only if available
-      if (givenName) {
-        return givenName;
-      }
-    }
-    
-    // Fallback to username or email if it looks like an email
-    const fallbackName = user.signInDetails?.loginId || user.username || "User";
-    if (fallbackName.includes('@')) {
-      return fallbackName.split('@')[0]; // Use part before @ for emails
-    }
-    
-    return fallbackName;
-  };
-
   const navigationItems = [
     {
       type: "link" as const,
@@ -126,6 +120,16 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
       type: "link" as const,
       text: "📊 Analytics",
       href: "#analytics"
+    },
+    {
+      type: "link" as const,
+      text: "📹 Add New Camera",
+      href: "#add-camera"
+    },
+    {
+      type: "link" as const,
+      text: "📋 Camera List",
+      href: "#camera-list"
     },
     {
       type: "divider" as const
@@ -173,6 +177,10 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
             </SpaceBetween>
           </Container>
         );
+      case 'add-camera':
+        return <AddNewCamera />;
+      case 'camera-list':
+        return <CameraList />;
       case 'dashboard':
         return (
           <Container>
@@ -257,9 +265,9 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
         }}
         utilities={[
           {
-            type: "button-dropdown",
+            type: "menu-dropdown",
             text: getUserDisplayName(user),
-            description: user?.signInDetails?.loginId || user?.username || "User",
+            description: (user as any)?.signInDetails?.loginId || user?.username || "User",
             iconName: "user-profile",
             items: [
               {
@@ -288,13 +296,7 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
           />
         }
         content={
-          <ContentLayout
-            header={
-              <Header variant="h1">
-                Welcome back, {getUserDisplayName(user)}
-              </Header>
-            }
-          >
+          <ContentLayout>
             {renderContent()}
           </ContentLayout>
         }
@@ -305,4 +307,4 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
   )
 };
 
-export default withAuthenticator(App);
+export default App;
