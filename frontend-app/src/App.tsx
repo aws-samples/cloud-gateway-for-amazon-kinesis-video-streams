@@ -16,6 +16,7 @@ import {
 } from '@cloudscape-design/components';
 import './App.css'
 import { RTSPStreamTester, QuickStreamTester, KinesisVideoStreamsIcon } from './components';
+import GStreamerPipelineGenerator from './components/GStreamerPipelineGenerator';
 
 type AppProps = {
   signOut?: UseAuthenticator["signOut"];
@@ -89,7 +90,7 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
     },
     {
       type: "link" as const,
-      text: "⚙️ Pipeline Generator",
+      text: "⚙️ GStreamer Pipeline Generator",
       href: "#pipeline"
     },
     {
@@ -149,28 +150,7 @@ const App: React.FC<AppProps> = ({ signOut, user }) => {
           </Container>
         );
       case 'pipeline':
-        return (
-          <Container>
-            <SpaceBetween size="l">
-              <Header 
-                variant="h1" 
-                description="Generate optimized GStreamer pipelines for your cameras"
-              >
-                ⚙️ GStreamer Pipeline Generator
-              </Header>
-              <Box textAlign="center" color="text-body-secondary">
-                <SpaceBetween size="m">
-                  <Box fontSize="body-m">
-                    Generate optimized GStreamer pipelines for your cameras
-                  </Box>
-                  <Box fontSize="body-s">
-                    🚧 Coming soon - AI-powered pipeline generation interface
-                  </Box>
-                </SpaceBetween>
-              </Box>
-            </SpaceBetween>
-          </Container>
-        );
+        return <GStreamerPipelineGenerator />;
       case 'analytics':
         return (
           <Container>
