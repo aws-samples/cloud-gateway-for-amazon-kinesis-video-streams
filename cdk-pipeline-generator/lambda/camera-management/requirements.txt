@@ -1,0 +1,3 @@
+# AWS SDK is included in Lambda runtime for Python 3.11
+# No additional dependencies required for this implementation
+# All required libraries (boto3, json, uuid, datetime, logging) are part of the standard library
