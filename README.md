@@ -26,6 +26,8 @@ This repository provides a comprehensive solution for ingesting RTSP video strea
 
 **Quick Start**: See [`unified-streaming-platform/README.md`](./unified-streaming-platform/README.md) for deployment instructions.
 
+**📋 Project Roadmap**: See [`PROJECT_ROADMAP.md`](./PROJECT_ROADMAP.md) for development priorities and future enhancements.
+
 ## 📚 **Documentation Organization**
 
 ### **Component-Specific Documentation**
