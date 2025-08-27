@@ -73,12 +73,40 @@ wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
+# Virtual environments (all locations)
 venv/
 env/
 ENV/
 env.bak/
 venv.bak/
+*/venv/
+*/env/
+gstreamer-expert-system/mcp-gstreamer-expert/venv/
+gstreamer-expert-system/mcp-server/venv/
+docker-images/venv/
+
+# Node.js artifacts
+node_modules/
+*/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# CDK artifacts (all locations)
+cdk.out/
+*/cdk.out/
+dist/
+*/dist/
+**/*.js
+**/*.js.map
+**/*.d.ts
+!*.config.js
+!jest.config.js
+!vite.config.js
+cdk.context.json
+*/cdk.context.json
 
 # IDE files
 .vscode/
@@ -121,3 +149,82 @@ config
 !.github/
 !.github/images/
 !.github/images/*.png
+
+# ===== GSTREAMER EXPERT SYSTEM SPECIFIC RULES =====
+
+# Amazon Q configuration (allow rules, ignore everything else)
+.amazonq/*
+!.amazonq/rules/
+
+# Temporary development files (per workspace rules)
+temp_*
+dev_experiment_*
+debug_*
+prototype_*
+scratch_*
+/temp-dev/
+
+# GStreamer Expert System - MCP server development files
+gstreamer-expert-system/mcp-gstreamer-expert/venv/
+gstreamer-expert-system/mcp-gstreamer-expert/*.log
+gstreamer-expert-system/mcp-server/venv/
+gstreamer-expert-system/mcp-server/*.log
+
+# GStreamer Expert System - MCP server development iterations (keep only production files)
+gstreamer-expert-system/mcp-gstreamer-expert/server.py
+gstreamer-expert-system/mcp-gstreamer-expert/server_compatible.py
+gstreamer-expert-system/mcp-gstreamer-expert/server_fixed.py
+gstreamer-expert-system/mcp-gstreamer-expert/server_minimal.py
+gstreamer-expert-system/mcp-gstreamer-expert/server_simple.py
+gstreamer-expert-system/mcp-gstreamer-expert/server_simple_working.py
+gstreamer-expert-system/mcp-gstreamer-expert/server_working.py
+gstreamer-expert-system/mcp-gstreamer-expert/test_server.py
+
+# GStreamer Expert System - Knowledge base staging and temporary files
+gstreamer-expert-system/knowledgebase/staging/*
+gstreamer-expert-system/knowledgebase/local-copies/*
+!gstreamer-expert-system/knowledgebase/staging/.gitkeep
+!gstreamer-expert-system/knowledgebase/local-copies/.gitkeep
+
+# GStreamer Expert System - Knowledge base raw sources (large documentation and repositories)
+gstreamer-expert-system/knowledgebase/raw-sources/docs/gstreamer-core/
+gstreamer-expert-system/knowledgebase/raw-sources/docs/kinesis-video-streams/
+gstreamer-expert-system/knowledgebase/raw-sources/docs/open-vino/
+gstreamer-expert-system/knowledgebase/raw-sources/repos/amazon-kinesis-video-streams-producer-sdk-cpp/
+gstreamer-expert-system/knowledgebase/raw-sources/repos/gstreamer/
+
+# GStreamer Expert System - Analysis and consolidation temporary files
+gstreamer-expert-system/consolidation-analysis.md
+gstreamer-expert-system/CONSOLIDATION_PLAN.md
+gstreamer-expert-system/FINAL_CLEANUP_SUMMARY.md
+gstreamer-expert-system/analyze-for-consolidation.sh
+
+# GStreamer Expert System - Backup and archive directories (if recreated)
+gstreamer-expert-system/archive/
+gstreamer-expert-system/backups/
+gstreamer-expert-system/old/
+gstreamer-expert-system/deprecated/
+
+# GStreamer Expert System - Configuration backups and sensitive files
+gstreamer-expert-system/config.env.backup.*
+gstreamer-expert-system/current-agent-info.json.backup.*
+gstreamer-expert-system/new-agent-info.json
+gstreamer-expert-system/test-agent.sh
+
+# Enhanced Pipeline Generator - CDK artifacts
+enhanced-pipeline-generator/node_modules/
+enhanced-pipeline-generator/cdk.out/
+enhanced-pipeline-generator/dist/
+enhanced-pipeline-generator/**/*.js
+enhanced-pipeline-generator/**/*.js.map
+enhanced-pipeline-generator/**/*.d.ts
+enhanced-pipeline-generator/.env
+enhanced-pipeline-generator/cdk.context.json
+
+# Enhanced Pipeline Generator - Docker build artifacts
+enhanced-pipeline-generator/docker/.dockerignore
+enhanced-pipeline-generator/docker/build-context/
+
+# Enhanced Pipeline Generator - Lambda deployment artifacts
+enhanced-pipeline-generator/lambda/deployment-package.zip
+enhanced-pipeline-generator/lambda/layer.zip

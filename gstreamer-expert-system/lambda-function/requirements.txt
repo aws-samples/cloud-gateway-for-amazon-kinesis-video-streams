@@ -1,0 +1,9 @@
+# Enhanced GStreamer Expert Lambda Function Requirements
+# Uses refactored core implementation
+
+# AWS SDK
+boto3>=1.34.0
+botocore>=1.34.0
+
+# Core dependencies (shared with MCP server)
+# No additional dependencies needed - core uses only boto3

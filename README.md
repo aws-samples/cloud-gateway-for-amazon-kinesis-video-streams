@@ -1,21 +1,110 @@
-# Build a Cloud Gateway to Ingest RTSP video to Amazon Kinesis Video Streams
+# Cloud Gateway for Amazon Kinesis Video Streams + Enhanced GStreamer Expert System
 
-Kinesis Video Streams is a managed service that makes it easy for customers to securely send video data from camera devices to the cloud. Kinesis Video Streams provides you SDKs to make it easy to securely stream media to AWS, including a GStreamer plugin called kvssink. GStreamer is a popular open-source media framework that allows you to create custom media pipelines to greatly simplify integration with a multitude of cameras and video sources. 
+**🎯 Phase 7 Integration Complete: World-Class Serverless GStreamer Pipeline Generation**
 
-This repository provides **two complementary solutions** for customers who are unable to deploy new hardware on-premises:
+This repository provides a comprehensive solution for ingesting RTSP video streams to Amazon Kinesis Video Streams, now enhanced with a sophisticated AI-powered GStreamer expert system.
 
-## 🚀 **NEW: Serverless Pipeline Generator with OpenCV Frame Extraction**
+## 🚀 **NEW: Enhanced Pipeline Generator with GStreamer Expert System**
 
-A fully serverless solution that analyzes RTSP streams and generates optimized GStreamer pipelines using AI. Features include:
+**Phase 7 Integration** combines the original cloud gateway capabilities with the advanced GStreamer expertise from the `bedrock-gstreamer` project, creating a unified, production-ready solution.
 
-- **🔍 RTSP Stream Analysis**: Automatic codec detection, authentication handling, and stream characteristics analysis
-- **🖼️ OpenCV Frame Extraction**: Real-time frame capture and analysis from RTSP streams using OpenCV in AWS Lambda
-- **🤖 AI-Powered Pipeline Generation**: Uses Amazon Bedrock agents to generate optimized GStreamer pipelines
-- **⚡ Serverless Architecture**: No infrastructure management required
+### **🧠 Expert System Features**
+- **324-Document Knowledge Base**: Comprehensive GStreamer expertise with Claude Opus 4.1
+- **7 Specialized Tools**: Element search, troubleshooting, optimization, validation, and more
+- **Context-Aware Analysis**: Intelligent pipeline generation based on RTSP stream characteristics
+- **Platform Intelligence**: Automatic optimization for macOS, Linux, and Windows
+- **Quality Assurance**: Advanced troubleshooting and performance optimization
 
-**Quick Start**: See [`cdk-pipeline-generator/README.md`](./cdk-pipeline-generator/README.md) for deployment instructions.
+### **🔧 Enhanced Capabilities**
+- **RTSP Stream Analysis**: Automatic codec detection and authentication handling
+- **OpenCV Frame Extraction**: Real-time frame capture and analysis
+- **AI-Powered Pipeline Generation**: Uses Amazon Bedrock agents for optimized pipelines
+- **Serverless Architecture**: Fully serverless using AWS Lambda and API Gateway
 
-## 🏗️ **Original: Fargate-based Cloud Gateway**
+**Quick Start**: See [`enhanced-pipeline-generator/README.md`](./enhanced-pipeline-generator/README.md) for deployment instructions.
+
+## 🏗️ **Complete Solution Architecture**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│           Cloud Gateway + GStreamer Expert System          │
+├─────────────────────────────────────────────────────────────┤
+│  Enhanced Pipeline Generator (NEW - Phase 7)               │
+│  ├── Expert System Integration (324-doc knowledge base)    │
+│  ├── RTSP Analysis + OpenCV Frame Extraction              │
+│  ├── 7 Specialized GStreamer Tools                        │
+│  └── Claude Opus 4.1 Pipeline Generation                  │
+├─────────────────────────────────────────────────────────────┤
+│  Original Solutions (Maintained)                           │
+│  ├── Serverless Pipeline Generator                         │
+│  ├── Fargate-based Cloud Gateway                          │
+│  ├── EC2-based Cloud Gateway                              │
+│  └── Frontend Application                                  │
+├─────────────────────────────────────────────────────────────┤
+│  GStreamer Expert System (Integrated)                      │
+│  ├── MCP Server Implementation                             │
+│  ├── Knowledge Base Management                             │
+│  ├── Testing & Validation Framework                       │
+│  └── Q CLI Integration                                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🎯 **Phase 7: Enhanced Pipeline Generator** (Recommended)
+
+The **Enhanced Pipeline Generator** represents the evolution of this project, combining:
+
+### **Immediate Benefits**
+- **🚀 Expert-Level Pipeline Generation**: 324-document knowledge base with Claude Opus 4.1
+- **🔧 7 Specialized Tools**: Element search, troubleshooting, optimization, validation
+- **📡 Complete RTSP Analysis**: Stream characteristics, authentication, frame extraction
+- **⚡ Production-Ready**: Serverless architecture with comprehensive error handling
+
+### **Quick Deployment**
+```bash
+cd enhanced-pipeline-generator
+./deploy.sh
+```
+
+### **API Usage Examples**
+```bash
+# Enhanced pipeline generation with stream analysis
+curl -X POST https://your-api-endpoint/v1/generate-pipeline \
+  -H "Content-Type: application/json" \
+  -d '{
+    "rtsp_url": "rtsp://username:password@camera-ip/stream",
+    "mode": "pipeline",
+    "analyze_stream": true
+  }'
+
+# Specialized troubleshooting
+curl -X POST https://your-api-endpoint/v1/tools/troubleshoot \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pipeline": "gst-launch-1.0 rtspsrc ! kvssink",
+    "issue": "green screen artifacts"
+  }'
+```
+
+**📚 Complete Documentation**: [`enhanced-pipeline-generator/README.md`](./enhanced-pipeline-generator/README.md)
+
+---
+
+## 📁 **Project Structure**
+
+```
+cloud-gateway-for-amazon-kinesis-video-streams/
+├── enhanced-pipeline-generator/     # 🎯 Phase 7: Enhanced system (RECOMMENDED)
+├── gstreamer-expert-system/         # 🧠 Integrated expert system components
+├── cdk-pipeline-generator/          # 🤖 Original serverless pipeline generator
+├── fargate-cdk-app/                # 🐳 Fargate-based gateway
+├── ec2-cdk-app/                    # 🖥️  EC2-based gateway
+├── frontend-app/                   # 🌐 React frontend application
+├── docker-images/                  # 📦 Container images and scripts
+├── test-scripts/                   # 🧪 Testing and validation
+└── simple-rtsp-server/             # 📡 RTSP server for testing
+```
+
+---
 
 Overview
 The architecture diagram below depicts the Fargate-based gateway resources that this solution can deploy into your account. 

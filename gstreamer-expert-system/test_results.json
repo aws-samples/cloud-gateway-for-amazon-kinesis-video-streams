@@ -1,0 +1,69 @@
+{
+  "test_runs": [
+    {
+      "scenario_id": 2,
+      "timestamp": "2025-08-27T09:44:39.456452",
+      "response": {
+        "pipeline": "gst-launch-1.0 rtspsrc location=rtsp://test ! rtph264depay ! h264parse ! x264enc bitrate=100 ! kvssink",
+        "symptoms": "video has pixelation and blocky artifacts",
+        "issue_type": "quality_issues",
+        "severity": "medium",
+        "diagnosed_problems": [
+          "Pixelation detected - likely bitrate too low or encoder settings suboptimal",
+          "Encoding artifacts - review encoder settings, bitrate, and GOP structure"
+        ],
+        "solutions": [],
+        "prevention_tips": [
+          "Test with different encoder settings and bitrates",
+          "Verify color space conversions with videoconvert elements",
+          "Use hardware encoders when available for better quality"
+        ]
+      },
+      "issue_type": "quality_issues",
+      "diagnosed_problems": 2,
+      "keyword_matches": [
+        "pixelation",
+        "bitrate",
+        "encoder settings"
+      ],
+      "keyword_success_rate": 1.0,
+      "success": true
+    },
+    {
+      "scenario_id": 4,
+      "timestamp": "2025-08-27T09:47:32.963601",
+      "response": {
+        "pipeline": "gst-launch-1.0 rtspsrc location=rtsp://camera ! rtph264depay ! h264parse ! autovideosink",
+        "symptoms": "How do I fix green screen artifacts in my RTSP pipeline?",
+        "issue_type": "quality_issues",
+        "severity": "medium",
+        "diagnosed_problems": [
+          "Green screen artifacts - possible color space conversion issue or hardware decoder problem",
+          "Encoding artifacts - review encoder settings, bitrate, and GOP structure"
+        ],
+        "solutions": [
+          "the environment variable `GST_PLUGIN_PATH`. ## Pipeline Description A pipeline consists of *elements* and *links*. *Elements* can be put into *bins* of different sorts."
+        ],
+        "prevention_tips": [
+          "Test with different encoder settings and bitrates",
+          "Verify color space conversions with videoconvert elements",
+          "Use hardware encoders when available for better quality"
+        ]
+      },
+      "issue_type": "quality_issues",
+      "diagnosed_problems": 2,
+      "keyword_matches": [
+        "green screen",
+        "color space",
+        "videoconvert"
+      ],
+      "keyword_success_rate": 1.0,
+      "success": true
+    }
+  ],
+  "metadata": {
+    "created": "2025-08-27T09:44:38.869200",
+    "total_runs": 2,
+    "last_updated": "2025-08-27T09:47:33.903200"
+  }
+}

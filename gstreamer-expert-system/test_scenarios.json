@@ -1,0 +1,107 @@
+{
+  "scenarios": [
+    {
+      "id": 1,
+      "name": "RTSP to KVS Basic",
+      "description": "Test basic RTSP to KVS pipeline creation",
+      "test_type": "comprehensive",
+      "parameters": {
+        "query": "How do I stream RTSP video to Kinesis Video Streams?",
+        "pipeline": "",
+        "symptoms": ""
+      },
+      "expected_keywords": [
+        "kvssink",
+        "rtspsrc",
+        "application/x-rtp",
+        "stream-format=avc"
+      ],
+      "tags": [
+        "basic",
+        "kvs",
+        "rtsp"
+      ],
+      "created": "2025-08-27T09:43:40.603584",
+      "last_run": null,
+      "success_count": 0,
+      "failure_count": 0
+    },
+    {
+      "id": 2,
+      "name": "Pixelation Issues",
+      "description": "Test diagnosis of video quality issues",
+      "test_type": "troubleshoot",
+      "parameters": {
+        "query": "",
+        "pipeline": "gst-launch-1.0 rtspsrc location=rtsp://test ! rtph264depay ! h264parse ! x264enc bitrate=100 ! kvssink",
+        "symptoms": "video has pixelation and blocky artifacts"
+      },
+      "expected_keywords": [
+        "pixelation",
+        "bitrate",
+        "encoder settings"
+      ],
+      "tags": [
+        "quality",
+        "troubleshooting"
+      ],
+      "created": "2025-08-27T09:43:40.621786",
+      "last_run": "2025-08-27T09:44:40.258947",
+      "success_count": 1,
+      "failure_count": 0
+    },
+    {
+      "id": 3,
+      "name": "H264 Encoders",
+      "description": "Test finding H.264 encoder elements",
+      "test_type": "element_search",
+      "parameters": {
+        "query": "h264 encoder",
+        "pipeline": "",
+        "symptoms": ""
+      },
+      "expected_keywords": [
+        "x264enc",
+        "nvh264enc",
+        "vtenc_h264"
+      ],
+      "tags": [
+        "elements",
+        "encoders"
+      ],
+      "created": "2025-08-27T09:43:40.640338",
+      "last_run": null,
+      "success_count": 0,
+      "failure_count": 0
+    },
+    {
+      "id": 4,
+      "name": "How do I fix green screen arti...",
+      "description": "Auto-generated troubleshooting test: How do I fix green screen artifacts in my RTSP pipeline?",
+      "test_type": "troubleshoot",
+      "parameters": {
+        "query": "",
+        "pipeline": "gst-launch-1.0 rtspsrc location=rtsp://camera ! rtph264depay ! h264parse ! autovideosink",
+        "symptoms": "How do I fix green screen artifacts in my RTSP pipeline?"
+      },
+      "expected_keywords": [
+        "green screen",
+        "color space",
+        "videoconvert"
+      ],
+      "tags": [
+        "auto-generated",
+        "troubleshooting"
+      ],
+      "created": "2025-08-27T09:47:21.915226",
+      "last_run": "2025-08-27T09:47:33.902583",
+      "success_count": 1,
+      "failure_count": 0
+    }
+  ],
+  "metadata": {
+    "created": "2025-08-27T09:43:40.579335",
+    "total_scenarios": 4,
+    "last_updated": "2025-08-27T09:47:33.902598"
+  }
+}

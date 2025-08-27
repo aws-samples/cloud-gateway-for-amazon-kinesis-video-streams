@@ -1,0 +1,458 @@
+{
+  "summary": {
+    "total_scenarios": 15,
+    "successful_evaluations": 15,
+    "overall_coverage_score": 0.505,
+    "category_scores": {
+      "basic_pipeline_construction": 0.75,
+      "platform_optimization": 0.6,
+      "quality_troubleshooting": 0.3916666666666666,
+      "complex_scenarios": 0.5166666666666666,
+      "kvs_specific": 0.325,
+      "performance_optimization": 0.45
+    },
+    "low_scoring_scenarios": [
+      {
+        "name": "Linux NVIDIA Acceleration",
+        "category": "platform_optimization",
+        "score": 0.35
+      },
+      {
+        "name": "Windows MediaFoundation",
+        "category": "platform_optimization",
+        "score": 0.6499999999999999
+      },
+      {
+        "name": "Pixelation Issues",
+        "category": "quality_troubleshooting",
+        "score": 0.4
+      },
+      {
+        "name": "Green Screen Artifacts",
+        "category": "quality_troubleshooting",
+        "score": 0.35
+      },
+      {
+        "name": "Audio Video Sync",
+        "category": "quality_troubleshooting",
+        "score": 0.42499999999999993
+      },
+      {
+        "name": "Multi-Output Tee",
+        "category": "complex_scenarios",
+        "score": 0.5
+      },
+      {
+        "name": "Multi-Camera Composition",
+        "category": "complex_scenarios",
+        "score": 0.35
+      },
+      {
+        "name": "KVS HLS Playback",
+        "category": "kvs_specific",
+        "score": 0.35
+      },
+      {
+        "name": "KVS GetClip API",
+        "category": "kvs_specific",
+        "score": 0.30000000000000004
+      },
+      {
+        "name": "Low Latency Streaming",
+        "category": "performance_optimization",
+        "score": 0.5
+      },
+      {
+        "name": "High CPU Usage",
+        "category": "performance_optimization",
+        "score": 0.4
+      }
+    ],
+    "recommendations": [
+      "Add more platform-specific hardware acceleration examples",
+      "Expand troubleshooting guides with more specific solutions",
+      "Include more advanced pipeline examples and patterns",
+      "Add comprehensive KVS feature compatibility documentation",
+      "Include more performance tuning examples and benchmarks",
+      "Consider expanding knowledge base with more comprehensive examples"
+    ]
+  },
+  "detailed_results": [
+    {
+      "scenario": "RTSP to KVS Basic",
+      "category": "basic_pipeline_construction",
+      "complexity": "basic",
+      "query": "Create basic RTSP to KVS pipeline",
+      "response_length": 4264,
+      "coverage_score": {
+        "elements_found": 4,
+        "elements_total": 4,
+        "concepts_found": 2,
+        "concepts_total": 2,
+        "solutions_found": 0,
+        "solutions_total": 0,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.7999999999999999,
+        "element_score": 1.0,
+        "concept_score": 1.0,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: kvs\n- **Complexity**: basic\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3.5 Sonnet)**\n*Note: Using Claude 3.5 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\nCertainly! I'll help you create a basic RTSP to Amazon Kinesis Vi...",
+      "timestamp": "2025-08-27T11:02:54.477165"
+    },
+    {
+      "scenario": "Webcam Recording",
+      "category": "basic_pipeline_construction",
+      "complexity": "basic",
+      "query": "Record webcam to file on macOS",
+      "response_length": 3466,
+      "coverage_score": {
+        "elements_found": 2,
+        "elements_total": 3,
+        "concepts_found": 2,
+        "concepts_total": 2,
+        "solutions_found": 0,
+        "solutions_total": 0,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.7,
+        "element_score": 0.6666666666666666,
+        "concept_score": 1.0,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: webcam\n- **Destinations**: file\n- **Complexity**: basic\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3 Sonnet)**\n*Note: Using Claude 3 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\n1. Working pipeline solution for recording webcam to file on macOS:\n\n...",
+      "timestamp": "2025-08-27T11:03:22.545241"
+    },
+    {
+      "scenario": "macOS Hardware Acceleration",
+      "category": "platform_optimization",
+      "complexity": "intermediate",
+      "query": "Optimize H.264 encoding for macOS with hardware acceleration",
+      "response_length": 3210,
+      "coverage_score": {
+        "elements_found": 2,
+        "elements_total": 2,
+        "concepts_found": 2,
+        "concepts_total": 2,
+        "solutions_found": 0,
+        "solutions_total": 0,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.7999999999999999,
+        "element_score": 1.0,
+        "concept_score": 1.0,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: unknown\n- **Complexity**: optimization\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3.5 Sonnet)**\n*Note: Using Claude 3.5 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\nBased on your query about optimizing H.264 encoding fo...",
+      "timestamp": "2025-08-27T11:03:50.609444"
+    },
+    {
+      "scenario": "Linux NVIDIA Acceleration",
+      "category": "platform_optimization",
+      "complexity": "intermediate",
+      "query": "Use NVIDIA GPU for H.264 encoding on Linux",
+      "response_length": 3575,
+      "coverage_score": {
+        "elements_found": 1,
+        "elements_total": 2,
+        "concepts_found": 0,
+        "concepts_total": 2,
+        "solutions_found": 0,
+        "solutions_total": 0,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.35,
+        "element_score": 0.5,
+        "concept_score": 0.0,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: unknown\n- **Complexity**: ml_inference\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3 Sonnet)**\n*Note: Using Claude 3 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\n1. Working pipeline solution:\n\n```\ngst-launch-1.0 videotes...",
+      "timestamp": "2025-08-27T11:04:21.632013"
+    },
+    {
+      "scenario": "Windows MediaFoundation",
+      "category": "platform_optimization",
+      "complexity": "intermediate",
+      "query": "Hardware encoding on Windows with MediaFoundation",
+      "response_length": 4181,
+      "coverage_score": {
+        "elements_found": 2,
+        "elements_total": 2,
+        "concepts_found": 1,
+        "concepts_total": 2,
+        "solutions_found": 0,
+        "solutions_total": 0,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.6499999999999999,
+        "element_score": 1.0,
+        "concept_score": 0.5,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: unknown\n- **Complexity**: optimization\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3.5 Sonnet)**\n*Note: Using Claude 3.5 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\nBased on your query about hardware encoding on Windows...",
+      "timestamp": "2025-08-27T11:04:55.180263"
+    },
+    {
+      "scenario": "Pixelation Issues",
+      "category": "quality_troubleshooting",
+      "complexity": "intermediate",
+      "query": "Fix pixelation in video stream with low bitrate",
+      "response_length": 3296,
+      "coverage_score": {
+        "elements_found": 0,
+        "elements_total": 0,
+        "concepts_found": 2,
+        "concepts_total": 3,
+        "solutions_found": 0,
+        "solutions_total": 2,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.4,
+        "element_score": 0.0,
+        "concept_score": 0.6666666666666666,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: unknown\n- **Complexity**: multi_track\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3 Sonnet)**\n*Note: Using Claude 3 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\n1. Working pipeline solution:\n\n```\ngst-launch-1.0 videotest...",
+      "timestamp": "2025-08-27T11:05:29.394714"
+    },
+    {
+      "scenario": "Green Screen Artifacts",
+      "category": "quality_troubleshooting",
+      "complexity": "intermediate",
+      "query": "Resolve green screen artifacts in RTSP pipeline",
+      "response_length": 3693,
+      "coverage_score": {
+        "elements_found": 0,
+        "elements_total": 0,
+        "concepts_found": 2,
+        "concepts_total": 4,
+        "solutions_found": 0,
+        "solutions_total": 2,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.35,
+        "element_score": 0.0,
+        "concept_score": 0.5,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: screen_capture\n- **Destinations**: display\n- **Complexity**: basic\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3.5 Sonnet)**\n*Note: Using Claude 3.5 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\nBased on the context provided and your query about res...",
+      "timestamp": "2025-08-27T11:05:55.486324"
+    },
+    {
+      "scenario": "Audio Video Sync",
+      "category": "quality_troubleshooting",
+      "complexity": "intermediate",
+      "query": "Fix audio video synchronization issues",
+      "response_length": 3440,
+      "coverage_score": {
+        "elements_found": 0,
+        "elements_total": 0,
+        "concepts_found": 3,
+        "concepts_total": 4,
+        "solutions_found": 0,
+        "solutions_total": 2,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.42499999999999993,
+        "element_score": 0.0,
+        "concept_score": 0.75,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: unknown\n- **Complexity**: multi_track\n- **Issues**: audio_sync\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n## \ud83d\udee0\ufe0f DEBUGGING STEPS (Issues Detected: audio_sync):\n\n1. **Test connectivity:**\n```bash\ngst-launch-1.0 rtspsrc location=\"rtsp://your-camera-url\" ! fakesink dump=true\n```\n\n2. **Inspect stream:**\n```bash\ngst-discoverer-1....",
+      "timestamp": "2025-08-27T11:06:25.706012"
+    },
+    {
+      "scenario": "Multi-Output Tee",
+      "category": "complex_scenarios",
+      "complexity": "advanced",
+      "query": "Stream to multiple destinations simultaneously with tee",
+      "response_length": 3120,
+      "coverage_score": {
+        "elements_found": 2,
+        "elements_total": 2,
+        "concepts_found": 0,
+        "concepts_total": 2,
+        "solutions_found": 0,
+        "solutions_total": 0,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.5,
+        "element_score": 1.0,
+        "concept_score": 0.0,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: multi_output\n- **Complexity**: multi_output\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3.5 Sonnet)**\n*Note: Using Claude 3.5 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\nBased on your query to stream to multiple destina...",
+      "timestamp": "2025-08-27T11:06:53.644473"
+    },
+    {
+      "scenario": "ML Inference Integration",
+      "category": "complex_scenarios",
+      "complexity": "advanced",
+      "query": "Add OpenVINO object detection to webcam pipeline",
+      "response_length": 3039,
+      "coverage_score": {
+        "elements_found": 3,
+        "elements_total": 3,
+        "concepts_found": 2,
+        "concepts_total": 3,
+        "solutions_found": 0,
+        "solutions_total": 0,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.7,
+        "element_score": 1.0,
+        "concept_score": 0.6666666666666666,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: webcam\n- **Destinations**: unknown\n- **Complexity**: ml_inference\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3 Sonnet)**\n*Note: Using Claude 3 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\n1. Working pipeline solution:\n\n```\ngst-launch-1.0 v4l2src d...",
+      "timestamp": "2025-08-27T11:07:19.804896"
+    },
+    {
+      "scenario": "Multi-Camera Composition",
+      "category": "complex_scenarios",
+      "complexity": "advanced",
+      "query": "Combine multiple camera feeds into single output",
+      "response_length": 3219,
+      "coverage_score": {
+        "elements_found": 1,
+        "elements_total": 2,
+        "concepts_found": 0,
+        "concepts_total": 3,
+        "solutions_found": 0,
+        "solutions_total": 0,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.35,
+        "element_score": 0.5,
+        "concept_score": 0.0,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: webcam\n- **Destinations**: multi_output\n- **Complexity**: multi_output\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3 Sonnet)**\n*Note: Using Claude 3 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\n1. Working pipeline solution:\n\n```\ngst-launch-1.0 \\\n  ...",
+      "timestamp": "2025-08-27T11:07:48.596515"
+    },
+    {
+      "scenario": "KVS HLS Playback",
+      "category": "kvs_specific",
+      "complexity": "advanced",
+      "query": "Ensure KVS stream works with HLS playback in browser",
+      "response_length": 4474,
+      "coverage_score": {
+        "elements_found": 0,
+        "elements_total": 0,
+        "concepts_found": 2,
+        "concepts_total": 4,
+        "solutions_found": 0,
+        "solutions_total": 2,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.35,
+        "element_score": 0.0,
+        "concept_score": 0.5,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: kvs\n- **Complexity**: basic\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3.5 Sonnet)**\n*Note: Using Claude 3.5 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\nBased on the context provided and your query about ensuring KVS (...",
+      "timestamp": "2025-08-27T11:08:18.036982"
+    },
+    {
+      "scenario": "KVS GetClip API",
+      "category": "kvs_specific",
+      "complexity": "advanced",
+      "query": "Configure pipeline for KVS GetClip API compatibility",
+      "response_length": 4945,
+      "coverage_score": {
+        "elements_found": 0,
+        "elements_total": 0,
+        "concepts_found": 1,
+        "concepts_total": 3,
+        "solutions_found": 0,
+        "solutions_total": 2,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.30000000000000004,
+        "element_score": 0.0,
+        "concept_score": 0.3333333333333333,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: kvs\n- **Complexity**: basic\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3 Sonnet)**\n*Note: Using Claude 3 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\nTo configure a GStreamer pipeline for compatibility with the Amazon K...",
+      "timestamp": "2025-08-27T11:08:49.099788"
+    },
+    {
+      "scenario": "Low Latency Streaming",
+      "category": "performance_optimization",
+      "complexity": "advanced",
+      "query": "Optimize pipeline for sub-100ms latency",
+      "response_length": 3559,
+      "coverage_score": {
+        "elements_found": 0,
+        "elements_total": 0,
+        "concepts_found": 2,
+        "concepts_total": 3,
+        "solutions_found": 1,
+        "solutions_total": 2,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.5,
+        "element_score": 0.0,
+        "concept_score": 0.6666666666666666,
+        "solution_score": 0.5,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: unknown\n- **Complexity**: optimization\n- **Issues**: None detected\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n---\n\n## \ud83d\ude80 ENHANCED ANALYSIS & RECOMMENDATIONS\n\n**Enhanced Analysis (Claude 3.5 Sonnet)**\n*Note: Using Claude 3.5 Sonnet fallback (Claude Opus 4.1 token_limit)*\n\nBased on the limited context provided, I'll offer a ge...",
+      "timestamp": "2025-08-27T11:09:16.383506"
+    },
+    {
+      "scenario": "High CPU Usage",
+      "category": "performance_optimization",
+      "complexity": "intermediate",
+      "query": "Reduce CPU usage in software encoding pipeline",
+      "response_length": 3991,
+      "coverage_score": {
+        "elements_found": 0,
+        "elements_total": 0,
+        "concepts_found": 2,
+        "concepts_total": 3,
+        "solutions_found": 0,
+        "solutions_total": 2,
+        "has_working_pipeline": true,
+        "has_explanation": true,
+        "total_score": 0.4,
+        "element_score": 0.0,
+        "concept_score": 0.6666666666666666,
+        "solution_score": 0.0,
+        "pipeline_score": 1.0,
+        "explanation_score": 1.0
+      },
+      "response": "## \ud83d\udd27 WORKING SOLUTION FRAMEWORK\n\nBased on detected context:\n- **Source**: unknown\n- **Destinations**: unknown\n- **Complexity**: basic\n- **Issues**: performance\n\n```bash\n# Framework - will be enhanced with specific solution\ngst-launch-1.0 [source] ! [processing] ! [sink]\n```\n\n## \ud83d\udee0\ufe0f DEBUGGING STEPS (Issues Detected: performance):\n\n1. **Test connectivity:**\n```bash\ngst-launch-1.0 rtspsrc location=\"rtsp://your-camera-url\" ! fakesink dump=true\n```\n\n2. **Inspect stream:**\n```bash\ngst-discoverer-1.0 \"r...",
+      "timestamp": "2025-08-27T11:09:51.880416"
+    }
+  ],
+  "evaluation_timestamp": "2025-08-27T11:09:51.880822"
+}
