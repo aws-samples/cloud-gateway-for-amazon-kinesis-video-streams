@@ -1,0 +1,21 @@
+# Enhanced GStreamer Pipeline Generator Requirements
+
+# AWS SDK
+boto3>=1.34.0
+botocore>=1.34.0
+
+# OpenCV for frame extraction
+opencv-python-headless>=4.8.0
+
+# HTTP and networking
+requests>=2.31.0
+urllib3>=2.0.0
+
+# JSON and data processing
+jsonschema>=4.19.0
+
+# Async support
+asyncio-compat>=0.1.2
+
+# Camera management dependencies are minimal - boto3 covers DynamoDB and Secrets Manager
+# All other dependencies (json, uuid, datetime, logging) are in Python standard library

@@ -1,27 +1,30 @@
-# Cloud Gateway for Amazon Kinesis Video Streams + Enhanced GStreamer Expert System
+# Cloud Gateway for Amazon Kinesis Video Streams + Unified Streaming Platform
 
-**🎯 Phase 7 Integration Complete: World-Class Serverless GStreamer Pipeline Generation**
+**🎯 Consolidation Complete: Unified Serverless Streaming Platform**
 
-This repository provides a comprehensive solution for ingesting RTSP video streams to Amazon Kinesis Video Streams, now enhanced with a sophisticated AI-powered GStreamer expert system.
+This repository provides a comprehensive solution for ingesting RTSP video streams to Amazon Kinesis Video Streams, featuring a consolidated unified streaming platform that combines pipeline generation, camera management, and RTSP analysis capabilities.
 
-## 🚀 **NEW: Enhanced Pipeline Generator with GStreamer Expert System**
+## 🚀 **NEW: Unified Streaming Platform**
 
-**Phase 7 Integration** combines the original cloud gateway capabilities with the advanced GStreamer expertise from the `bedrock-gstreamer` project, creating a unified, production-ready solution.
+**Consolidation Phase** has successfully merged the Enhanced Pipeline Generator, CDK Pipeline Generator, and Lambda SDP Extractor into a single, comprehensive `unified-streaming-platform` with all functionality preserved and enhanced.
 
-### **🧠 Expert System Features**
-- **324-Document Knowledge Base**: Comprehensive GStreamer expertise with Claude Opus 4.1
-- **7 Specialized Tools**: Element search, troubleshooting, optimization, validation, and more
-- **Context-Aware Analysis**: Intelligent pipeline generation based on RTSP stream characteristics
+### **🧠 Unified Platform Features**
+- **Pipeline Generation**: Advanced GStreamer pipeline creation with 324-document knowledge base
+- **Camera Management**: Complete CRUD operations with Cognito authentication and DynamoDB storage
+- **RTSP Analysis**: SDP parsing, codec detection, and stream characteristics extraction
+- **OpenCV Integration**: Real-time frame capture and analysis capabilities
+- **Expert System**: 7 specialized tools with Claude Opus 4.1 intelligence
 - **Platform Intelligence**: Automatic optimization for macOS, Linux, and Windows
-- **Quality Assurance**: Advanced troubleshooting and performance optimization
 
-### **🔧 Enhanced Capabilities**
-- **RTSP Stream Analysis**: Automatic codec detection and authentication handling
-- **OpenCV Frame Extraction**: Real-time frame capture and analysis
+### **🔧 Consolidated Architecture**
+- **Single CDK Stack**: Unified deployment with shared infrastructure
+- **Dual Lambda Functions**: Enhanced Pipeline (3GB, 10min) + Camera Management (512MB, 30s)
+- **Unified API Gateway**: 12 endpoints covering all functionality
+- **Integrated Security**: Secrets Manager, Cognito authentication, user isolation
 - **AI-Powered Pipeline Generation**: Uses Amazon Bedrock agents for optimized pipelines
 - **Serverless Architecture**: Fully serverless using AWS Lambda and API Gateway
 
-**Quick Start**: See [`enhanced-pipeline-generator/README.md`](./enhanced-pipeline-generator/README.md) for deployment instructions.
+**Quick Start**: See [`unified-streaming-platform/README.md`](./unified-streaming-platform/README.md) for deployment instructions.
 
 ## 🏗️ **Complete Solution Architecture**
 
@@ -49,9 +52,9 @@ This repository provides a comprehensive solution for ingesting RTSP video strea
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 🎯 **Phase 7: Enhanced Pipeline Generator** (Recommended)
+## 🎯 **Unified Streaming Platform** (Recommended)
 
-The **Enhanced Pipeline Generator** represents the evolution of this project, combining:
+The **Unified Streaming Platform** represents the consolidated evolution of this project, combining all pipeline generation, camera management, and RTSP analysis capabilities into a single, comprehensive solution:
 
 ### **Immediate Benefits**
 - **🚀 Expert-Level Pipeline Generation**: 324-document knowledge base with Claude Opus 4.1
@@ -61,7 +64,7 @@ The **Enhanced Pipeline Generator** represents the evolution of this project, co
 
 ### **Quick Deployment**
 ```bash
-cd enhanced-pipeline-generator
+cd unified-streaming-platform
 ./deploy.sh
 ```
 
@@ -93,9 +96,14 @@ curl -X POST https://your-api-endpoint/v1/tools/troubleshoot \
 
 ```
 cloud-gateway-for-amazon-kinesis-video-streams/
-├── enhanced-pipeline-generator/     # 🎯 Phase 7: Enhanced system (RECOMMENDED)
-├── gstreamer-expert-system/         # 🧠 Integrated expert system components
-├── cdk-pipeline-generator/          # 🤖 Original serverless pipeline generator
+├── unified-streaming-platform/      # 🎯 CONSOLIDATED: Complete streaming solution
+│   ├── enhanced_lambda_function.py  #   ├── Pipeline generation with expert system
+│   ├── camera_management.py         #   ├── Camera CRUD operations
+│   ├── rtsp_analysis.py             #   ├── RTSP stream analysis & SDP parsing
+│   ├── enhanced-pipeline-stack.ts   #   ├── Unified CDK infrastructure
+│   └── deploy.sh                    #   └── Single deployment script
+├── migration-scripts/               # 🔄 Preserved migration utilities
+├── gstreamer-expert-system/         # 🧠 Expert system components (integrated)
 ├── fargate-cdk-app/                # 🐳 Fargate-based gateway
 ├── ec2-cdk-app/                    # 🖥️  EC2-based gateway
 ├── frontend-app/                   # 🌐 React frontend application
@@ -103,6 +111,12 @@ cloud-gateway-for-amazon-kinesis-video-streams/
 ├── test-scripts/                   # 🧪 Testing and validation
 └── simple-rtsp-server/             # 📡 RTSP server for testing
 ```
+
+### **🔄 Consolidation Summary**
+- **✅ Enhanced Pipeline Generator**: Merged into unified-streaming-platform
+- **✅ CDK Pipeline Generator**: Camera management integrated, deprecated Bedrock Agent removed
+- **✅ Lambda SDP Extractor**: RTSP analysis functionality integrated
+- **📦 Migration Scripts**: Preserved for existing deployments
 
 ---
 
