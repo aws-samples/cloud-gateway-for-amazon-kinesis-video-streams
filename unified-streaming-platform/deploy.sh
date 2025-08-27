@@ -5,6 +5,10 @@
 
 set -e
 
+# AWS Profile Configuration
+AWS_PROFILE="malone-aws"
+export AWS_PROFILE
+
 # Parse command line arguments
 DEPLOY_RTSP_TEST_SERVER="true"
 DEPLOY_FRONTEND="true"
@@ -105,9 +109,11 @@ echo "✅ All prerequisites satisfied"
 echo ""
 
 # Install dependencies
-echo "📦 Installing dependencies..."
+echo "📦 Installing CDK dependencies..."
+cd cdk-infrastructure/
 npm install
-echo "✅ Dependencies installed"
+cd ..
+echo "✅ CDK dependencies installed"
 echo ""
 
 # Set Docker to use legacy builder (required for Lambda compatibility)
@@ -187,9 +193,11 @@ if [[ "$DEPLOY_FRONTEND" == "true" ]]; then
 fi
 
 # Deploy with Docker legacy builder
+cd cdk-infrastructure/
 DOCKER_BUILDKIT=0 cdk deploy --require-approval never \
     --parameters DeployRtspTestServer=$DEPLOY_RTSP_TEST_SERVER \
     --parameters DeployFrontend=$DEPLOY_FRONTEND
+cd ..
 
 echo ""
 echo "🎉 Deployment Complete!"

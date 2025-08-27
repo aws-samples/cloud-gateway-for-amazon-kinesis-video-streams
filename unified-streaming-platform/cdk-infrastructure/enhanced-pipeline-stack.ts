@@ -50,7 +50,9 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       encryption: dynamodb.TableEncryption.AWS_MANAGED,
-      pointInTimeRecovery: true,
+      pointInTimeRecoverySpecification: {
+        pointInTimeRecoveryEnabled: true
+      },
       removalPolicy: cdk.RemovalPolicy.RETAIN, // Retain data on stack deletion
       stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES // Enable streams for future event processing
     });
@@ -128,11 +130,18 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       }
     });
 
+    // Create log group for Camera Management Lambda
+    const cameraManagementLogGroup = new logs.LogGroup(this, 'CameraManagementLogGroup', {
+      logGroupName: '/aws/lambda/CameraManagementFunction',
+      retention: logs.RetentionDays.ONE_WEEK,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     // Create Camera Management Lambda function
     const cameraManagementFunction = new lambda.Function(this, 'CameraManagementFunction', {
       runtime: lambda.Runtime.PYTHON_3_11,
       handler: 'camera_management.lambda_handler',
-      code: lambda.Code.fromAsset(path.join(__dirname), {
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda-camera-management'), {
         bundling: {
           image: lambda.Runtime.PYTHON_3_11.bundlingImage,
           command: [
@@ -150,7 +159,7 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
         CAMERAS_TABLE_OWNER_GSI_NAME: 'OwnerIndex',
         SECRETS_PREFIX: 'camera-rtsp-'
       },
-      logRetention: logs.RetentionDays.ONE_WEEK,
+      logGroup: cameraManagementLogGroup,
       description: 'Camera management for enhanced pipeline generator'
     });
 
@@ -188,9 +197,16 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       }
     });
 
+    // Create log group for Enhanced Pipeline Lambda
+    const enhancedPipelineLogGroup = new logs.LogGroup(this, 'EnhancedPipelineLogGroup', {
+      logGroupName: '/aws/lambda/EnhancedPipelineFunction',
+      retention: logs.RetentionDays.ONE_WEEK,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     // Create Enhanced Pipeline Lambda function
     const enhancedLambda = new lambda.DockerImageFunction(this, 'EnhancedPipelineFunction', {
-      code: lambda.DockerImageCode.fromImageAsset('./', {
+      code: lambda.DockerImageCode.fromImageAsset('../lambda-enhanced-pipeline', {
         file: 'Dockerfile'
       }),
       role: enhancedLambdaRole,
@@ -204,7 +220,7 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
         FRAME_TIMEOUT: '30',
         JPEG_QUALITY: '85'
       },
-      logRetention: logs.RetentionDays.ONE_WEEK,
+      logGroup: enhancedPipelineLogGroup,
       description: 'Enhanced GStreamer pipeline generator with expert system and OpenCV'
     });
 
@@ -243,7 +259,6 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
     // Enhanced pipeline generation endpoint
     const generatePipeline = v1.addResource('generate-pipeline');
     generatePipeline.addMethod('POST', enhancedLambdaIntegration);
-    generatePipeline.addMethod('OPTIONS', enhancedLambdaIntegration);
 
     // Specialized tool endpoints
     const tools = v1.addResource('tools');
@@ -251,32 +266,26 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
     // Element search endpoint
     const searchElements = tools.addResource('search-elements');
     searchElements.addMethod('POST', enhancedLambdaIntegration);
-    searchElements.addMethod('OPTIONS', enhancedLambdaIntegration);
 
     // Troubleshooting endpoint
     const troubleshoot = tools.addResource('troubleshoot');
     troubleshoot.addMethod('POST', enhancedLambdaIntegration);
-    troubleshoot.addMethod('OPTIONS', enhancedLambdaIntegration);
 
     // Optimization endpoint
     const optimize = tools.addResource('optimize');
     optimize.addMethod('POST', enhancedLambdaIntegration);
-    optimize.addMethod('OPTIONS', enhancedLambdaIntegration);
 
     // Validation endpoint
     const validate = tools.addResource('validate');
     validate.addMethod('POST', enhancedLambdaIntegration);
-    validate.addMethod('OPTIONS', enhancedLambdaIntegration);
 
     // Comprehensive expert endpoint
     const expert = tools.addResource('expert');
     expert.addMethod('POST', enhancedLambdaIntegration);
-    expert.addMethod('OPTIONS', enhancedLambdaIntegration);
 
     // Stream characteristics endpoint (maintains compatibility)
     const characteristics = v1.addResource('characteristics');
     characteristics.addMethod('POST', enhancedLambdaIntegration);
-    characteristics.addMethod('OPTIONS', enhancedLambdaIntegration);
 
     // Camera Management API endpoints
     const camerasResource = api.root.addResource('cameras');
@@ -360,7 +369,9 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       vpc,
       clusterName: 'rtsp-test-server-cluster'
     });
-    rtspCluster.cfnCluster.cfnOptions.condition = rtspTestServerCondition;
+    // Apply condition to the cluster
+    const cfnCluster = rtspCluster.node.defaultChild as ecs.CfnCluster;
+    cfnCluster.cfnOptions.condition = rtspTestServerCondition;
 
     // Create security group for RTSP Test Server
     const rtspSecurityGroup = new ec2.SecurityGroup(this, 'RTSPTestSecurityGroup', {
@@ -368,7 +379,9 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       description: 'Security group for RTSP Test Server with ports 8554-8557 and 8080 open',
       allowAllOutbound: true,
     });
-    rtspSecurityGroup.cfnSecurityGroup.cfnOptions.condition = rtspTestServerCondition;
+    // Apply condition to the security group
+    const cfnSecurityGroup = rtspSecurityGroup.node.defaultChild as ec2.CfnSecurityGroup;
+    cfnSecurityGroup.cfnOptions.condition = rtspTestServerCondition;
 
     // Add inbound rules for RTSP ports and HTTP API
     rtspSecurityGroup.addIngressRule(
@@ -388,18 +401,22 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       retention: logs.RetentionDays.ONE_WEEK,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
-    rtspLogGroup.cfnLogGroup.cfnOptions.condition = rtspTestServerCondition;
+    // Apply condition to the log group
+    const cfnLogGroup = rtspLogGroup.node.defaultChild as logs.CfnLogGroup;
+    cfnLogGroup.cfnOptions.condition = rtspTestServerCondition;
 
     // Create Fargate Task Definition for RTSP Test Server
     const rtspTaskDefinition = new ecs.FargateTaskDefinition(this, 'RTSPTestTaskDefinition', {
       memoryLimitMiB: 2048,
       cpu: 1024,
     });
-    rtspTaskDefinition.cfnTaskDefinition.cfnOptions.condition = rtspTestServerCondition;
+    // Apply condition to the task definition
+    const cfnTaskDefinition = rtspTaskDefinition.node.defaultChild as ecs.CfnTaskDefinition;
+    cfnTaskDefinition.cfnOptions.condition = rtspTestServerCondition;
 
     // Add container to task definition
     const rtspContainer = rtspTaskDefinition.addContainer('RTSPTestServerContainer', {
-      image: ecs.ContainerImage.fromAsset(path.join(__dirname, 'rtsp-test-server')),
+      image: ecs.ContainerImage.fromAsset(path.join(__dirname, '../rtsp-test-server')),
       logging: ecs.LogDrivers.awsLogs({
         streamPrefix: 'rtsp-test-server',
         logGroup: rtspLogGroup,
@@ -426,8 +443,12 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       desiredCount: 1,
       assignPublicIp: true,
       securityGroups: [rtspSecurityGroup],
+      minHealthyPercent: 100,
+      maxHealthyPercent: 200,
     });
-    rtspService.cfnService.cfnOptions.condition = rtspTestServerCondition;
+    // Apply condition to the service
+    const cfnService = rtspService.node.defaultChild as ecs.CfnService;
+    cfnService.cfnOptions.condition = rtspTestServerCondition;
 
     // Output RTSP Test Server information (conditional)
     const rtspTestServerOutput = new cdk.CfnOutput(this, 'RTSPTestServerStatus', {
@@ -463,12 +484,14 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
-    frontendBucket.cfnBucket.cfnOptions.condition = frontendCondition;
+    // Apply condition to the S3 bucket
+    const cfnBucket = frontendBucket.node.defaultChild as s3.CfnBucket;
+    cfnBucket.cfnOptions.condition = frontendCondition;
 
     // CloudFront Distribution for global CDN
     const distribution = new cloudfront.Distribution(this, 'FrontendDistribution', {
       defaultBehavior: {
-        origin: new origins.S3Origin(frontendBucket),
+        origin: new origins.S3StaticWebsiteOrigin(frontendBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
         originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
@@ -489,7 +512,9 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       comment: 'Unified Streaming Platform Frontend Distribution',
     });
     distribution.node.addDependency(frontendBucket);
-    distribution.cfnDistribution.cfnOptions.condition = frontendCondition;
+    // Apply condition to the CloudFront distribution
+    const cfnDistribution = distribution.node.defaultChild as cloudfront.CfnDistribution;
+    cfnDistribution.cfnOptions.condition = frontendCondition;
 
     // S3 Deployment for React build (conditional)
     // Note: This requires the frontend to be built first
@@ -501,7 +526,8 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       memoryLimit: 512,
     });
     frontendDeployment.node.addDependency(distribution);
-    frontendDeployment.cfnBucketDeployment.cfnOptions.condition = frontendCondition;
+    // Note: BucketDeployment is a higher-level construct that manages multiple resources
+    // The condition is applied to the parent bucket and distribution instead
 
     // Output frontend URLs (conditional)
     const frontendBucketOutput = new cdk.CfnOutput(this, 'FrontendBucketName', {
