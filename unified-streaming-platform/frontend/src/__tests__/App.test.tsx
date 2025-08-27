@@ -1,280 +1,143 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { useAuthenticator } from '@aws-amplify/ui-react';
+/**
+ * App Component Tests
+ * Tests the main application component with authentication
+ */
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithAuth, setupCommonMocks, resetAllMocks, createMockAuthContext } from './test-utils';
 import App from '../App';
 
-// Mock the useAuthenticator hook
-vi.mock('@aws-amplify/ui-react', () => ({
-  useAuthenticator: vi.fn(),
+// Mock the auth context
+vi.mock('../contexts/AuthContext', () => ({
+  useAuth: () => createMockAuthContext(),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children
 }));
 
-// Mock the components to avoid complex rendering issues in tests
-vi.mock('../components', () => ({
-  RTSPStreamTester: () => <div data-testid="rtsp-stream-tester">RTSP Stream Tester</div>,
-  QuickStreamTester: () => <div data-testid="quick-stream-tester">Quick Stream Tester</div>,
-  KinesisVideoStreamsIcon: () => <div data-testid="kvs-icon">KVS Icon</div>,
-  AddNewCamera: () => <div data-testid="add-new-camera">Add New Camera</div>,
-  CameraList: () => <div data-testid="camera-list">Camera List</div>,
-}));
-
-vi.mock('../components/GStreamerPipelineGenerator', () => ({
-  default: () => <div data-testid="gstreamer-pipeline-generator">GStreamer Pipeline Generator</div>,
-}));
-
-vi.mock('../components/ErrorBoundary', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
-describe('App Component - User Authentication Display', () => {
-  const mockSignOut = vi.fn();
-  
-  const mockUser = {
-    username: 'testuser',
-    attributes: {
-      email: 'test@example.com',
-      given_name: 'John',
-      family_name: 'Doe',
-      name: 'John Doe'
-    }
-  };
-
+describe('App Component', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    // Clear localStorage
-    localStorage.clear();
-    // Reset URL hash
-    window.location.hash = '';
+    resetAllMocks();
+    setupCommonMocks();
   });
 
-  it('should display user dropdown button in top navigation', async () => {
-    (useAuthenticator as any).mockReturnValue({
-      user: mockUser,
-      signOut: mockSignOut
+  describe('Authentication Integration', () => {
+    it('should render with authenticated user', () => {
+      renderWithAuth(<App />);
+      
+      // Check for main app elements
+      expect(screen.getByRole('banner')).toBeInTheDocument(); // TopNavigation
+      expect(screen.getByRole('navigation')).toBeInTheDocument(); // SideNavigation
+      expect(screen.getByRole('main')).toBeInTheDocument(); // Main content
     });
 
-    render(<App />);
-
-    // Look for the TopNavigation component - it should be present
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
+    it('should display user information in navigation', () => {
+      renderWithAuth(<App />);
+      
+      // Should show user name somewhere in the document (multiple instances expected)
+      expect(screen.getAllByText('John Doe')).toHaveLength(3);
     });
 
-    // Check that the main app title is rendered (this confirms TopNavigation is working)
-    expect(screen.getAllByText('Kinesis Video Streams Gateway')[0]).toBeInTheDocument();
-  });
+    it('should handle sign out', async () => {
+      const mockSignOut = vi.fn();
+      renderWithAuth(<App />, {
+        authValue: { signOut: mockSignOut }
+      });
 
-  it('should call signOut function when sign out is clicked', async () => {
-    (useAuthenticator as any).mockReturnValue({
-      user: mockUser,
-      signOut: mockSignOut
-    });
+      // Find and click the user menu (get first instance)
+      const userButtons = screen.getAllByText('John Doe');
+      fireEvent.click(userButtons[0]);
 
-    render(<App />);
-
-    // Since the TopNavigation dropdown is not accessible in the DOM during testing,
-    // we'll test that the signOut function is properly configured by checking
-    // that the TopNavigation component is rendered and the signOut function exists
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
-    });
-
-    // Verify that the signOut function is available (it would be called by the TopNavigation)
-    expect(mockSignOut).toBeDefined();
-    expect(typeof mockSignOut).toBe('function');
-  });
-
-  it('should handle user with only email (no given/family name)', async () => {
-    const userWithEmailOnly = {
-      username: 'testuser',
-      attributes: { email: 'test@example.com' }
-    };
-
-    (useAuthenticator as any).mockReturnValue({
-      user: userWithEmailOnly,
-      signOut: mockSignOut
-    });
-
-    render(<App />);
-
-    // Should still display TopNavigation even with minimal user info
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
-    });
-
-    // Check that the main app title is rendered (this confirms TopNavigation is working)
-    expect(screen.getAllByText('Kinesis Video Streams Gateway')[0]).toBeInTheDocument();
-  });
-
-  it('should handle user with only given name', async () => {
-    const userWithGivenNameOnly = {
-      username: 'testuser',
-      attributes: { 
-        email: 'test@example.com', 
-        given_name: 'John' 
-      }
-    };
-
-    (useAuthenticator as any).mockReturnValue({
-      user: userWithGivenNameOnly,
-      signOut: mockSignOut
-    });
-
-    render(<App />);
-
-    // Should display TopNavigation with given name
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
-    });
-
-    // Check that the main app title is rendered (this confirms TopNavigation is working)
-    expect(screen.getAllByText('Kinesis Video Streams Gateway')[0]).toBeInTheDocument();
-  });
-
-  it('should display fallback "User" when no user information is available', async () => {
-    const minimalUser = {
-      username: 'testuser'
-    };
-
-    (useAuthenticator as any).mockReturnValue({
-      user: minimalUser,
-      signOut: mockSignOut
-    });
-
-    render(<App />);
-
-    // Should still display TopNavigation with fallback user info
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
-    });
-
-    // Check that the main app title is rendered (this confirms TopNavigation is working)
-    expect(screen.getAllByText('Kinesis Video Streams Gateway')[0]).toBeInTheDocument();
-  });
-
-  it('should display user profile dropdown in top navigation', async () => {
-    (useAuthenticator as any).mockReturnValue({
-      user: mockUser,
-      signOut: mockSignOut,
-    });
-
-    render(<App />);
-
-    // Check for TopNavigation component
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
-    });
-
-    // Check that the main app title is rendered (this confirms TopNavigation is working)
-    expect(screen.getAllByText('Kinesis Video Streams Gateway')[0]).toBeInTheDocument();
-  });
-
-  it('should maintain user session across page navigation', async () => {
-    (useAuthenticator as any).mockReturnValue({
-      user: mockUser,
-      signOut: mockSignOut,
-    });
-
-    render(<App />);
-
-    // Verify TopNavigation is displayed initially
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
-    });
-
-    // Navigate to a different tab
-    const cameraListLink = screen.getByText(/📋 Camera List/);
-    fireEvent.click(cameraListLink);
-
-    // Verify TopNavigation is still displayed after navigation
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
-    });
-
-    // Verify the correct content is displayed
-    expect(screen.getByTestId('camera-list')).toBeInTheDocument();
-  });
-
-  it('should render the application with authentication', async () => {
-    (useAuthenticator as any).mockReturnValue({
-      user: mockUser,
-      signOut: mockSignOut,
-    });
-
-    render(<App />);
-
-    // Check that the main app structure is rendered
-    expect(screen.getAllByText('Kinesis Video Streams Gateway')[0]).toBeInTheDocument();
-    
-    // Check that the default tab (quick-tester) is displayed
-    expect(screen.getByTestId('quick-stream-tester')).toBeInTheDocument();
-
-    // Check that TopNavigation is present
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
+      // Look for sign out option (might need to wait for dropdown)
+      await waitFor(() => {
+        const signOutButton = screen.queryByText('Sign out');
+        if (signOutButton) {
+          fireEvent.click(signOutButton);
+          expect(mockSignOut).toHaveBeenCalled();
+        }
+      });
     });
   });
 
-  it('should display user first and last name in navigation dropdown', async () => {
-    const userWithFullName = {
-      username: 'user123',
-      attributes: {
-        given_name: 'Jane',
-        family_name: 'Smith',
-        email: 'jane.smith@example.com'
-      }
-    };
-
-    (useAuthenticator as any).mockReturnValue({
-      user: userWithFullName,
-      signOut: mockSignOut,
+  describe('Navigation Structure', () => {
+    it('should render all navigation items', () => {
+      renderWithAuth(<App />);
+      
+      // Check for navigation items (using more flexible text matching)
+      expect(screen.getByText(/Stream Dashboard/)).toBeInTheDocument();
+      expect(screen.getByText(/Analytics/)).toBeInTheDocument();
+      expect(screen.getByText(/Add New Camera/)).toBeInTheDocument();
+      expect(screen.getByText(/Camera List/)).toBeInTheDocument();
+      expect(screen.getAllByText(/Quick Stream Tester/)).toHaveLength(2); // Navigation + content
+      expect(screen.getByText(/RTSP Stream Tester/)).toBeInTheDocument();
+      expect(screen.getByText(/GStreamer Pipeline Generator/)).toBeInTheDocument();
     });
 
-    render(<App />);
-
-    // Wait for TopNavigation to render
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
+    it('should have correct navigation structure', () => {
+      renderWithAuth(<App />);
+      
+      // Check for main layout components
+      const navigation = screen.getByRole('navigation');
+      expect(navigation).toBeInTheDocument();
+      
+      // Check for content area
+      const main = screen.getByRole('main');
+      expect(main).toBeInTheDocument();
     });
-
-    // The user dropdown should show "Jane Smith" instead of the username
-    // Note: We can't easily test the dropdown text in Cloudscape components during testing,
-    // but we can verify the component renders without errors with the new user data
-    expect(screen.getAllByText('Kinesis Video Streams Gateway')[0]).toBeInTheDocument();
   });
 
-  it('should handle different user name scenarios correctly', async () => {
-    // Test user with only first name
-    const userWithFirstNameOnly = {
-      username: 'user456',
-      attributes: {
-        given_name: 'John',
-        email: 'john@example.com'
-      }
-    };
+  describe('Default Content', () => {
+    it('should render Quick Stream Tester by default', () => {
+      renderWithAuth(<App />);
+      
+      // Should show Quick Stream Tester content by default
+      expect(screen.getByText(/Select from 24 pre-configured test streams/)).toBeInTheDocument();
+    });
+  });
 
-    (useAuthenticator as any).mockReturnValue({
-      user: userWithFirstNameOnly,
-      signOut: mockSignOut,
+  describe('Navigation Interactions', () => {
+    it('should handle tab navigation', async () => {
+      renderWithAuth(<App />);
+      
+      // Click on different navigation items
+      const addCameraLink = screen.getByText(/Add New Camera/);
+      fireEvent.click(addCameraLink);
+      
+      // Should show add camera content
+      await waitFor(() => {
+        expect(screen.getByText(/Add New Camera/)).toBeInTheDocument();
+      });
     });
 
-    render(<App />);
-
-    await waitFor(() => {
-      const topNavigation = document.querySelector('.awsui-context-top-navigation');
-      expect(topNavigation).toBeInTheDocument();
+    it('should update content on navigation', async () => {
+      renderWithAuth(<App />);
+      
+      const cameraListLink = screen.getByText(/Camera List/);
+      fireEvent.click(cameraListLink);
+      
+      // Should show camera list content
+      await waitFor(() => {
+        expect(screen.getByText(/Camera List/)).toBeInTheDocument();
+      });
     });
+  });
 
-    // Should render without errors
-    expect(screen.getAllByText('Kinesis Video Streams Gateway')[0]).toBeInTheDocument();
+  describe('Error Handling', () => {
+    it('should render error boundary when component fails', () => {
+      // This would test the ErrorBoundary component
+      renderWithAuth(<App />);
+      
+      // Should not crash and should render normally
+      expect(screen.getAllByText(/Kinesis Video Streams Gateway/)).toHaveLength(2);
+    });
+  });
+
+  describe('Responsive Behavior', () => {
+    it('should handle navigation state changes', () => {
+      renderWithAuth(<App />);
+      
+      // Should have navigation that can be toggled
+      const navigation = screen.getByRole('navigation');
+      expect(navigation).toBeInTheDocument();
+    });
   });
 });

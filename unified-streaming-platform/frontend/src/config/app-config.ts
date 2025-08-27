@@ -105,7 +105,7 @@ function loadConfiguration(): AppConfig {
     ];
 
     for (const field of requiredFields) {
-      const value = field.split('.').reduce((obj, key) => obj?.[key], generatedConfig);
+      const value = field.split('.').reduce((obj: any, key) => obj?.[key], generatedConfig);
       if (!value) {
         throw new Error(`Missing required configuration field: ${field}`);
       }

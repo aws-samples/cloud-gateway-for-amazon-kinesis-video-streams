@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Container,
   Header,
@@ -14,7 +14,7 @@ import {
   CollectionPreferences,
   Link
 } from '@cloudscape-design/components';
-import { cameraAPI } from '../config/api';
+import { cameraAPI } from '../config/api-new';
 
 interface Camera {
   composite_key: string;
@@ -196,7 +196,7 @@ const CameraList: React.FC = () => {
       id: 'actions',
       header: 'Actions',
       cell: (camera: Camera) => (
-        <SpaceBetween direction="horizontal" size="xs">
+        <SpaceBetween direction="horizontal" >
           <Button
             variant="normal"
             onClick={() => {
@@ -223,7 +223,7 @@ const CameraList: React.FC = () => {
 
   return (
     <Container>
-      <SpaceBetween size="l">
+      <SpaceBetween >
         <Header
           variant="h1"
           description="Manage your registered cameras and their configurations"
@@ -276,7 +276,7 @@ const CameraList: React.FC = () => {
             <Header
               counter={`(${cameras.length})`}
               actions={
-                <SpaceBetween direction="horizontal" size="xs">
+                <SpaceBetween direction="horizontal" >
                   <Button
                     disabled={selectedItems.length === 0}
                     onClick={() => {
@@ -356,7 +356,7 @@ const CameraList: React.FC = () => {
           }
           empty={
             <Box textAlign="center" color="inherit">
-              <SpaceBetween size="m">
+              <SpaceBetween >
                 <b>No cameras found</b>
                 <Box variant="p" color="inherit">
                   You haven't added any cameras yet.
@@ -378,7 +378,7 @@ const CameraList: React.FC = () => {
           closeAriaLabel="Close modal"
           footer={
             <Box float="right">
-              <SpaceBetween direction="horizontal" size="xs">
+              <SpaceBetween direction="horizontal" >
                 <Button variant="link" onClick={() => setDeleteModalVisible(false)}>
                   Cancel
                 </Button>
@@ -394,7 +394,7 @@ const CameraList: React.FC = () => {
           header="Delete camera"
         >
           {deletingCamera && (
-            <SpaceBetween size="m">
+            <SpaceBetween >
               <Box variant="span">
                 Are you sure you want to delete camera <b>{deletingCamera.camera_name}</b>?
               </Box>

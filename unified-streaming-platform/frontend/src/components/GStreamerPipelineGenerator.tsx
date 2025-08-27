@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Container,
   Header,
@@ -10,11 +10,11 @@ import {
   Box,
   Spinner
 } from '@cloudscape-design/components';
-import { apiUtils } from '../config/api';
+import { apiUtils } from '../config/api-new';
 import type { 
   APIResponse, 
   RTSPTestRequest 
-} from '../config/api';
+} from '../config/api-new';
 
 interface ValidationErrors {
   rtspUrl?: string;
@@ -94,7 +94,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
       };
 
       console.log('🔧 Generating GStreamer pipeline:', pipelinePayload);
-      const response = await apiUtils.makeRequest(pipelinePayload);
+      const response = await apiUtils.generatePipeline(pipelinePayload);
       console.log('✅ Pipeline Response:', response);
 
       // Parse the response to extract the pipeline
@@ -111,7 +111,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
         }
       } else if (response && typeof response === 'object') {
         // If response is already an object, extract the pipeline
-        pipelineText = response.pipeline || response.generated_pipeline || '';
+        pipelineText = response.generated_pipeline || response.pipeline || '';
       }
 
       if (pipelineText && pipelineText.trim()) {
@@ -140,7 +140,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
   };
 
   return (
-    <SpaceBetween size="l">
+    <SpaceBetween >
       <Container
         key="configuration-form"
         header={
@@ -149,7 +149,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
           </Header>
         }
       >
-        <SpaceBetween size="m">
+        <SpaceBetween >
           {/* Test status element */}
           <Alert key="info-alert" type="info" header="GStreamer Pipeline Generator is now loaded and ready!">
             Generate optimized GStreamer pipelines for your RTSP camera streams. 
@@ -178,7 +178,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
               onClick={generatePipeline}
               loading={isLoading}
               loadingText="Generating Pipeline..."
-              size="large"
+              
             >
               {isLoading ? '🔄 Generating GStreamer Pipeline...' : '🚀 Generate GStreamer Pipeline'}
             </Button>
@@ -186,8 +186,8 @@ const GStreamerPipelineGenerator: React.FC = () => {
 
           {isLoading && (
             <Box key="loading-spinner" textAlign="center">
-              <SpaceBetween size="s">
-                <Spinner key="spinner" size="large" />
+              <SpaceBetween >
+                <Spinner key="spinner"  />
                 <Box key="loading-text" fontSize="body-s" color="text-body-secondary">
                   ⏱️ Analyzing stream and generating optimized pipeline...
                 </Box>
@@ -199,7 +199,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
 
       {error && (
         <Alert key="error-display" type="error" header="❌ Pipeline Generation Failed">
-          <SpaceBetween size="s">
+          <SpaceBetween >
             <Box key="error-message">{error}</Box>
             <Box key="error-help" fontSize="body-s">
               Please verify your RTSP URL is correct and the stream is accessible.
@@ -235,7 +235,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
             </Header>
           }
         >
-          <SpaceBetween size="m">
+          <SpaceBetween >
             <Alert key="success-alert" type="success" header="🎉 Pipeline Generated Successfully">
               Your optimized GStreamer pipeline is ready! This pipeline is customized 
               for your specific stream characteristics and can be used to ingest video 
@@ -262,8 +262,8 @@ const GStreamerPipelineGenerator: React.FC = () => {
             </pre>
 
             <Box key="usage-instructions">
-              <Header variant="h4">📋 Usage Instructions</Header>
-              <SpaceBetween size="s">
+              <Header variant="h3">📋 Usage Instructions</Header>
+              <SpaceBetween >
                 <Box key="step-1">
                   <strong>1. Copy the pipeline command</strong> - Click "Copy Pipeline" or select and copy the formatted command above
                 </Box>
@@ -290,7 +290,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
           key="help-container"
           header={<Header variant="h3">💡 How It Works</Header>}
         >
-          <SpaceBetween size="m">
+          <SpaceBetween >
             <Box key="step-1">
               <strong>Step 1:</strong> Enter your RTSP camera URL with credentials
             </Box>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Container,
   Header,
@@ -13,12 +13,12 @@ import {
   Grid,
   Badge
 } from '@cloudscape-design/components';
-import { apiUtils } from '../config/api';
+import { apiUtils } from '../config/api-new';
 import type { 
   APIResponse, 
   StreamCharacteristics, 
   RTSPTestRequest
-} from '../config/api';
+} from '../config/api-new';
 
 interface ValidationErrors {
   rtspUrl?: string;
@@ -88,7 +88,7 @@ const RTSPStreamTester: React.FC = () => {
       };
 
       console.log('🚀 Testing RTSP stream characteristics:', characteristicsPayload);
-      const characteristicsData = await apiUtils.makeRequest(characteristicsPayload);
+      const characteristicsData = await apiUtils.getStreamCharacteristics(characteristicsPayload);
       console.log('✅ Characteristics Response:', characteristicsData);
 
       // Then, get the pipeline recommendation
@@ -99,7 +99,7 @@ const RTSPStreamTester: React.FC = () => {
       };
 
       console.log('🔧 Getting pipeline recommendation:', pipelinePayload);
-      const pipelineData = await apiUtils.makeRequest(pipelinePayload);
+      const pipelineData = await apiUtils.generatePipeline(pipelinePayload);
       console.log('✅ Pipeline Response:', pipelineData);
 
       // Combine both responses
@@ -133,7 +133,7 @@ const RTSPStreamTester: React.FC = () => {
     const { video, audio, connection, diagnostics } = characteristics;
 
     return (
-      <SpaceBetween size="m">
+      <SpaceBetween >
         <Alert type="success" header="✅ Stream Analysis Successful!">
           Connection established and stream characteristics detected
         </Alert>
@@ -141,12 +141,12 @@ const RTSPStreamTester: React.FC = () => {
         {/* Diagnostics */}
         {testResult?.stream_characteristics && (() => {
           const { diagnostics } = testResult.stream_characteristics;
-          return diagnostics && (diagnostics.warnings?.length || diagnostics.info?.length) && (
-            <Container header={<Header variant="h4">🔍 Diagnostics</Header>}>
-              <SpaceBetween size="s">
-                {diagnostics.warnings && diagnostics.warnings.length > 0 && (
-                  <SpaceBetween size="xs">
-                    {diagnostics.warnings.map((warning, index) => (
+          return diagnostics && (diagnostics?.warnings?.length || diagnostics.info?.length) && (
+            <Container header={<Header variant="h3">🔍 Diagnostics</Header>}>
+              <SpaceBetween >
+                {diagnostics?.warnings && diagnostics?.warnings?.length > 0 && (
+                  <SpaceBetween >
+                    {diagnostics?.warnings.map((warning, index) => (
                       <Alert key={index} type="warning">
                         {warning}
                       </Alert>
@@ -154,7 +154,7 @@ const RTSPStreamTester: React.FC = () => {
                   </SpaceBetween>
                 )}
                 {diagnostics.info && diagnostics.info.length > 0 && (
-                  <SpaceBetween size="xs">
+                  <SpaceBetween >
                     {diagnostics.info.map((info, index) => (
                       <Alert key={index} type="info">
                         {info}
@@ -169,8 +169,8 @@ const RTSPStreamTester: React.FC = () => {
         
         {/* Captured Frame Preview */}
         {previewImage && (
-          <Container header={<Header variant="h4">📸 Captured Frame Preview</Header>}>
-            <SpaceBetween size="s">
+          <Container header={<Header variant="h3">📸 Captured Frame Preview</Header>}>
+            <SpaceBetween >
               <Box
                 padding="s"
                 style={{
@@ -224,7 +224,7 @@ const RTSPStreamTester: React.FC = () => {
           <Container
             header={
               <Header 
-                variant="h4"
+                variant="h3"
                 actions={
                   <Button
                     onClick={() => {
@@ -260,7 +260,7 @@ const RTSPStreamTester: React.FC = () => {
               </Header>
             }
           >
-            <SpaceBetween size="s">
+            <SpaceBetween >
               <pre
                 style={{
                   backgroundColor: '#f2f3f3',
@@ -305,7 +305,7 @@ const RTSPStreamTester: React.FC = () => {
         
         {/* Video Information */}
         {video && (
-          <Container header={<Header variant="h4">🎥 Video Stream</Header>}>
+          <Container header={<Header variant="h3">🎥 Video Stream</Header>}>
             <Grid gridDefinition={[
               { colspan: { default: 12, xs: 6, s: 3 } },
               { colspan: { default: 12, xs: 6, s: 3 } },
@@ -344,7 +344,7 @@ const RTSPStreamTester: React.FC = () => {
 
         {/* Audio Information */}
         {audio && (
-          <Container header={<Header variant="h4">🔊 Audio Stream</Header>}>
+          <Container header={<Header variant="h3">🔊 Audio Stream</Header>}>
             <Grid gridDefinition={[
               { colspan: { default: 12, xs: 6, s: 3 } },
               { colspan: { default: 12, xs: 6, s: 3 } },
@@ -383,14 +383,14 @@ const RTSPStreamTester: React.FC = () => {
 
         {/* Connection Information */}
         {connection && (
-          <Container header={<Header variant="h4">🔗 Connection Details</Header>}>
+          <Container header={<Header variant="h3">🔗 Connection Details</Header>}>
             <Grid gridDefinition={[
               { colspan: { default: 12, xs: 6 } },
               { colspan: { default: 12, xs: 6 } }
             ]}>
               <Box>
                 <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Authentication</Box>
-                <Badge color="orange">{connection.authentication_method || 'Unknown'}</Badge>
+                <Badge color="red">{connection.authentication_method || 'Unknown'}</Badge>
               </Box>
               <Box>
                 <Box fontSize="body-s" fontWeight="bold" color="text-body-secondary">Connection Time</Box>
@@ -402,8 +402,8 @@ const RTSPStreamTester: React.FC = () => {
 
         {/* SDP Contents */}
         {testResult?.stream_characteristics?.raw_sdp && (
-          <Container header={<Header variant="h4">📄 SDP Contents</Header>}>
-            <SpaceBetween size="s">
+          <Container header={<Header variant="h3">📄 SDP Contents</Header>}>
+            <SpaceBetween >
               <pre
                 style={{
                   backgroundColor: '#f2f3f3',
@@ -432,7 +432,7 @@ const RTSPStreamTester: React.FC = () => {
   };
 
   return (
-    <SpaceBetween size="l">
+    <SpaceBetween >
       {/* Configuration Form */}
       <Container
         header={
@@ -441,7 +441,7 @@ const RTSPStreamTester: React.FC = () => {
           </Header>
         }
       >
-        <SpaceBetween size="m">
+        <SpaceBetween >
           <Box>
             Test and analyze your RTSP camera streams to verify connectivity, 
             extract stream characteristics, and get optimized GStreamer pipeline recommendations.
@@ -479,7 +479,7 @@ const RTSPStreamTester: React.FC = () => {
               onClick={testRTSPStream}
               loading={isLoading}
               loadingText="Testing Stream..."
-              size="large"
+              
             >
               {isLoading ? '🔄 Testing RTSP Stream...' : '🚀 Test RTSP Stream'}
             </Button>
@@ -487,8 +487,8 @@ const RTSPStreamTester: React.FC = () => {
 
           {isLoading && (
             <Box textAlign="center">
-              <SpaceBetween size="s">
-                <Spinner size="large" />
+              <SpaceBetween >
+                <Spinner  />
                 <Box fontSize="body-s" color="text-body-secondary">
                   ⏱️ This may take 5-15 seconds depending on stream quality
                 </Box>
@@ -510,8 +510,8 @@ const RTSPStreamTester: React.FC = () => {
       >
         {isLoading && (
           <Box textAlign="center" padding="l">
-            <SpaceBetween size="m">
-              <Spinner size="large" />
+            <SpaceBetween >
+              <Spinner  />
               <Box fontSize="heading-m" fontWeight="bold">
                 🔍 Analyzing RTSP stream...
               </Box>
@@ -520,10 +520,10 @@ const RTSPStreamTester: React.FC = () => {
         )}
 
         {testResult && !isLoading && (
-          <SpaceBetween size="m">
+          <SpaceBetween >
             {testResult.error ? (
               <Alert type="error" header="❌ Stream Test Failed">
-                <SpaceBetween size="s">
+                <SpaceBetween >
                   <Box>{testResult.error}</Box>
                   {testResult.suggestion && (
                     <Box>
@@ -545,7 +545,7 @@ const RTSPStreamTester: React.FC = () => {
 
         {!testResult && !isLoading && (
           <Box textAlign="center" padding="l">
-            <SpaceBetween size="m">
+            <SpaceBetween >
               <Box fontSize="display-l">🎥</Box>
               <Box fontSize="heading-m" color="text-body-secondary">
                 Ready to test your RTSP stream

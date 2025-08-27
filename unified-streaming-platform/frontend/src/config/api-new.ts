@@ -215,23 +215,20 @@ export const apiUtils = {
    */
   async getAuthHeaders(): Promise<HeadersInit> {
     try {
-      // Import fetchAuthSession dynamically to avoid issues if Amplify isn't configured
-      const { fetchAuthSession } = await import('aws-amplify/auth');
-      const session = await fetchAuthSession();
+      // Get token from localStorage (where our custom auth stores it)
+      const idToken = localStorage.getItem('auth_id_token');
       
-      let token: string | undefined;
-      
-      // Get the appropriate token based on configuration
-      if (API_CONFIG.TOKEN_TYPE === 'idToken') {
-        token = session.tokens?.idToken?.toString();
-      } else if (API_CONFIG.TOKEN_TYPE === 'accessToken') {
-        token = session.tokens?.accessToken?.toString();
+      if (idToken) {
+        return {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        };
+      } else {
+        console.warn('⚠️ No authentication token found, proceeding without authentication');
+        return {
+          'Content-Type': 'application/json'
+        };
       }
-      
-      return {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
-      };
     } catch (error) {
       console.warn('⚠️ Could not get auth token, proceeding without authentication:', error);
       return {

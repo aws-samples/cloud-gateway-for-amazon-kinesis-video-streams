@@ -14,7 +14,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "^3.400.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.876.0",
     "@aws-sdk/credential-providers": "^3.400.0",
     "@cloudscape-design/components": "^3.0.1065",
     "@cloudscape-design/global-styles": "^1.0.45",

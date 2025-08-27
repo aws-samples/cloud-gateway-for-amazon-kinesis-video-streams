@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
-import { type AuthUser } from "aws-amplify/auth";
-import { useAuthenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
+import { useAuth } from './contexts/AuthContext';
 import {
   AppLayout,
   TopNavigation,
@@ -19,7 +17,7 @@ import GStreamerPipelineGenerator from './components/GStreamerPipelineGenerator'
 import ErrorBoundary from './components/ErrorBoundary';
 
 const App: React.FC = () => {
-  const { user, signOut } = useAuthenticator((context) => [context.user, context.signOut]);
+  const { user, signOut } = useAuth();
   // Get initial tab from URL hash or localStorage or default
   const getInitialTab = () => {
     const hash = window.location.hash.replace('#', '');
@@ -37,43 +35,20 @@ const App: React.FC = () => {
   const [navigationOpen, setNavigationOpen] = useState(true);
 
   // Helper function to get user display name
-  const getUserDisplayName = (user?: AuthUser): string => {
+  const getUserDisplayName = (): string => {
     if (!user) return "User";
     
-    // Check for attributes first (for test compatibility)
-    const attributes = (user as any).attributes;
-    if (attributes) {
-      const firstName = attributes.given_name;
-      const lastName = attributes.family_name;
-      
-      // Return full name if both are available
-      if (firstName && lastName) {
-        return `${firstName} ${lastName}`;
-      }
-      
-      // Return just first name if available
-      if (firstName) {
-        return firstName;
-      }
-      
-      // Return email username if available
-      if (attributes.email) {
-        return attributes.email.split('@')[0];
-      }
+    // Check for full name in attributes first
+    if (user.attributes?.given_name && user.attributes?.family_name) {
+      return `${user.attributes.given_name} ${user.attributes.family_name}`;
     }
     
-    // For real Amplify users, check signInDetails.loginId (which contains the email)
-    const signInDetails = (user as any)?.signInDetails;
-    if (signInDetails?.loginId) {
-      const email = signInDetails.loginId;
-      if (email.includes('@')) {
-        // Extract the part before @ from email
-        return email.split('@')[0];
-      }
-      return signInDetails.loginId;
+    // Check for email
+    if (user.email) {
+      return user.email.split('@')[0];
     }
     
-    // Fallback to username (but this will be the UUID)
+    // Fallback to username
     return user.username || "User";
   };
 
@@ -166,7 +141,7 @@ const App: React.FC = () => {
       case 'rtsp-tester':
         return (
           <Container>
-            <SpaceBetween size="l">
+            <SpaceBetween >
               <Header 
                 variant="h1" 
                 description="Configure and test your own RTSP streams with detailed analysis and pipeline generation"
@@ -184,7 +159,7 @@ const App: React.FC = () => {
       case 'dashboard':
         return (
           <Container>
-            <SpaceBetween size="l">
+            <SpaceBetween >
               <Header 
                 variant="h1" 
                 description="Monitor your active RTSP streams and Kinesis Video Streams"
@@ -192,7 +167,7 @@ const App: React.FC = () => {
                 📊 Stream Dashboard
               </Header>
               <Box textAlign="center" color="text-body-secondary">
-                <SpaceBetween size="m">
+                <SpaceBetween >
                   <Box fontSize="body-m">
                     Monitor your active RTSP streams and Kinesis Video Streams
                   </Box>
@@ -209,7 +184,7 @@ const App: React.FC = () => {
       case 'analytics':
         return (
           <Container>
-            <SpaceBetween size="l">
+            <SpaceBetween >
               <Header 
                 variant="h1" 
                 description="Advanced analytics and insights for your video streams"
@@ -217,7 +192,7 @@ const App: React.FC = () => {
                 📈 Stream Analytics
               </Header>
               <Box textAlign="center" color="text-body-secondary">
-                <SpaceBetween size="m">
+                <SpaceBetween >
                   <Box fontSize="body-m">
                     Advanced analytics and insights for your video streams
                   </Box>
@@ -266,8 +241,8 @@ const App: React.FC = () => {
         utilities={[
           {
             type: "menu-dropdown",
-            text: getUserDisplayName(user),
-            description: (user as any)?.signInDetails?.loginId || user?.username || "User",
+            text: getUserDisplayName(),
+            description: user?.email || user?.username || "User",
             iconName: "user-profile",
             items: [
               {

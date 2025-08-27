@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Container,
   Header,
@@ -13,12 +13,12 @@ import {
   StatusIndicator,
   CodeEditor
 } from '@cloudscape-design/components';
-import { apiUtils } from '../config/api';
+import { apiUtils } from '../config/api-new';
 import type { 
   APIResponse, 
   StreamCharacteristics, 
   RTSPTestRequest
-} from '../config/api';
+} from '../config/api-new';
 
 // Test server URLs from our RTSP test server
 const TEST_STREAM_OPTIONS = [
@@ -74,7 +74,7 @@ const QuickStreamTester: React.FC = () => {
       };
 
       console.log('🚀 Testing RTSP stream characteristics:', characteristicsPayload);
-      const characteristicsData = await apiUtils.makeRequest(characteristicsPayload);
+      const characteristicsData = await apiUtils.generatePipeline(characteristicsPayload);
       console.log('✅ Characteristics Response:', characteristicsData);
 
       // Then, get the pipeline recommendation
@@ -85,7 +85,7 @@ const QuickStreamTester: React.FC = () => {
       };
 
       console.log('🔧 Getting pipeline recommendation:', pipelinePayload);
-      const pipelineData = await apiUtils.makeRequest(pipelinePayload);
+      const pipelineData = await apiUtils.generatePipeline(pipelinePayload);
       console.log('✅ Pipeline Response:', pipelineData);
 
       // Combine both responses
@@ -119,7 +119,7 @@ const QuickStreamTester: React.FC = () => {
     const { video, audio, connection, diagnostics } = characteristics;
 
     return (
-      <SpaceBetween size="l">
+      <SpaceBetween >
         <Alert type="success">
           <Box fontWeight="bold">✅ Stream Analysis Complete</Box>
         </Alert>
@@ -128,7 +128,7 @@ const QuickStreamTester: React.FC = () => {
           {/* Video Information */}
           <Container header={<Header variant="h3">📹 Video Stream</Header>}>
             {video ? (
-              <SpaceBetween size="xs">
+              <SpaceBetween >
                 <Box>
                   <Box display="inline" fontWeight="bold">Codec: </Box>
                   <Badge color="blue">{video.codec || 'Unknown'}</Badge>
@@ -156,7 +156,7 @@ const QuickStreamTester: React.FC = () => {
           {/* Audio Information */}
           <Container header={<Header variant="h3">🔊 Audio Stream</Header>}>
             {audio && Object.keys(audio).length > 0 ? (
-              <SpaceBetween size="xs">
+              <SpaceBetween >
                 <Box>
                   <Box display="inline" fontWeight="bold">Codec: </Box>
                   <Badge color="green">{audio.codec || 'Unknown'}</Badge>
@@ -181,7 +181,7 @@ const QuickStreamTester: React.FC = () => {
         {/* Connection Information */}
         <Container header={<Header variant="h3">🔗 Connection Details</Header>}>
           <ColumnLayout columns={2} variant="text-grid">
-            <SpaceBetween size="xs">
+            <SpaceBetween >
               <Box>
                 <Box display="inline" fontWeight="bold">Authentication: </Box>
                 <StatusIndicator type={connection?.authentication_method === 'None' ? 'success' : 'warning'}>
@@ -194,17 +194,17 @@ const QuickStreamTester: React.FC = () => {
               </Box>
             </SpaceBetween>
             {diagnostics && (
-              <SpaceBetween size="xs">
+              <SpaceBetween >
                 <Box>
                   <Box display="inline" fontWeight="bold">Errors: </Box>
-                  <Badge color={diagnostics.errors?.length > 0 ? 'red' : 'green'}>
-                    {diagnostics.errors?.length || 0}
+                  <Badge color={diagnostics?.errors?.length > 0 ? 'red' : 'green'}>
+                    {diagnostics?.errors?.length || 0}
                   </Badge>
                 </Box>
                 <Box>
                   <Box display="inline" fontWeight="bold">Warnings: </Box>
-                  <Badge color={diagnostics.warnings?.length > 0 ? 'grey' : 'green'}>
-                    {diagnostics.warnings?.length || 0}
+                  <Badge color={diagnostics?.warnings?.length > 0 ? 'grey' : 'green'}>
+                    {diagnostics?.warnings?.length || 0}
                   </Badge>
                 </Box>
               </SpaceBetween>
@@ -213,22 +213,22 @@ const QuickStreamTester: React.FC = () => {
         </Container>
 
         {/* Diagnostics Details */}
-        {diagnostics && (diagnostics.errors?.length > 0 || diagnostics.warnings?.length > 0) && (
+        {diagnostics && (diagnostics?.errors?.length > 0 || diagnostics?.warnings?.length > 0) && (
           <Container header={<Header variant="h3">🔍 Diagnostics</Header>}>
-            <SpaceBetween size="m">
-              {diagnostics.errors?.length > 0 && (
-                <SpaceBetween size="xs">
+            <SpaceBetween >
+              {diagnostics?.errors?.length > 0 && (
+                <SpaceBetween >
                   <Box fontWeight="bold" color="text-status-error">Errors:</Box>
-                  {diagnostics.errors.map((error, index) => (
+                  {diagnostics?.errors.map((error, index) => (
                     <Alert key={index} type="error">{error}</Alert>
                   ))}
                 </SpaceBetween>
               )}
               
-              {diagnostics.warnings?.length > 0 && (
-                <SpaceBetween size="xs">
+              {diagnostics?.warnings?.length > 0 && (
+                <SpaceBetween >
                   <Box fontWeight="bold" color="text-status-warning">Warnings:</Box>
-                  {diagnostics.warnings.map((warning, index) => (
+                  {diagnostics?.warnings.map((warning, index) => (
                     <Alert key={index} type="warning">{warning}</Alert>
                   ))}
                 </SpaceBetween>
@@ -243,7 +243,7 @@ const QuickStreamTester: React.FC = () => {
   const renderPipelineRecommendation = (pipeline: string) => {
     return (
       <Container header={<Header variant="h3">⚙️ Recommended GStreamer Pipeline</Header>}>
-        <SpaceBetween size="m">
+        <SpaceBetween >
           <Box 
             padding="m"
             backgroundColor="background-code-editor"
@@ -264,9 +264,9 @@ const QuickStreamTester: React.FC = () => {
   };
 
   return (
-    <SpaceBetween size="l">
+    <SpaceBetween >
       <Container>
-        <SpaceBetween size="l">
+        <SpaceBetween >
           <Header 
             variant="h1" 
             description="Select from 24 pre-configured test streams with various codecs and configurations. Simply select a stream and click 'Test Stream' to analyze its characteristics and get a recommended GStreamer pipeline."
@@ -276,7 +276,7 @@ const QuickStreamTester: React.FC = () => {
 
           {/* Stream Selection Form */}
           <Container header={<Header variant="h3">📺 Select Test Stream</Header>}>
-            <SpaceBetween size="m">
+            <SpaceBetween >
               <Select
                 selectedOption={selectedStream}
                 onChange={({ detail }) => setSelectedStream(detail.selectedOption)}
@@ -319,10 +319,10 @@ const QuickStreamTester: React.FC = () => {
 
           {/* Results */}
           {testResult && (
-            <SpaceBetween size="l">
+            <SpaceBetween >
               {testResult.error ? (
                 <Alert type="error" header="❌ Test Failed">
-                  <SpaceBetween size="s">
+                  <SpaceBetween >
                     <Box>{testResult.error}</Box>
                     {testResult.error_type && (
                       <Box fontSize="body-s">Error Type: {testResult.error_type}</Box>
@@ -330,7 +330,7 @@ const QuickStreamTester: React.FC = () => {
                   </SpaceBetween>
                 </Alert>
               ) : (
-                <SpaceBetween size="l">
+                <SpaceBetween >
                   {testResult.stream_characteristics && renderStreamInfo(testResult.stream_characteristics)}
                   {testResult.generated_pipeline && renderPipelineRecommendation(testResult.generated_pipeline)}
                 </SpaceBetween>
