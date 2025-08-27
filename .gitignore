@@ -238,3 +238,7 @@ enhanced-pipeline-generator/lambda/layer.zip
 **/api-test-results-*.json
 **/*-test-results-*.json
 **/*-results-*.json
+
+# Generated frontend configuration files (environment-specific)
+**/frontend-config.json
+unified-streaming-platform/frontend-config.json

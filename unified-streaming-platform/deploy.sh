@@ -276,9 +276,16 @@ echo "  aws logs tail /aws/lambda/$ENHANCED_LAMBDA --follow"
 echo "  aws logs tail /aws/lambda/$CAMERA_LAMBDA --follow"
 echo ""
 
+echo "🔧 Generating frontend configuration..."
+if ./generate-frontend-config.sh; then
+    echo "✅ Frontend configuration generated: frontend-config.json"
+else
+    echo "⚠️  Frontend configuration generation failed - you can run ./generate-frontend-config.sh manually"
+fi
+echo ""
+
 echo "✅ Unified GStreamer Pipeline & Camera Management System is ready!"
 echo "🎯 All functionality consolidated into a single, production-ready system"
 echo ""
-echo "🧹 Optional: Clean up old project components"
-echo "  Run: ./post-deployment-cleanup.sh"
-echo "  (Only after verifying the new system works correctly)"
+echo "📄 Frontend configuration available in: frontend-config.json"
+echo "   Copy this file to your frontend application's configuration directory"
