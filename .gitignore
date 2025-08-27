@@ -1,0 +1,6 @@
+**/node_modules/
+cdk.out/
+.env
+
+package-lock.json
+fargate-cdk-app/index.js
