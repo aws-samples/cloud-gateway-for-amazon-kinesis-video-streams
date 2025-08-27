@@ -12,7 +12,7 @@ echo ""
 # Configuration
 AWS_PROFILE="malone-aws"
 AWS_REGION="us-east-1"
-STACK_NAME="EnhancedPipelineGeneratorStack"
+STACK_NAME="UnifiedStreamingPlatformStack"
 
 # Colors for output
 RED='\033[0;31m'
@@ -89,7 +89,7 @@ fi
 cd ..
 
 echo ""
-print_status $BLUE "🔍 Checking for Existing Stacks"
+print_status $BLUE "🔍 Checking Current Stack Status"
 echo "----------------------------------------"
 
 # Check if our target stack already exists
@@ -102,47 +102,28 @@ else
     print_status $GREEN "✅ Stack '$STACK_NAME' does not exist - will be CREATE operation"
 fi
 
-# Check for potentially conflicting stacks
-print_status $BLUE "🔍 Checking for potentially conflicting resources..."
-
-# Check for existing API Gateways
-EXISTING_APIS=$(aws apigateway get-rest-apis --profile $AWS_PROFILE --region $AWS_REGION --query 'items[?contains(name, `Enhanced`) || contains(name, `Pipeline`) || contains(name, `RTSP`)].{Name:name, Id:id}' --output table 2>/dev/null || echo "")
-if [ -n "$EXISTING_APIS" ] && [ "$EXISTING_APIS" != "" ]; then
-    print_status $YELLOW "⚠️  Found potentially conflicting API Gateways:"
-    echo "$EXISTING_APIS"
-else
-    print_status $GREEN "✅ No conflicting API Gateways found"
-fi
-
-# Check for existing Lambda functions
-EXISTING_LAMBDAS=$(aws lambda list-functions --profile $AWS_PROFILE --region $AWS_REGION --query 'Functions[?contains(FunctionName, `enhanced`) || contains(FunctionName, `pipeline`) || contains(FunctionName, `rtsp`)].{Name:FunctionName, Runtime:Runtime}' --output table 2>/dev/null || echo "")
-if [ -n "$EXISTING_LAMBDAS" ] && [ "$EXISTING_LAMBDAS" != "" ]; then
-    print_status $YELLOW "⚠️  Found potentially conflicting Lambda functions:"
-    echo "$EXISTING_LAMBDAS"
-else
-    print_status $GREEN "✅ No conflicting Lambda functions found"
-fi
-
-# Check for existing ECS clusters
-EXISTING_CLUSTERS=$(aws ecs list-clusters --profile $AWS_PROFILE --region $AWS_REGION --query 'clusterArns[?contains(@, `rtsp`) || contains(@, `pipeline`)]' --output table 2>/dev/null || echo "")
-if [ -n "$EXISTING_CLUSTERS" ] && [ "$EXISTING_CLUSTERS" != "" ]; then
-    print_status $YELLOW "⚠️  Found potentially conflicting ECS clusters:"
-    echo "$EXISTING_CLUSTERS"
-else
-    print_status $GREEN "✅ No conflicting ECS clusters found"
-fi
-
 echo ""
-print_status $BLUE "📊 Resource Capacity Check"
+print_status $BLUE "🔧 Validating External Dependencies"
 echo "----------------------------------------"
 
-# Check available VPCs
-VPC_COUNT=$(aws ec2 describe-vpcs --profile $AWS_PROFILE --region $AWS_REGION --query 'length(Vpcs)' --output text 2>/dev/null || echo "0")
-print_status $GREEN "✅ Available VPCs: $VPC_COUNT"
+# Check Knowledge Base (external dependency - not created by this stack)
+KB_STATUS=$(aws bedrock-agent get-knowledge-base --knowledge-base-id 5CGJIOV1QM --profile $AWS_PROFILE --region $AWS_REGION --query 'knowledgeBase.status' --output text 2>/dev/null || echo "NOT_FOUND")
+if [ "$KB_STATUS" = "ACTIVE" ]; then
+    print_status $GREEN "✅ Knowledge Base is available and active"
+else
+    print_status $YELLOW "⚠️  Knowledge Base not found or not active"
+    echo "   Knowledge Base ID: 5CGJIOV1QM"
+    echo "   GStreamer expert features may not work properly"
+fi
 
-# Check available subnets
-SUBNET_COUNT=$(aws ec2 describe-subnets --profile $AWS_PROFILE --region $AWS_REGION --query 'length(Subnets)' --output text 2>/dev/null || echo "0")
-print_status $GREEN "✅ Available Subnets: $SUBNET_COUNT"
+# Check Bedrock model access (external dependency)
+BEDROCK_ACCESS=$(aws bedrock list-foundation-models --profile $AWS_PROFILE --region $AWS_REGION --query 'modelSummaries[?contains(modelId, `claude`)].modelId' --output text 2>/dev/null || echo "")
+if [ -n "$BEDROCK_ACCESS" ]; then
+    print_status $GREEN "✅ Bedrock Claude models are accessible"
+else
+    print_status $YELLOW "⚠️  Bedrock Claude models may not be accessible"
+    echo "   Check Bedrock model access in your AWS account"
+fi
 
 echo ""
 print_status $BLUE "🎯 Deployment Parameters"
@@ -184,16 +165,22 @@ fi
 if [ "$READY" = true ]; then
     print_status $GREEN "🎯 DEPLOYMENT READY"
     echo ""
+    echo "✅ All prerequisites validated successfully"
+    echo ""
     echo "Next steps:"
-    echo "1. Review any warnings above"
-    echo "2. Run deployment: ./deploy.sh"
-    echo "3. Monitor deployment progress"
-    echo "4. Validate deployment success"
-    echo "5. Clean up old stacks (after successful deployment)"
+    echo "1. Run deployment: ./deploy.sh"
+    echo "2. Monitor deployment progress in AWS Console"
+    echo "3. Test API endpoints after deployment"
+    echo "4. Configure frontend with generated config"
     exit 0
 else
     print_status $RED "🚫 DEPLOYMENT NOT READY"
     echo ""
     echo "Please resolve the issues above before deploying."
+    echo ""
+    echo "Common solutions:"
+    echo "• CDK Bootstrap: cdk bootstrap --profile $AWS_PROFILE"
+    echo "• Check AWS permissions for Cognito and Bedrock services"
+    echo "• Verify AWS region is set to us-east-1"
     exit 1
 fi

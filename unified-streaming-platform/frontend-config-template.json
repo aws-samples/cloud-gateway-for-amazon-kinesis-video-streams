@@ -1,18 +1,18 @@
 {
   "aws": {
     "region": "us-east-1",
-    "accountId": "418265330172"
+    "accountId": "{{ REPLACE_WITH_CDK_OUTPUT_AWSAccountId }}"
   },
   "cognito": {
-    "userPoolId": "us-east-1_Q1jWhy4hd",
-    "userPoolWebClientId": "33or6k033pn7jgjq8gbmfs2gu3",
-    "userPoolNativeClientId": "57n1789cp33t0f8iqklr4rckdi",
-    "region": "us-east-1"
+    "userPoolId": "{{ REPLACE_WITH_CDK_OUTPUT_CognitoUserPoolId }}",
+    "userPoolWebClientId": "{{ REPLACE_WITH_CDK_OUTPUT_CognitoUserPoolWebClientId }}",
+    "userPoolNativeClientId": "{{ REPLACE_WITH_CDK_OUTPUT_CognitoUserPoolNativeClientId }}",
+    "region": "{{ REPLACE_WITH_CDK_OUTPUT_CognitoRegion }}"
   },
   "api": {
-    "baseUrl": "https://ru12gtmwv0.execute-api.us-east-1.amazonaws.com/prod",
-    "gatewayId": "ru12gtmwv0",
-    "stage": "prod",
+    "baseUrl": "{{ REPLACE_WITH_CDK_OUTPUT_UnifiedApiEndpoint }}",
+    "gatewayId": "{{ REPLACE_WITH_CDK_OUTPUT_ApiGatewayId }}",
+    "stage": "{{ REPLACE_WITH_CDK_OUTPUT_ApiGatewayStage }}",
     "endpoints": {
       "pipelineGeneration": "/v1/generate-pipeline",
       "rtspCharacteristics": "/v1/characteristics",
@@ -33,16 +33,16 @@
     }
   },
   "backend": {
-    "knowledgeBaseId": "5CGJIOV1QM",
-    "claudeModel": "us.anthropic.claude-opus-4-1-20250805-v1:0",
-    "enhancedLambdaFunction": "EnhancedPipelineGenerator-EnhancedPipelineFunction-fhZiVxHXfHSQ",
-    "cameraLambdaFunction": "EnhancedPipelineGenerator-CameraManagementFunction-8rPVC6MbmO6r",
-    "camerasTable": "CameraConfigurations"
+    "knowledgeBaseId": "{{ REPLACE_WITH_CDK_OUTPUT_KnowledgeBaseId }}",
+    "claudeModel": "{{ REPLACE_WITH_CDK_OUTPUT_ClaudeModel }}",
+    "enhancedLambdaFunction": "{{ REPLACE_WITH_CDK_OUTPUT_EnhancedLambdaFunctionName }}",
+    "cameraLambdaFunction": "{{ REPLACE_WITH_CDK_OUTPUT_CameraLambdaFunctionName }}",
+    "camerasTable": "{{ REPLACE_WITH_CDK_OUTPUT_CamerasTableName }}"
   },
   "rtspTestServer": {
     "enabled": true,
-    "cluster": "rtsp-test-server-cluster",
-    "service": "rtsp-test-server-service",
+    "cluster": "{{ REPLACE_WITH_CDK_OUTPUT_RTSPTestServerCluster }}",
+    "service": "{{ REPLACE_WITH_CDK_OUTPUT_RTSPTestServerService }}",
     "ports": {
       "rtsp": 8554,
       "http": 8080,
@@ -50,15 +50,26 @@
       "admin": 8888
     },
     "testStreams": [
-      "rtsp://98.83.42.80:8554/h264_720p_25fps",
-      "rtsp://98.83.42.80:8554/h264_360p_15fps_aac",
-      "rtsp://98.83.42.80:8554/h265_720p_25fps",
-      "rtsp://98.83.42.80:8554/h265_360p_15fps_aac"
+      "rtsp://{{ REPLACE_WITH_RTSP_SERVER_PUBLIC_IP }}:8554/h264_720p_25fps",
+      "rtsp://{{ REPLACE_WITH_RTSP_SERVER_PUBLIC_IP }}:8554/h264_360p_15fps_aac",
+      "rtsp://{{ REPLACE_WITH_RTSP_SERVER_PUBLIC_IP }}:8554/h265_720p_25fps",
+      "rtsp://{{ REPLACE_WITH_RTSP_SERVER_PUBLIC_IP }}:8554/h265_360p_15fps_aac"
     ]
   },
   "authentication": {
     "tokenType": "idToken",
     "authFlow": "ADMIN_NO_SRP_AUTH",
     "usernameFormat": "email"
+  },
+  "_instructions": {
+    "description": "This is a template file. After CDK deployment, replace all {{ REPLACE_WITH_CDK_OUTPUT_* }} placeholders with actual values from CDK outputs.",
+    "howToUse": [
+      "1. Deploy the CDK stack: ./deploy.sh",
+      "2. Get CDK outputs: aws cloudformation describe-stacks --stack-name UnifiedStreamingPlatformStack --profile malone-aws --query 'Stacks[0].Outputs'",
+      "3. Replace all {{ REPLACE_WITH_CDK_OUTPUT_* }} placeholders with corresponding OutputValue from CDK",
+      "4. For RTSP server IP, check ECS service public IP in AWS Console",
+      "5. Save as frontend-config.json for use by frontend applications"
+    ],
+    "note": "The Cognito User Pool and clients are now created by the CDK stack, not imported from existing resources"
   }
 }
