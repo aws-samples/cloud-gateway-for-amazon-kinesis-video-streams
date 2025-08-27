@@ -231,3 +231,10 @@ enhanced-pipeline-generator/docker/build-context/
 # Enhanced Pipeline Generator - Lambda deployment artifacts
 enhanced-pipeline-generator/lambda/deployment-package.zip
 enhanced-pipeline-generator/lambda/layer.zip
+
+# Test result files and temporary test artifacts
+**/comprehensive-api-test-results-*.json
+**/test-results-*.json
+**/api-test-results-*.json
+**/*-test-results-*.json
+**/*-results-*.json
