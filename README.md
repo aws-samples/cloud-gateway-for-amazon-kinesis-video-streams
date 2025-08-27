@@ -26,6 +26,30 @@ This repository provides a comprehensive solution for ingesting RTSP video strea
 
 **Quick Start**: See [`unified-streaming-platform/README.md`](./unified-streaming-platform/README.md) for deployment instructions.
 
+## 📚 **Documentation Organization**
+
+### **Component-Specific Documentation**
+- **Unified Streaming Platform**: [`unified-streaming-platform/`](./unified-streaming-platform/)
+  - [`UNIFIED_STREAMING_PLATFORM_SPECIFICATION.md`](./unified-streaming-platform/UNIFIED_STREAMING_PLATFORM_SPECIFICATION.md) - Complete system specification
+  - [`README.md`](./unified-streaming-platform/README.md) - Component overview and deployment
+  - [`deploy.sh`](./unified-streaming-platform/deploy.sh) - Deployment script
+
+- **RTSP Test Server**: [`unified-streaming-platform/rtsp-test-server/`](./unified-streaming-platform/rtsp-test-server/)
+  - [`RTSP_TEST_SERVER_SPECIFICATION.md`](./unified-streaming-platform/rtsp-test-server/RTSP_TEST_SERVER_SPECIFICATION.md) - Technical specification
+  - [`RTSP_TEST_SERVER_ENHANCEMENT_SUMMARY.md`](./unified-streaming-platform/rtsp-test-server/RTSP_TEST_SERVER_ENHANCEMENT_SUMMARY.md) - Latest enhancements
+  - [`VALIDATION_GUIDE.md`](./unified-streaming-platform/rtsp-test-server/VALIDATION_GUIDE.md) - Testing framework guide
+  - [`validate-enhanced-rtsp-server.sh`](./unified-streaming-platform/rtsp-test-server/validate-enhanced-rtsp-server.sh) - Comprehensive validation script
+
+- **GStreamer Expert System**: [`gstreamer-expert-system/`](./gstreamer-expert-system/)
+  - MCP server for Q CLI integration
+  - 324-document knowledge base
+  - 7 specialized tools for GStreamer assistance
+
+### **Project-Level Documentation**
+- [`DOCUMENTATION_ORGANIZATION.md`](./DOCUMENTATION_ORGANIZATION.md) - Documentation structure guide
+- [`AWS_SETUP.md`](./AWS_SETUP.md) - AWS configuration instructions
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) - Contribution guidelines
+
 ## 🏗️ **Complete Solution Architecture**
 
 ```

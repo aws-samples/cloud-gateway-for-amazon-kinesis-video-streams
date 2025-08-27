@@ -1,33 +1,71 @@
-# Enhanced GStreamer Pipeline Generator - Complete System Specification
+# Unified Streaming Platform - Complete System Specification
 
-**Version**: 2.0  
+**Version**: 3.0 - Unified Architecture  
 **Date**: 2025-08-27  
 **Status**: Production Ready  
 
 ## 📋 Executive Summary
 
-The Enhanced GStreamer Pipeline Generator is a comprehensive serverless system that combines sophisticated GStreamer expertise with real-time RTSP stream analysis and OpenCV-powered frame extraction. It represents the evolution of the original cloud gateway concept, now enhanced with AI-driven pipeline generation capabilities.
+The Unified Streaming Platform is a comprehensive serverless system that combines sophisticated GStreamer expertise, real-time RTSP stream analysis, OpenCV-powered frame extraction, and camera management capabilities into a single, cohesive platform. It represents the consolidation and enhancement of multiple streaming components into an industry-leading unified solution.
 
 ## 🎯 System Overview
 
 ### **Core Mission**
-Provide intelligent, context-aware GStreamer pipeline generation for Amazon Kinesis Video Streams ingestion, with comprehensive RTSP stream analysis and real-time frame extraction capabilities.
+Provide intelligent, context-aware GStreamer pipeline generation for Amazon Kinesis Video Streams ingestion, with comprehensive RTSP stream analysis, real-time frame extraction, camera management, and optional RTSP test server capabilities.
 
 ### **Key Differentiators**
-1. **Real-time RTSP Analysis**: Live stream introspection with SDP parsing
-2. **OpenCV Frame Extraction**: Visual stream sampling and analysis
-3. **AI-Powered Expertise**: 324-document knowledge base with Claude Opus 4.1
-4. **Comprehensive Toolset**: 7 specialized tools for different use cases
-5. **Production-Ready**: Serverless architecture with proper error handling and monitoring
+1. **Unified Architecture**: Single platform combining pipeline generation and camera management
+2. **Real-time RTSP Analysis**: Live stream introspection with SDP parsing and authentication handling
+3. **OpenCV Frame Extraction**: Visual stream sampling and analysis with intelligent resizing
+4. **AI-Powered Expertise**: 324-document knowledge base with Claude Opus 4.1
+5. **Comprehensive Camera Management**: Full CRUD operations with Cognito authentication
+6. **Optional RTSP Test Server**: Industry-leading 85% camera compatibility testing
+7. **Production-Ready**: Serverless architecture with proper error handling and monitoring
 
-## 🏗️ System Architecture
+## 🏗️ Unified System Architecture
 
 ### **High-Level Architecture**
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Enhanced Pipeline Generator                  │
+│                 Unified Streaming Platform                      │
 ├─────────────────────────────────────────────────────────────────┤
-│  API Gateway Layer                                              │
+│  API Gateway Layer (Unified)                                    │
+│  ├── Pipeline Generation Endpoints (/v1/generate-pipeline)      │
+│  ├── Camera Management Endpoints (/cameras/*)                   │
+│  ├── RTSP Analysis Endpoints (/v1/characteristics)              │
+│  └── Tool-Specific Endpoints (/v1/tools/*)                     │
+├─────────────────────────────────────────────────────────────────┤
+│  Lambda Functions                                               │
+│  ├── Enhanced Pipeline Lambda (3GB, 10min timeout)             │
+│  │   ├── GStreamer Expert System                               │
+│  │   ├── RTSP Analysis Engine                                  │
+│  │   ├── OpenCV Frame Extraction                               │
+│  │   └── 7 Specialized Tools                                   │
+│  └── Camera Management Lambda (512MB, 30s timeout)             │
+│      ├── CRUD Operations                                        │
+│      ├── Cognito Authentication                                 │
+│      └── Secrets Manager Integration                            │
+├─────────────────────────────────────────────────────────────────┤
+│  Storage & Data Layer                                           │
+│  ├── DynamoDB Table (camera-configurations)                    │
+│  ├── Secrets Manager (camera credentials)                      │
+│  └── Bedrock Knowledge Base (324 documents)                    │
+├─────────────────────────────────────────────────────────────────┤
+│  Optional Components                                             │
+│  └── RTSP Test Server (ECS/Fargate)                            │
+│      ├── 50+ Stream Matrix (85% camera coverage)               │
+│      ├── Authentication Support (Basic/Digest)                 │
+│      ├── Transport Protocols (UDP/TCP)                         │
+│      └── Professional Resolutions (up to 1080p@60fps)         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### **Component Integration**
+- **Single CDK Stack**: Unified deployment and management
+- **Shared API Gateway**: Consolidated endpoint management
+- **Integrated Authentication**: Cognito for camera management, optional for RTSP testing
+- **Unified Monitoring**: CloudWatch metrics and logging across all components
+- **Cost Optimization**: Shared infrastructure and optional component deployment
 │  ├── /v1/generate-pipeline (Enhanced pipeline generation)       │
 │  ├── /v1/characteristics (RTSP stream analysis + frame capture) │
 │  ├── /v1/tools/search-elements (GStreamer element search)       │
