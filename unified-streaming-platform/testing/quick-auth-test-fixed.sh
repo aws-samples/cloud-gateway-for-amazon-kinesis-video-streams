@@ -2,13 +2,15 @@
 
 # Quick Cognito Authentication Test Script (Fixed for email usernames)
 # Tests API endpoints with Cognito authentication
+# Uses dynamic CDK outputs instead of hardcoded values
 
 set -e
 
-# Configuration
-USER_POOL_ID="us-east-1_Q1jWhy4hd"
-CLIENT_ID="33or6k033pn7jgjq8gbmfs2gu3"
-API_BASE_URL="https://ru12gtmwv0.execute-api.us-east-1.amazonaws.com/prod"
+# Get CDK stack outputs
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/get-stack-outputs.sh"
+
+# Configuration from CDK outputs
 AWS_PROFILE="malone-aws"
 
 # Test user credentials (using email as username)

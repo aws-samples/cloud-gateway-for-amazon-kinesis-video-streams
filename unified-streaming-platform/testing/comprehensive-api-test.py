@@ -455,7 +455,7 @@ class ComprehensiveAPITester:
         """Run complete test suite for ALL API endpoints"""
         # Use default test credentials if not provided
         if not test_username:
-            test_username = "comprehensive-api-test@example.com"
+            test_username = "comprehensive-api-test@example.com"  # Use email format for username
         if not test_password:
             test_password = "ComprehensiveTest123!"
         if not test_email:
@@ -570,12 +570,68 @@ class ComprehensiveAPITester:
             print("\n❌ COMPREHENSIVE TEST SUITE: NEEDS ATTENTION")
 
 
+def get_stack_outputs():
+    """Get CDK stack outputs dynamically"""
+    import subprocess
+    import os
+    
+    try:
+        # Get stack outputs using AWS CLI
+        result = subprocess.run([
+            'aws', 'cloudformation', 'describe-stacks',
+            '--stack-name', 'UnifiedStreamingPlatformStack',
+            '--profile', 'malone-aws',
+            '--region', 'us-east-1',
+            '--query', 'Stacks[0].Outputs',
+            '--output', 'json'
+        ], capture_output=True, text=True, check=True)
+        
+        outputs = json.loads(result.stdout)
+        
+        # Convert to dictionary
+        output_dict = {}
+        for output in outputs:
+            output_dict[output['OutputKey']] = output['OutputValue']
+        
+        return output_dict
+        
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to get CDK stack outputs: {e}")
+        print("Make sure the CDK stack is deployed: ./deploy.sh")
+        return None
+    except Exception as e:
+        print(f"❌ Error getting stack outputs: {e}")
+        return None
+
+
 def main():
     """Main function to run the comprehensive test suite"""
-    # Configuration
-    USER_POOL_ID = "us-east-1_Q1jWhy4hd"
-    CLIENT_ID = "33or6k033pn7jgjq8gbmfs2gu3"  # Web client
-    API_BASE_URL = "https://ru12gtmwv0.execute-api.us-east-1.amazonaws.com/prod"
+    print("🔍 Getting CDK stack outputs...")
+    
+    # Get dynamic configuration from CDK outputs
+    outputs = get_stack_outputs()
+    if not outputs:
+        print("❌ Cannot proceed without CDK stack outputs")
+        return
+    
+    # Extract required values
+    USER_POOL_ID = outputs.get('CognitoUserPoolId')
+    CLIENT_ID = outputs.get('CognitoUserPoolWebClientId')
+    API_BASE_URL = outputs.get('UnifiedApiEndpoint')
+    
+    if not all([USER_POOL_ID, CLIENT_ID, API_BASE_URL]):
+        print("❌ Missing required CDK outputs:")
+        print(f"   USER_POOL_ID: {USER_POOL_ID or 'NOT_FOUND'}")
+        print(f"   CLIENT_ID: {CLIENT_ID or 'NOT_FOUND'}")
+        print(f"   API_BASE_URL: {API_BASE_URL or 'NOT_FOUND'}")
+        return
+    
+    print("✅ Successfully retrieved CDK outputs:")
+    print(f"   USER_POOL_ID: {USER_POOL_ID}")
+    print(f"   CLIENT_ID: {CLIENT_ID}")
+    print(f"   API_BASE_URL: {API_BASE_URL}")
+    print("")
+    
     AWS_PROFILE = "malone-aws"
     
     # Initialize tester

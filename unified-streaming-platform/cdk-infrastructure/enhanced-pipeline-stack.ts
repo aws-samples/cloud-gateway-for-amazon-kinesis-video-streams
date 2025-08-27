@@ -38,12 +38,82 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
     const knowledgeBaseId = '5CGJIOV1QM';
     const claudeModel = 'us.anthropic.claude-opus-4-1-20250805-v1:0';
 
-    // Import existing Cognito User Pool from Amplify (for camera management)
-    const userPool = cognito.UserPool.fromUserPoolId(this, 'AmplifyUserPool', 'us-east-1_Q1jWhy4hd');
-    
-    // Get User Pool Client IDs for frontend integration
-    const userPoolWebClientId = '33or6k033pn7jgjq8gbmfs2gu3';
-    const userPoolNativeClientId = '57n1789cp33t0f8iqklr4rckdi';
+    // Create Cognito User Pool for authentication (v2 - email as username)
+    const userPool = new cognito.UserPool(this, 'UserPoolV2', {
+      userPoolName: 'enhanced-pipeline-user-pool',
+      selfSignUpEnabled: true,
+      signInCaseSensitive: false,
+      // Allow users to sign in with email only (no username)
+      signInAliases: {
+        email: true
+      },
+      autoVerify: {
+        email: true
+      },
+      standardAttributes: {
+        email: {
+          required: true,
+          mutable: true
+        },
+        givenName: {
+          required: false,
+          mutable: true
+        },
+        familyName: {
+          required: false,
+          mutable: true
+        }
+      },
+      passwordPolicy: {
+        minLength: 8,
+        requireLowercase: true,
+        requireUppercase: true,
+        requireDigits: true,
+        requireSymbols: false
+      },
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+      removalPolicy: cdk.RemovalPolicy.DESTROY // Allow cleanup for development
+    });
+
+    // Create User Pool Client for web applications
+    const userPoolWebClient = userPool.addClient('WebClient', {
+      userPoolClientName: 'enhanced-pipeline-web-client',
+      generateSecret: false, // Web clients don't use secrets
+      authFlows: {
+        userSrp: true,
+        userPassword: true, // Enable for testing, disable in production
+        adminUserPassword: true // Enable ADMIN_NO_SRP_AUTH for test scripts
+      },
+      oAuth: {
+        flows: {
+          authorizationCodeGrant: true,
+          implicitCodeGrant: true
+        },
+        scopes: [
+          cognito.OAuthScope.EMAIL,
+          cognito.OAuthScope.OPENID,
+          cognito.OAuthScope.PROFILE
+        ],
+        callbackUrls: [
+          'http://localhost:3000', // For local development
+          'https://localhost:3000' // For local HTTPS development
+        ],
+        logoutUrls: [
+          'http://localhost:3000',
+          'https://localhost:3000'
+        ]
+      }
+    });
+
+    // Create User Pool Client for native/mobile applications
+    const userPoolNativeClient = userPool.addClient('NativeClient', {
+      userPoolClientName: 'enhanced-pipeline-native-client',
+      generateSecret: true, // Native clients can use secrets
+      authFlows: {
+        userSrp: true,
+        userPassword: true
+      }
+    });
 
     // Create DynamoDB table for camera configurations
     const camerasTable = new dynamodb.Table(this, 'CameraConfigurations', {
@@ -54,9 +124,7 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       encryption: dynamodb.TableEncryption.AWS_MANAGED,
-      pointInTimeRecoverySpecification: {
-        pointInTimeRecoveryEnabled: true
-      },
+      pointInTimeRecovery: true,
       removalPolicy: cdk.RemovalPolicy.RETAIN, // Retain data on stack deletion
       stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES // Enable streams for future event processing
     });
@@ -401,12 +469,12 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, 'CognitoUserPoolWebClientId', {
-      value: userPoolWebClientId,
+      value: userPoolWebClient.userPoolClientId,
       description: 'Cognito User Pool Web Client ID for frontend authentication'
     });
 
     new cdk.CfnOutput(this, 'CognitoUserPoolNativeClientId', {
-      value: userPoolNativeClientId,
+      value: userPoolNativeClient.userPoolClientId,
       description: 'Cognito User Pool Native Client ID for mobile apps'
     });
 
