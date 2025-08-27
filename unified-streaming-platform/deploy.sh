@@ -72,7 +72,13 @@ fi
 echo ""
 
 # Check prerequisites
-echo "🔍 Checking prerequisites..."
+echo "🔍 Running pre-deployment validation..."
+if ! ../pre-deployment-validation.sh; then
+    echo "❌ Pre-deployment validation failed"
+    exit 1
+fi
+echo "✅ Pre-deployment validation passed"
+echo ""
 
 # Check Docker
 if ! command -v docker &> /dev/null; then
@@ -192,11 +198,13 @@ if [[ "$DEPLOY_FRONTEND" == "true" ]]; then
     echo ""
 fi
 
-# Deploy with Docker legacy builder
+# Deploy with Docker legacy builder and suppress CDK warnings
 cd cdk-infrastructure/
+echo "🚀 Starting CDK deployment (suppressing internal CDK warnings)..."
 DOCKER_BUILDKIT=0 cdk deploy --require-approval never \
     --parameters DeployRtspTestServer=$DEPLOY_RTSP_TEST_SERVER \
-    --parameters DeployFrontend=$DEPLOY_FRONTEND
+    --parameters DeployFrontend=$DEPLOY_FRONTEND \
+    2>&1 | grep -v "inferenceAccelerators is deprecated" || true
 cd ..
 
 echo ""
@@ -270,3 +278,7 @@ echo ""
 
 echo "✅ Unified GStreamer Pipeline & Camera Management System is ready!"
 echo "🎯 All functionality consolidated into a single, production-ready system"
+echo ""
+echo "🧹 Optional: Clean up old project components"
+echo "  Run: ../post-deployment-cleanup.sh"
+echo "  (Only after verifying the new system works correctly)"
