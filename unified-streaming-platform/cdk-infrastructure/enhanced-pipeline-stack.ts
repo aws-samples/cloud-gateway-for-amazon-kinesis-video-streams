@@ -425,6 +425,15 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
         'RTSP_SERVER_MODE': 'production',
         'AWS_DEFAULT_REGION': this.region,
       },
+      // Use Python health check script for more reliable health checking
+      healthCheck: {
+        command: ['CMD-SHELL', 'python3 /simple-health-check.py || exit 1'],
+        interval: cdk.Duration.seconds(30),
+        timeout: cdk.Duration.seconds(10),
+        retries: 5, // Increased retries for more resilience
+        startPeriod: cdk.Duration.seconds(90), // Longer start period for GStreamer initialization
+      },
+      essential: true,
     });
 
     // Add port mappings for RTSP and HTTP
@@ -443,8 +452,13 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       desiredCount: 1,
       assignPublicIp: true,
       securityGroups: [rtspSecurityGroup],
-      minHealthyPercent: 100,
+      minHealthyPercent: 0, // Allow service to restart without maintaining healthy tasks
       maxHealthyPercent: 200,
+      enableExecuteCommand: true, // Enable ECS Exec for debugging
+      // Configure circuit breaker to prevent infinite restart loops
+      circuitBreaker: {
+        rollback: true,
+      },
     });
     // Apply condition to the service
     const cfnService = rtspService.node.defaultChild as ecs.CfnService;

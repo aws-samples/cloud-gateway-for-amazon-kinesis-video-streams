@@ -17,7 +17,60 @@ class RTSPURLHandler(BaseHTTPRequestHandler):
     """HTTP handler to serve RTSP URL information"""
     
     def do_GET(self):
-        if self.path == '/rtsp-urls' or self.path == '/':
+        if self.path == '/health':
+            # Health check endpoint for AWS ECS/ELB
+            try:
+                # Quick health check - just verify ports are accessible
+                import socket
+                ports = [8554, 8555, 8556, 8557]
+                open_ports = 0
+                
+                for port in ports:
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        sock.settimeout(1)
+                        result = sock.connect_ex(('localhost', port))
+                        sock.close()
+                        if result == 0:
+                            open_ports += 1
+                    except:
+                        pass
+                
+                # Require at least 3 out of 4 ports to be open
+                if open_ports >= 3:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    health_response = {
+                        "status": "healthy",
+                        "open_ports": open_ports,
+                        "total_ports": len(ports),
+                        "timestamp": time.time()
+                    }
+                    self.wfile.write(json.dumps(health_response).encode())
+                else:
+                    self.send_response(503)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    health_response = {
+                        "status": "unhealthy",
+                        "open_ports": open_ports,
+                        "total_ports": len(ports),
+                        "timestamp": time.time()
+                    }
+                    self.wfile.write(json.dumps(health_response).encode())
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                error_response = {
+                    "status": "error",
+                    "error": str(e),
+                    "timestamp": time.time()
+                }
+                self.wfile.write(json.dumps(error_response).encode())
+                
+        elif self.path == '/rtsp-urls' or self.path == '/':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')  # Enable CORS
