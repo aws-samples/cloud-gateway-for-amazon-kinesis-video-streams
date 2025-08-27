@@ -140,7 +140,8 @@ logs/
 # AWS credentials (should never be committed)
 .aws/
 credentials
-config
+.aws/config
+aws-config
 
 # Environment variables
 .env
