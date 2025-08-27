@@ -7,6 +7,7 @@ set -e
 
 # Parse command line arguments
 DEPLOY_RTSP_TEST_SERVER="false"
+DEPLOY_FRONTEND="true"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -14,16 +15,27 @@ while [[ $# -gt 0 ]]; do
       DEPLOY_RTSP_TEST_SERVER="true"
       shift
       ;;
+    --with-frontend)
+      DEPLOY_FRONTEND="true"
+      shift
+      ;;
+    --no-frontend)
+      DEPLOY_FRONTEND="false"
+      shift
+      ;;
     --help|-h)
       echo "Usage: $0 [OPTIONS]"
       echo ""
       echo "Options:"
       echo "  --with-rtsp-test-server    Deploy optional RTSP Test Server component"
+      echo "  --with-frontend            Deploy React frontend application (default)"
+      echo "  --no-frontend              Skip frontend deployment"
       echo "  --help, -h                 Show this help message"
       echo ""
       echo "Examples:"
-      echo "  $0                         Deploy unified platform only"
-      echo "  $0 --with-rtsp-test-server Deploy with RTSP Test Server"
+      echo "  $0                         Deploy unified platform with frontend"
+      echo "  $0 --with-rtsp-test-server Deploy with RTSP Test Server and frontend"
+      echo "  $0 --no-frontend           Deploy backend only"
       exit 0
       ;;
     *)
@@ -125,10 +137,40 @@ echo "  • DynamoDB table for camera configurations"
 echo "  • Secrets Manager integration"
 echo "  • Cognito authentication"
 echo "  • CloudWatch logging and monitoring"
+if [[ "$DEPLOY_FRONTEND" == "true" ]]; then
+    echo "  • React Frontend Application (S3 + CloudFront)"
+fi
 echo ""
 
+# Build frontend if enabled
+if [[ "$DEPLOY_FRONTEND" == "true" ]]; then
+    echo "🎨 Building React frontend..."
+    cd frontend/
+    
+    # Check if node_modules exists, install if not
+    if [ ! -d "node_modules" ]; then
+        echo "📦 Installing frontend dependencies..."
+        npm install
+    fi
+    
+    # Build the React application
+    echo "🔨 Building React application..."
+    npm run build
+    
+    if [ ! -d "dist" ]; then
+        echo "❌ Frontend build failed - dist directory not created"
+        exit 1
+    fi
+    
+    echo "✅ Frontend built successfully"
+    cd ..
+    echo ""
+fi
+
 # Deploy with Docker legacy builder
-DOCKER_BUILDKIT=0 cdk deploy --require-approval never --parameters DeployRtspTestServer=$DEPLOY_RTSP_TEST_SERVER
+DOCKER_BUILDKIT=0 cdk deploy --require-approval never \
+    --parameters DeployRtspTestServer=$DEPLOY_RTSP_TEST_SERVER \
+    --parameters DeployFrontend=$DEPLOY_FRONTEND
 
 echo ""
 echo "🎉 Deployment Complete!"

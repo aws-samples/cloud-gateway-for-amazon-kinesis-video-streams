@@ -8,6 +8,10 @@ import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -21,6 +25,13 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       default: 'false',
       allowedValues: ['true', 'false'],
       description: 'Whether to deploy the optional RTSP Test Server component'
+    });
+
+    const deployFrontend = new cdk.CfnParameter(this, 'DeployFrontend', {
+      type: 'String',
+      default: 'true',
+      allowedValues: ['true', 'false'],
+      description: 'Whether to deploy the React frontend application'
     });
 
     // Configuration - Use existing knowledge base from bedrock-gstreamer project
@@ -432,5 +443,92 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
     cdk.Tags.of(this).add('Project', 'Unified-GStreamer-Pipeline-System');
     cdk.Tags.of(this).add('Component', 'Cloud-Gateway-Consolidated');
     cdk.Tags.of(this).add('Version', '3.0-Unified');
+
+    // ========================================
+    // Frontend Hosting (React Application)
+    // ========================================
+
+    // Condition for frontend deployment
+    const frontendCondition = new cdk.CfnCondition(this, 'DeployFrontendCondition', {
+      expression: cdk.Fn.conditionEquals(deployFrontend, 'true')
+    });
+
+    // S3 Bucket for React app hosting
+    const frontendBucket = new s3.Bucket(this, 'FrontendBucket', {
+      bucketName: `${this.stackName.toLowerCase()}-frontend-${this.account}`,
+      websiteIndexDocument: 'index.html',
+      websiteErrorDocument: 'index.html', // SPA routing support
+      publicReadAccess: true,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
+    frontendBucket.cfnBucket.cfnOptions.condition = frontendCondition;
+
+    // CloudFront Distribution for global CDN
+    const distribution = new cloudfront.Distribution(this, 'FrontendDistribution', {
+      defaultBehavior: {
+        origin: new origins.S3Origin(frontendBucket),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+        originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
+      },
+      defaultRootObject: 'index.html',
+      errorResponses: [
+        {
+          httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html', // SPA routing support
+        },
+        {
+          httpStatus: 403,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html', // SPA routing support
+        },
+      ],
+      comment: 'Unified Streaming Platform Frontend Distribution',
+    });
+    distribution.node.addDependency(frontendBucket);
+    distribution.cfnDistribution.cfnOptions.condition = frontendCondition;
+
+    // S3 Deployment for React build (conditional)
+    // Note: This requires the frontend to be built first
+    const frontendDeployment = new s3deploy.BucketDeployment(this, 'FrontendDeployment', {
+      sources: [s3deploy.Source.asset(path.join(__dirname, '../frontend/dist'))],
+      destinationBucket: frontendBucket,
+      distribution,
+      distributionPaths: ['/*'],
+      memoryLimit: 512,
+    });
+    frontendDeployment.node.addDependency(distribution);
+    frontendDeployment.cfnBucketDeployment.cfnOptions.condition = frontendCondition;
+
+    // Output frontend URLs (conditional)
+    const frontendBucketOutput = new cdk.CfnOutput(this, 'FrontendBucketName', {
+      value: cdk.Fn.conditionIf(
+        frontendCondition.logicalId,
+        frontendBucket.bucketName,
+        'Frontend not deployed'
+      ).toString(),
+      description: 'S3 bucket name for frontend hosting'
+    });
+
+    const frontendUrlOutput = new cdk.CfnOutput(this, 'FrontendURL', {
+      value: cdk.Fn.conditionIf(
+        frontendCondition.logicalId,
+        `https://${distribution.distributionDomainName}`,
+        'Frontend not deployed'
+      ).toString(),
+      description: 'CloudFront URL for the React frontend application'
+    });
+
+    const frontendS3UrlOutput = new cdk.CfnOutput(this, 'FrontendS3URL', {
+      value: cdk.Fn.conditionIf(
+        frontendCondition.logicalId,
+        frontendBucket.bucketWebsiteUrl,
+        'Frontend not deployed'
+      ).toString(),
+      description: 'S3 website URL for the React frontend application'
+    });
   }
 }

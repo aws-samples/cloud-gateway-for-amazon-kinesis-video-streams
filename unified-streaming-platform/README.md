@@ -14,6 +14,12 @@ unified-streaming-platform/
 │   ├── app.ts                        # CDK application entry
 │   └── [CDK configuration files]
 │
+├── frontend/                    # React web application
+│   ├── src/                          # React source code
+│   ├── public/                       # Static assets
+│   ├── package.json                  # Frontend dependencies
+│   └── [React app configuration]
+│
 ├── lambda-enhanced-pipeline/    # AI-powered pipeline generation
 │   ├── enhanced_lambda_function.py   # Main Lambda handler
 │   ├── gstreamer_expert.py          # Expert system engine
@@ -55,7 +61,20 @@ unified-streaming-platform/
 - ✅ **Secrets Manager** for secure credential storage
 - ✅ **Optional RTSP Test Server** deployment
 
-### **2. Enhanced Pipeline Lambda** ([`lambda-enhanced-pipeline/`](./lambda-enhanced-pipeline/))
+### **2. Frontend Application** ([`frontend/`](./frontend/))
+**Purpose**: React-based web interface for the unified streaming platform  
+**Technology**: React 18, TypeScript, Vite, Cloudscape Design System  
+**Hosting**: S3 + CloudFront via CDK  
+
+**Key Features**:
+- 🔐 **Cognito Authentication** - User login and registration (existing User Pool)
+- 📋 **Camera Management UI** - Web interface for camera CRUD operations
+- 🎬 **Pipeline Generation Interface** - AI-powered pipeline creation
+- 📊 **Stream Analysis Dashboard** - RTSP characteristics and frame extraction
+- 🧪 **Testing Interface** - Integration with RTSP Test Server
+- 🎨 **Cloudscape Design** - AWS-native UI components
+
+### **3. Enhanced Pipeline Lambda** ([`lambda-enhanced-pipeline/`](./lambda-enhanced-pipeline/))
 **Purpose**: AI-powered GStreamer pipeline generation with RTSP analysis  
 **Technology**: Python 3.11, OpenCV, AWS Bedrock  
 **Resources**: 3GB memory, 10-minute timeout  
@@ -67,7 +86,7 @@ unified-streaming-platform/
 - 🛠️ **7 Specialized Tools** for different GStreamer use cases
 - 🎯 **Platform Intelligence** - Automatic optimization for macOS, Linux, Windows
 
-### **3. Camera Management Lambda** ([`lambda-camera-management/`](./lambda-camera-management/))
+### **4. Camera Management Lambda** ([`lambda-camera-management/`](./lambda-camera-management/))
 **Purpose**: Complete CRUD operations for camera configurations  
 **Technology**: Python 3.11, DynamoDB, Cognito  
 **Resources**: 512MB memory, 30-second timeout  
@@ -79,7 +98,7 @@ unified-streaming-platform/
 - 🔒 **Secrets Manager Integration** - Secure credential management
 - 👥 **Multi-tenant Support** - User isolation and data security
 
-### **4. RTSP Test Server** ([`rtsp-test-server/`](./rtsp-test-server/))
+### **5. RTSP Test Server** ([`rtsp-test-server/`](./rtsp-test-server/))
 **Purpose**: Industry-leading RTSP endpoint testing (85% camera coverage)  
 **Technology**: Python 3.11, GStreamer, Docker  
 
@@ -90,7 +109,7 @@ unified-streaming-platform/
 - 📊 **Professional Resolutions** - Up to 1080p@60fps with quality variations
 - 🧪 **Enhanced Testing Framework** - Comprehensive validation scripts
 
-### **5. Testing Suite** ([`testing/`](./testing/))
+### **6. Testing Suite** ([`testing/`](./testing/))
 **Purpose**: Consolidated testing and validation framework  
 **Technology**: Bash, Python, GStreamer  
 
@@ -110,11 +129,14 @@ unified-streaming-platform/
 
 ### **One-Command Deployment**
 ```bash
-# Deploy the complete unified platform
+# Deploy the complete unified platform (backend + frontend)
 ./deploy.sh
 
 # Deploy with RTSP Test Server
 ./deploy.sh --with-rtsp-test-server
+
+# Deploy backend only (no frontend)
+./deploy.sh --no-frontend
 ```
 
 ### **Manual Deployment**
@@ -124,11 +146,17 @@ cd cdk-infrastructure/
 npm install
 cdk deploy --profile malone-aws
 
-# 2. Test the deployment
+# 2. Build and deploy frontend (optional)
+cd ../frontend/
+npm install
+npm run build
+# Frontend automatically deployed via CDK S3 deployment
+
+# 3. Test the deployment
 cd ../testing/
 ./test-basic-functionality.sh
 
-# 3. Optional: Deploy RTSP Test Server
+# 4. Optional: Deploy RTSP Test Server
 cd ../rtsp-test-server/
 docker build -t rtsp-test-server .
 # Deploy to ECS (via CDK parameter)
