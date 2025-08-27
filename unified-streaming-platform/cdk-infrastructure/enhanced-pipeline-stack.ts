@@ -22,16 +22,16 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
     // Parameters
     const deployRtspTestServer = new cdk.CfnParameter(this, 'DeployRtspTestServer', {
       type: 'String',
-      default: 'false',
+      default: 'true',
       allowedValues: ['true', 'false'],
-      description: 'Whether to deploy the optional RTSP Test Server component'
+      description: 'Whether to deploy the RTSP Test Server component (default: true)'
     });
 
     const deployFrontend = new cdk.CfnParameter(this, 'DeployFrontend', {
       type: 'String',
       default: 'true',
       allowedValues: ['true', 'false'],
-      description: 'Whether to deploy the React frontend application'
+      description: 'Whether to deploy the React frontend application (default: true)'
     });
 
     // Configuration - Use existing knowledge base from bedrock-gstreamer project

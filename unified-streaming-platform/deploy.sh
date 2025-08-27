@@ -6,13 +6,17 @@
 set -e
 
 # Parse command line arguments
-DEPLOY_RTSP_TEST_SERVER="false"
+DEPLOY_RTSP_TEST_SERVER="true"
 DEPLOY_FRONTEND="true"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
     --with-rtsp-test-server)
       DEPLOY_RTSP_TEST_SERVER="true"
+      shift
+      ;;
+    --no-rtsp-test-server)
+      DEPLOY_RTSP_TEST_SERVER="false"
       shift
       ;;
     --with-frontend)
@@ -27,15 +31,17 @@ while [[ $# -gt 0 ]]; do
       echo "Usage: $0 [OPTIONS]"
       echo ""
       echo "Options:"
-      echo "  --with-rtsp-test-server    Deploy optional RTSP Test Server component"
+      echo "  --with-rtsp-test-server    Deploy RTSP Test Server component (default)"
+      echo "  --no-rtsp-test-server      Skip RTSP Test Server deployment"
       echo "  --with-frontend            Deploy React frontend application (default)"
       echo "  --no-frontend              Skip frontend deployment"
       echo "  --help, -h                 Show this help message"
       echo ""
       echo "Examples:"
-      echo "  $0                         Deploy unified platform with frontend"
-      echo "  $0 --with-rtsp-test-server Deploy with RTSP Test Server and frontend"
-      echo "  $0 --no-frontend           Deploy backend only"
+      echo "  $0                         Deploy complete platform (frontend + RTSP server)"
+      echo "  $0 --no-rtsp-test-server   Deploy platform without RTSP Test Server"
+      echo "  $0 --no-frontend           Deploy backend and RTSP server only"
+      echo "  $0 --no-frontend --no-rtsp-test-server  Deploy backend only"
       exit 0
       ;;
     *)
@@ -49,9 +55,15 @@ done
 echo "🚀 Deploying Unified GStreamer Pipeline & Camera Management System"
 echo "=================================================================="
 if [[ "$DEPLOY_RTSP_TEST_SERVER" == "true" ]]; then
-    echo "📡 RTSP Test Server: ENABLED"
+    echo "📡 RTSP Test Server: ENABLED (default)"
 else
-    echo "📡 RTSP Test Server: DISABLED (use --with-rtsp-test-server to enable)"
+    echo "📡 RTSP Test Server: DISABLED (use --no-rtsp-test-server was specified)"
+fi
+
+if [[ "$DEPLOY_FRONTEND" == "true" ]]; then
+    echo "🎨 React Frontend: ENABLED (default)"
+else
+    echo "🎨 React Frontend: DISABLED (--no-frontend was specified)"
 fi
 echo ""
 
@@ -129,7 +141,7 @@ echo ""
 
 # Deploy the unified stack
 echo "🚀 Deploying unified system..."
-echo "This includes:"
+echo "This deployment includes:"
 echo "  • Enhanced Pipeline Generator Lambda (GStreamer expert + RTSP analysis)"
 echo "  • Camera Management Lambda (CRUD operations)"
 echo "  • Unified API Gateway (all endpoints)"
@@ -138,7 +150,14 @@ echo "  • Secrets Manager integration"
 echo "  • Cognito authentication"
 echo "  • CloudWatch logging and monitoring"
 if [[ "$DEPLOY_FRONTEND" == "true" ]]; then
-    echo "  • React Frontend Application (S3 + CloudFront)"
+    echo "  • React Frontend Application (S3 + CloudFront) - ENABLED"
+else
+    echo "  • React Frontend Application - DISABLED"
+fi
+if [[ "$DEPLOY_RTSP_TEST_SERVER" == "true" ]]; then
+    echo "  • RTSP Test Server (50+ streams, 85% camera coverage) - ENABLED"
+else
+    echo "  • RTSP Test Server - DISABLED"
 fi
 echo ""
 

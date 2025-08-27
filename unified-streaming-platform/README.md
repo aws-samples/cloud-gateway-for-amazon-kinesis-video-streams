@@ -129,14 +129,14 @@ unified-streaming-platform/
 
 ### **One-Command Deployment**
 ```bash
-# Deploy the complete unified platform (backend + frontend)
+# Deploy the complete unified platform (backend + frontend + RTSP test server)
 ./deploy.sh
 
-# Deploy with RTSP Test Server
-./deploy.sh --with-rtsp-test-server
+# Deploy without RTSP Test Server
+./deploy.sh --no-rtsp-test-server
 
-# Deploy backend only (no frontend)
-./deploy.sh --no-frontend
+# Deploy backend only (no frontend or RTSP server)
+./deploy.sh --no-frontend --no-rtsp-test-server
 ```
 
 ### **Manual Deployment**
