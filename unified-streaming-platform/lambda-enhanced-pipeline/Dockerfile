@@ -19,8 +19,8 @@ COPY requirements.txt ${LAMBDA_TASK_ROOT}
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the refactored GStreamer expert system
-COPY ../gstreamer-expert-system/core ${LAMBDA_TASK_ROOT}/gstreamer-expert-system/core
-COPY ../gstreamer-expert-system/interfaces ${LAMBDA_TASK_ROOT}/gstreamer-expert-system/interfaces
+COPY gstreamer-expert-system-core ${LAMBDA_TASK_ROOT}/gstreamer-expert-system/core
+COPY gstreamer-expert-system-interfaces ${LAMBDA_TASK_ROOT}/gstreamer-expert-system/interfaces
 
 # Copy the enhanced Lambda function
 COPY enhanced_lambda_function.py ${LAMBDA_TASK_ROOT}

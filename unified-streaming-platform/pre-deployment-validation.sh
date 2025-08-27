@@ -71,6 +71,7 @@ print_status $BLUE "🏗️ Validating CDK Project"
 echo "----------------------------------------"
 
 # Build CDK project
+cd cdk-infrastructure
 if npm run build >/dev/null 2>&1; then
     print_status $GREEN "✅ CDK project builds successfully"
 else
@@ -85,6 +86,7 @@ else
     print_status $RED "❌ CDK stack synthesis failed"
     exit 1
 fi
+cd ..
 
 echo ""
 print_status $BLUE "🔍 Checking for Existing Stacks"

@@ -73,7 +73,7 @@ echo ""
 
 # Check prerequisites
 echo "🔍 Running pre-deployment validation..."
-if ! ../pre-deployment-validation.sh; then
+if ! ./pre-deployment-validation.sh; then
     echo "❌ Pre-deployment validation failed"
     exit 1
 fi
@@ -280,5 +280,5 @@ echo "✅ Unified GStreamer Pipeline & Camera Management System is ready!"
 echo "🎯 All functionality consolidated into a single, production-ready system"
 echo ""
 echo "🧹 Optional: Clean up old project components"
-echo "  Run: ../post-deployment-cleanup.sh"
+echo "  Run: ./post-deployment-cleanup.sh"
 echo "  (Only after verifying the new system works correctly)"

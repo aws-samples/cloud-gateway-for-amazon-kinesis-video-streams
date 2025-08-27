@@ -40,6 +40,10 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
 
     // Import existing Cognito User Pool from Amplify (for camera management)
     const userPool = cognito.UserPool.fromUserPoolId(this, 'AmplifyUserPool', 'us-east-1_Q1jWhy4hd');
+    
+    // Get User Pool Client IDs for frontend integration
+    const userPoolWebClientId = '33or6k033pn7jgjq8gbmfs2gu3';
+    const userPoolNativeClientId = '57n1789cp33t0f8iqklr4rckdi';
 
     // Create DynamoDB table for camera configurations
     const camerasTable = new dynamodb.Table(this, 'CameraConfigurations', {
@@ -172,6 +176,7 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       inlinePolicies: {
         BedrockKnowledgeBasePolicy: new iam.PolicyDocument({
           statements: [
+            // Bedrock Model Invocation Permissions
             new iam.PolicyStatement({
               effect: iam.Effect.ALLOW,
               actions: [
@@ -179,18 +184,38 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
                 'bedrock:InvokeModelWithResponseStream'
               ],
               resources: [
-                `arn:aws:bedrock:${this.region}::foundation-model/${claudeModel}`,
+                // Claude Models (Foundation Models)
+                `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0`,
+                `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-3-opus-20240229-v1:0`,
+                `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-3-haiku-20240307-v1:0`,
+                `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-opus-4-20250514-v1:0`,
+                `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-sonnet-4-20250514-v1:0`,
+                // Inference Profiles
+                `arn:aws:bedrock:${this.region}::inference-profile/${claudeModel}`,
+                `arn:aws:bedrock:${this.region}::inference-profile/us.anthropic.*`,
+                // Wildcard for any foundation model
                 `arn:aws:bedrock:${this.region}::foundation-model/*`
               ]
             }),
+            // Knowledge Base Access Permissions
             new iam.PolicyStatement({
               effect: iam.Effect.ALLOW,
               actions: [
-                'bedrock:Retrieve'
+                'bedrock:Retrieve',
+                'bedrock:RetrieveAndGenerate'
               ],
               resources: [
                 `arn:aws:bedrock:${this.region}:${this.account}:knowledge-base/${knowledgeBaseId}`
               ]
+            }),
+            // Additional Bedrock Permissions for Agent Integration
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: [
+                'bedrock:GetFoundationModel',
+                'bedrock:ListFoundationModels'
+              ],
+              resources: ['*']
             })
           ]
         })
@@ -229,9 +254,28 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       restApiName: 'Unified GStreamer Pipeline & Camera Management API',
       description: 'Unified API for enhanced GStreamer pipeline generation and camera management',
       defaultCorsPreflightOptions: {
-        allowOrigins: apigateway.Cors.ALL_ORIGINS,
-        allowMethods: apigateway.Cors.ALL_METHODS,
-        allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token']
+        allowOrigins: [
+          'http://localhost:3000',
+          'http://localhost:3001', 
+          'http://localhost:8080',
+          'http://localhost:8000',
+          'https://localhost:3000',
+          'https://localhost:3001',
+          'https://localhost:8080',
+          'https://localhost:8000'
+        ],
+        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowHeaders: [
+          'Content-Type',
+          'X-Amz-Date',
+          'Authorization',
+          'X-Api-Key',
+          'X-Amz-Security-Token',
+          'X-Amz-User-Agent',
+          'Access-Control-Allow-Origin',
+          'Access-Control-Allow-Headers'
+        ],
+        allowCredentials: true
       }
     });
 
@@ -258,34 +302,55 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
     
     // Enhanced pipeline generation endpoint
     const generatePipeline = v1.addResource('generate-pipeline');
-    generatePipeline.addMethod('POST', enhancedLambdaIntegration);
+    generatePipeline.addMethod('POST', enhancedLambdaIntegration, {
+      authorizer: cognitoAuthorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO
+    });
 
     // Specialized tool endpoints
     const tools = v1.addResource('tools');
     
     // Element search endpoint
     const searchElements = tools.addResource('search-elements');
-    searchElements.addMethod('POST', enhancedLambdaIntegration);
+    searchElements.addMethod('POST', enhancedLambdaIntegration, {
+      authorizer: cognitoAuthorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO
+    });
 
     // Troubleshooting endpoint
     const troubleshoot = tools.addResource('troubleshoot');
-    troubleshoot.addMethod('POST', enhancedLambdaIntegration);
+    troubleshoot.addMethod('POST', enhancedLambdaIntegration, {
+      authorizer: cognitoAuthorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO
+    });
 
     // Optimization endpoint
     const optimize = tools.addResource('optimize');
-    optimize.addMethod('POST', enhancedLambdaIntegration);
+    optimize.addMethod('POST', enhancedLambdaIntegration, {
+      authorizer: cognitoAuthorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO
+    });
 
     // Validation endpoint
     const validate = tools.addResource('validate');
-    validate.addMethod('POST', enhancedLambdaIntegration);
+    validate.addMethod('POST', enhancedLambdaIntegration, {
+      authorizer: cognitoAuthorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO
+    });
 
     // Comprehensive expert endpoint
     const expert = tools.addResource('expert');
-    expert.addMethod('POST', enhancedLambdaIntegration);
+    expert.addMethod('POST', enhancedLambdaIntegration, {
+      authorizer: cognitoAuthorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO
+    });
 
     // Stream characteristics endpoint (maintains compatibility)
     const characteristics = v1.addResource('characteristics');
-    characteristics.addMethod('POST', enhancedLambdaIntegration);
+    characteristics.addMethod('POST', enhancedLambdaIntegration, {
+      authorizer: cognitoAuthorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO
+    });
 
     // Camera Management API endpoints
     const camerasResource = api.root.addResource('cameras');
@@ -323,12 +388,45 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       authorizationType: apigateway.AuthorizationType.COGNITO
     });
 
-    // Output important values
+    // Output important values for frontend integration
     new cdk.CfnOutput(this, 'UnifiedApiEndpoint', {
       value: api.url,
       description: 'Unified API Gateway endpoint for pipeline generation and camera management'
     });
 
+    // Cognito Configuration Outputs
+    new cdk.CfnOutput(this, 'CognitoUserPoolId', {
+      value: userPool.userPoolId,
+      description: 'Cognito User Pool ID for authentication'
+    });
+
+    new cdk.CfnOutput(this, 'CognitoUserPoolWebClientId', {
+      value: userPoolWebClientId,
+      description: 'Cognito User Pool Web Client ID for frontend authentication'
+    });
+
+    new cdk.CfnOutput(this, 'CognitoUserPoolNativeClientId', {
+      value: userPoolNativeClientId,
+      description: 'Cognito User Pool Native Client ID for mobile apps'
+    });
+
+    new cdk.CfnOutput(this, 'CognitoRegion', {
+      value: this.region,
+      description: 'AWS Region for Cognito authentication'
+    });
+
+    // API Configuration Outputs
+    new cdk.CfnOutput(this, 'ApiGatewayId', {
+      value: api.restApiId,
+      description: 'API Gateway REST API ID'
+    });
+
+    new cdk.CfnOutput(this, 'ApiGatewayStage', {
+      value: api.deploymentStage.stageName,
+      description: 'API Gateway deployment stage'
+    });
+
+    // Backend Configuration Outputs
     new cdk.CfnOutput(this, 'KnowledgeBaseId', {
       value: knowledgeBaseId,
       description: 'Bedrock Knowledge Base ID for GStreamer expertise'
@@ -352,6 +450,17 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'CamerasTableName', {
       value: camerasTable.tableName,
       description: 'DynamoDB table name for camera configurations'
+    });
+
+    // AWS Configuration Outputs
+    new cdk.CfnOutput(this, 'AWSRegion', {
+      value: this.region,
+      description: 'AWS Region for all services'
+    });
+
+    new cdk.CfnOutput(this, 'AWSAccountId', {
+      value: this.account,
+      description: 'AWS Account ID'
     });
 
     // Optional RTSP Test Server Component
@@ -405,10 +514,16 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
     const cfnLogGroup = rtspLogGroup.node.defaultChild as logs.CfnLogGroup;
     cfnLogGroup.cfnOptions.condition = rtspTestServerCondition;
 
-    // Create Fargate Task Definition for RTSP Test Server
+    // Create Fargate Task Definition for RTSP Test Server (updated to avoid deprecation)
     const rtspTaskDefinition = new ecs.FargateTaskDefinition(this, 'RTSPTestTaskDefinition', {
       memoryLimitMiB: 2048,
       cpu: 1024,
+      runtimePlatform: {
+        operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+        cpuArchitecture: ecs.CpuArchitecture.X86_64
+      },
+      // Explicitly avoid deprecated properties
+      family: 'rtsp-test-server-task'
     });
     // Apply condition to the task definition
     const cfnTaskDefinition = rtspTaskDefinition.node.defaultChild as ecs.CfnTaskDefinition;
@@ -473,6 +588,38 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
       ).toString(),
       description: 'RTSP Test Server deployment status and access information'
     });
+    rtspTestServerOutput.condition = rtspTestServerCondition;
+
+    // RTSP Test Server Configuration Outputs (conditional)
+    const rtspClusterOutput = new cdk.CfnOutput(this, 'RTSPTestServerCluster', {
+      value: cdk.Fn.conditionIf(
+        rtspTestServerCondition.logicalId,
+        rtspCluster.clusterName,
+        'Not deployed'
+      ).toString(),
+      description: 'ECS Cluster name for RTSP Test Server'
+    });
+    rtspClusterOutput.condition = rtspTestServerCondition;
+
+    const rtspServiceOutput = new cdk.CfnOutput(this, 'RTSPTestServerService', {
+      value: cdk.Fn.conditionIf(
+        rtspTestServerCondition.logicalId,
+        rtspService.serviceName,
+        'Not deployed'
+      ).toString(),
+      description: 'ECS Service name for RTSP Test Server'
+    });
+    rtspServiceOutput.condition = rtspTestServerCondition;
+
+    const rtspPortsOutput = new cdk.CfnOutput(this, 'RTSPTestServerPorts', {
+      value: cdk.Fn.conditionIf(
+        rtspTestServerCondition.logicalId,
+        'RTSP: 8554, HTTP: 8080, HTTPS: 8443, Admin: 8888',
+        'Not deployed'
+      ).toString(),
+      description: 'RTSP Test Server port configuration'
+    });
+    rtspPortsOutput.condition = rtspTestServerCondition;
 
     // Add tags for resource management
     cdk.Tags.of(this).add('Project', 'Unified-GStreamer-Pipeline-System');
@@ -483,92 +630,84 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
     // Frontend Hosting (React Application)
     // ========================================
 
-    // Condition for frontend deployment
-    const frontendCondition = new cdk.CfnCondition(this, 'DeployFrontendCondition', {
-      expression: cdk.Fn.conditionEquals(deployFrontend, 'true')
-    });
+    // Frontend deployment (conditional)
+    if (deployFrontend.valueAsString === 'true') {
+      // S3 Bucket for React app hosting
+      const frontendBucket = new s3.Bucket(this, 'FrontendBucket', {
+        bucketName: `${this.stackName.toLowerCase()}-frontend-${this.account}`,
+        websiteIndexDocument: 'index.html',
+        websiteErrorDocument: 'index.html', // SPA routing support
+        publicReadAccess: true,
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        autoDeleteObjects: true,
+      });
 
-    // S3 Bucket for React app hosting
-    const frontendBucket = new s3.Bucket(this, 'FrontendBucket', {
-      bucketName: `${this.stackName.toLowerCase()}-frontend-${this.account}`,
-      websiteIndexDocument: 'index.html',
-      websiteErrorDocument: 'index.html', // SPA routing support
-      publicReadAccess: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-    });
-    // Apply condition to the S3 bucket
-    const cfnBucket = frontendBucket.node.defaultChild as s3.CfnBucket;
-    cfnBucket.cfnOptions.condition = frontendCondition;
-
-    // CloudFront Distribution for global CDN
-    const distribution = new cloudfront.Distribution(this, 'FrontendDistribution', {
-      defaultBehavior: {
-        origin: new origins.S3StaticWebsiteOrigin(frontendBucket),
-        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
-        originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
-      },
-      defaultRootObject: 'index.html',
-      errorResponses: [
-        {
-          httpStatus: 404,
-          responseHttpStatus: 200,
-          responsePagePath: '/index.html', // SPA routing support
+      // CloudFront Distribution for global CDN
+      const distribution = new cloudfront.Distribution(this, 'FrontendDistribution', {
+        defaultBehavior: {
+          origin: new origins.S3StaticWebsiteOrigin(frontendBucket),
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+          originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
         },
-        {
-          httpStatus: 403,
-          responseHttpStatus: 200,
-          responsePagePath: '/index.html', // SPA routing support
-        },
-      ],
-      comment: 'Unified Streaming Platform Frontend Distribution',
-    });
-    distribution.node.addDependency(frontendBucket);
-    // Apply condition to the CloudFront distribution
-    const cfnDistribution = distribution.node.defaultChild as cloudfront.CfnDistribution;
-    cfnDistribution.cfnOptions.condition = frontendCondition;
+        defaultRootObject: 'index.html',
+        errorResponses: [
+          {
+            httpStatus: 404,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html', // SPA routing support
+          },
+          {
+            httpStatus: 403,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html', // SPA routing support
+          },
+        ],
+        comment: 'Unified Streaming Platform Frontend Distribution',
+      });
 
-    // S3 Deployment for React build (conditional)
-    // Note: This requires the frontend to be built first
-    const frontendDeployment = new s3deploy.BucketDeployment(this, 'FrontendDeployment', {
-      sources: [s3deploy.Source.asset(path.join(__dirname, '../frontend/dist'))],
-      destinationBucket: frontendBucket,
-      distribution,
-      distributionPaths: ['/*'],
-      memoryLimit: 512,
-    });
-    frontendDeployment.node.addDependency(distribution);
-    // Note: BucketDeployment is a higher-level construct that manages multiple resources
-    // The condition is applied to the parent bucket and distribution instead
+      // S3 Deployment for React build (conditional)
+      // Note: This requires the frontend to be built first
+      const frontendDeployment = new s3deploy.BucketDeployment(this, 'FrontendDeployment', {
+        sources: [s3deploy.Source.asset(path.join(__dirname, '../frontend/dist'))],
+        destinationBucket: frontendBucket,
+        distribution,
+        distributionPaths: ['/*'],
+        memoryLimit: 512,
+      });
 
-    // Output frontend URLs (conditional)
-    const frontendBucketOutput = new cdk.CfnOutput(this, 'FrontendBucketName', {
-      value: cdk.Fn.conditionIf(
-        frontendCondition.logicalId,
-        frontendBucket.bucketName,
-        'Frontend not deployed'
-      ).toString(),
-      description: 'S3 bucket name for frontend hosting'
-    });
+      // Output frontend URLs
+      new cdk.CfnOutput(this, 'FrontendBucketName', {
+        value: frontendBucket.bucketName,
+        description: 'S3 bucket name for frontend hosting'
+      });
 
-    const frontendUrlOutput = new cdk.CfnOutput(this, 'FrontendURL', {
-      value: cdk.Fn.conditionIf(
-        frontendCondition.logicalId,
-        `https://${distribution.distributionDomainName}`,
-        'Frontend not deployed'
-      ).toString(),
-      description: 'CloudFront URL for the React frontend application'
-    });
+      new cdk.CfnOutput(this, 'FrontendURL', {
+        value: `https://${distribution.distributionDomainName}`,
+        description: 'CloudFront URL for the React frontend application'
+      });
 
-    const frontendS3UrlOutput = new cdk.CfnOutput(this, 'FrontendS3URL', {
-      value: cdk.Fn.conditionIf(
-        frontendCondition.logicalId,
-        frontendBucket.bucketWebsiteUrl,
-        'Frontend not deployed'
-      ).toString(),
-      description: 'S3 website URL for the React frontend application'
-    });
+      new cdk.CfnOutput(this, 'FrontendS3URL', {
+        value: frontendBucket.bucketWebsiteUrl,
+        description: 'S3 website URL for the React frontend application'
+      });
+    } else {
+      // Output placeholder values when frontend is not deployed
+      new cdk.CfnOutput(this, 'FrontendBucketName', {
+        value: 'Frontend not deployed',
+        description: 'S3 bucket name for frontend hosting'
+      });
+
+      new cdk.CfnOutput(this, 'FrontendURL', {
+        value: 'Frontend not deployed',
+        description: 'CloudFront URL for the React frontend application'
+      });
+
+      new cdk.CfnOutput(this, 'FrontendS3URL', {
+        value: 'Frontend not deployed',
+        description: 'S3 website URL for the React frontend application'
+      });
+    }
   }
 }

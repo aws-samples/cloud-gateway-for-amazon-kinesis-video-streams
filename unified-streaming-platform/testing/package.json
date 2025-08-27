@@ -1,0 +1,27 @@
+{
+  "name": "cognito-auth-testing",
+  "version": "1.0.0",
+  "description": "Cognito authentication testing for Unified Streaming Platform API endpoints",
+  "main": "cognito-auth-test.js",
+  "scripts": {
+    "test": "node cognito-auth-test.js",
+    "test-python": "python3 cognito-auth-test.py",
+    "test-bash": "./quick-auth-test.sh"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1691.0",
+    "axios": "^1.7.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4"
+  },
+  "keywords": [
+    "cognito",
+    "authentication",
+    "api-testing",
+    "aws",
+    "gstreamer"
+  ],
+  "author": "Cloud Gateway Team",
+  "license": "MIT"
+}

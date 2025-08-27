@@ -14,8 +14,5 @@ urllib3>=2.0.0
 # JSON and data processing
 jsonschema>=4.19.0
 
-# Async support
-asyncio-compat>=0.1.2
-
 # Camera management dependencies are minimal - boto3 covers DynamoDB and Secrets Manager
 # All other dependencies (json, uuid, datetime, logging) are in Python standard library

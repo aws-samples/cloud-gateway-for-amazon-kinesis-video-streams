@@ -13,7 +13,7 @@ export GST_PLUGIN_PATH=/opt/amazon-kinesis-video-streams-producer-sdk-cpp/build/
 export AWS_DEFAULT_REGION=us-east-1 
 
 STREAM_NAME=CloudGatewayStream
-RTSP_URL="rtsp://kvsedge:stream1234@your-ip-cam:554/"
+RTSP_URL="rtsp://username:password@your-camera-ip:554/stream"
  
 # below pipeline is specific to h264 encoded media, and does not process audio
 gst-launch-1.0 -v rtspsrc location=$RTSP_URL short-header=TRUE \

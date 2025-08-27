@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional
 from rtsp_analysis import analyze_rtsp_stream
 
 # Import the refactored GStreamer expert core
-sys.path.append('/opt/gstreamer-expert-system/interfaces')
+sys.path.append('/var/task/gstreamer-expert-system/interfaces')
 from lambda_interface import LambdaInterface
 
 # Configure logging
@@ -37,6 +37,15 @@ def get_expert_interface() -> LambdaInterface:
 
 def lambda_handler(event, context):
     """Unified Lambda handler for pipeline generation and camera management routing"""
+    
+    # Import asyncio for handling async operations
+    import asyncio
+    
+    # Run the async handler
+    return asyncio.run(async_lambda_handler(event, context))
+
+async def async_lambda_handler(event, context):
+    """Async implementation of the Lambda handler"""
     
     # CORS headers
     cors_headers = {

@@ -1,0 +1,64 @@
+{
+  "aws": {
+    "region": "us-east-1",
+    "accountId": "418265330172"
+  },
+  "cognito": {
+    "userPoolId": "us-east-1_Q1jWhy4hd",
+    "userPoolWebClientId": "33or6k033pn7jgjq8gbmfs2gu3",
+    "userPoolNativeClientId": "57n1789cp33t0f8iqklr4rckdi",
+    "region": "us-east-1"
+  },
+  "api": {
+    "baseUrl": "https://ru12gtmwv0.execute-api.us-east-1.amazonaws.com/prod",
+    "gatewayId": "ru12gtmwv0",
+    "stage": "prod",
+    "endpoints": {
+      "pipelineGeneration": "/v1/generate-pipeline",
+      "rtspCharacteristics": "/v1/characteristics",
+      "gstreamerTools": {
+        "searchElements": "/v1/tools/search-elements",
+        "troubleshoot": "/v1/tools/troubleshoot",
+        "optimize": "/v1/tools/optimize",
+        "validate": "/v1/tools/validate",
+        "expert": "/v1/tools/expert"
+      },
+      "cameraManagement": {
+        "list": "/cameras",
+        "create": "/cameras",
+        "get": "/cameras/{id}",
+        "update": "/cameras/{id}",
+        "delete": "/cameras/{id}"
+      }
+    }
+  },
+  "backend": {
+    "knowledgeBaseId": "5CGJIOV1QM",
+    "claudeModel": "us.anthropic.claude-opus-4-1-20250805-v1:0",
+    "enhancedLambdaFunction": "EnhancedPipelineGenerator-EnhancedPipelineFunction-fhZiVxHXfHSQ",
+    "cameraLambdaFunction": "EnhancedPipelineGenerator-CameraManagementFunction-8rPVC6MbmO6r",
+    "camerasTable": "CameraConfigurations"
+  },
+  "rtspTestServer": {
+    "enabled": true,
+    "cluster": "rtsp-test-server-cluster",
+    "service": "rtsp-test-server-service",
+    "ports": {
+      "rtsp": 8554,
+      "http": 8080,
+      "https": 8443,
+      "admin": 8888
+    },
+    "testStreams": [
+      "rtsp://98.83.42.80:8554/h264_720p_25fps",
+      "rtsp://98.83.42.80:8554/h264_360p_15fps_aac",
+      "rtsp://98.83.42.80:8554/h265_720p_25fps",
+      "rtsp://98.83.42.80:8554/h265_360p_15fps_aac"
+    ]
+  },
+  "authentication": {
+    "tokenType": "idToken",
+    "authFlow": "ADMIN_NO_SRP_AUTH",
+    "usernameFormat": "email"
+  }
+}
