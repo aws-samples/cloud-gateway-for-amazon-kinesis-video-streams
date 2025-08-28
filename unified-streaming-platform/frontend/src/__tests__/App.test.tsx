@@ -90,7 +90,7 @@ describe('App Component', () => {
       renderWithAuth(<App />);
       
       // Should show Quick Stream Tester content by default
-      expect(screen.getByText(/Select from 24 pre-configured test streams/)).toBeInTheDocument();
+      expect(screen.getByText(/Select from \d+ pre-configured test streams/)).toBeInTheDocument();
     });
   });
 

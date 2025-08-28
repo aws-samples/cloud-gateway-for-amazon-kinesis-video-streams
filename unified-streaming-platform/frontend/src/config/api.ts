@@ -401,62 +401,88 @@ export const apiUtils = {
    * Get RTSP test server stream list
    */
   async getRTSPTestStreams(): Promise<RTSPTestServerResponse | null> {
-    // Use public IP from config instead of calling localhost API
     const publicIP = '44.222.205.185'; // Current RTSP server public IP
-    const port = 8554;
+    const port = 8080; // HTTP API port
     
-    const testStreams = [
-      {
-        url: `rtsp://${publicIP}:${port}/h264_720p_25fps`,
-        description: 'H.264 720p 25fps (No Audio)',
-        codec: 'H.264',
-        resolution: '720p',
-        framerate: '25fps',
-        audio: false
-      },
-      {
-        url: `rtsp://${publicIP}:${port}/h264_360p_15fps`,
-        description: 'H.264 360p 15fps (No Audio)',
-        codec: 'H.264',
-        resolution: '360p',
-        framerate: '15fps',
-        audio: false
-      },
-      {
-        url: `rtsp://${publicIP}:${port}/h264_360p_15fps_aac`,
-        description: 'H.264 360p 15fps + AAC Audio',
-        codec: 'H.264',
-        resolution: '360p',
-        framerate: '15fps',
-        audio: true
-      },
-      {
-        url: `rtsp://${publicIP}:${port}/h265_720p_25fps`,
-        description: 'H.265 720p 25fps (No Audio)',
-        codec: 'H.265',
-        resolution: '720p',
-        framerate: '25fps',
-        audio: false
-      },
-      {
-        url: `rtsp://${publicIP}:${port}/h265_360p_15fps_aac`,
-        description: 'H.265 360p 15fps + AAC Audio',
-        codec: 'H.265',
-        resolution: '360p',
-        framerate: '15fps',
-        audio: true
+    try {
+      const response = await fetch(`http://${publicIP}:${port}/`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-    ];
+      
+      const data = await response.json();
+      
+      // Update URLs to use the correct public IP instead of localhost
+      const updatedStreams = data.rtsp_urls.map((stream: any) => ({
+        ...stream,
+        url: stream.url.replace('localhost', publicIP)
+      }));
+      
+      return {
+        server_info: {
+          ...data.server_info,
+          ip: publicIP,
+          port: 8554 // RTSP port
+        },
+        rtsp_urls: updatedStreams
+      };
+    } catch (error) {
+      console.error('Failed to fetch RTSP test streams:', error);
+      
+      // Fallback to basic streams if server is unavailable
+      const fallbackStreams = [
+        {
+          url: `rtsp://${publicIP}:8554/h264_720p_25fps`,
+          description: 'H.264 720p 25fps (No Audio)',
+          codec: 'H.264',
+          resolution: '720p',
+          framerate: '25fps',
+          audio: false
+        },
+        {
+          url: `rtsp://${publicIP}:8554/h264_360p_15fps`,
+          description: 'H.264 360p 15fps (No Audio)',
+          codec: 'H.264',
+          resolution: '360p',
+          framerate: '15fps',
+          audio: false
+        },
+        {
+          url: `rtsp://${publicIP}:8554/h264_360p_15fps_aac`,
+          description: 'H.264 360p 15fps + AAC Audio',
+          codec: 'H.264',
+          resolution: '360p',
+          framerate: '15fps',
+          audio: true
+        },
+        {
+          url: `rtsp://${publicIP}:8554/h265_720p_25fps`,
+          description: 'H.265 720p 25fps (No Audio)',
+          codec: 'H.265',
+          resolution: '720p',
+          framerate: '25fps',
+          audio: false
+        },
+        {
+          url: `rtsp://${publicIP}:8554/h265_360p_15fps_aac`,
+          description: 'H.265 360p 15fps + AAC Audio',
+          codec: 'H.265',
+          resolution: '360p',
+          framerate: '15fps',
+          audio: true
+        }
+      ];
 
-    return {
-      server_info: {
-        name: 'Enhanced RTSP Test Server',
-        version: '2.0',
-        ip: publicIP,
-        port: port
-      },
-      rtsp_urls: testStreams
-    };
+      return {
+        server_info: {
+          name: 'Enhanced RTSP Test Server',
+          version: '2.0',
+          ip: publicIP,
+          port: 8554
+        },
+        rtsp_urls: fallbackStreams
+      };
+    }
   },
   validateRTSPUrl(url: string): { isValid: boolean; error?: string } {
     if (!url.trim()) {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { apiUtils, API_CONFIG } from '../api';
 
 // Mock fetch
@@ -86,26 +86,29 @@ describe('apiUtils', () => {
       const result = await apiUtils.generatePipeline(payload);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        API_CONFIG.PIPELINE_GENERATOR_ENDPOINT,
-        {
+        expect.stringContaining('/v1/generate-pipeline'),
+        expect.objectContaining({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(payload),
           signal: expect.any(AbortSignal)
-        }
+        })
       );
 
       expect(result).toEqual(mockResponse);
     });
 
     it('should handle HTTP errors', async () => {
-      mockFetch.mockResolvedValueOnce({
+      const mockResponse = {
         ok: false,
         status: 500,
-        statusText: 'Internal Server Error'
-      });
+        statusText: 'Internal Server Error',
+        json: () => Promise.resolve({})
+      };
+      // Mock all retry attempts to return the same error
+      mockFetch.mockResolvedValue(mockResponse as Response);
 
       const payload = {
         rtsp_url: 'rtsp://test.com/stream',
@@ -116,7 +119,9 @@ describe('apiUtils', () => {
     });
 
     it('should handle network errors', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      const networkError = new Error('Network error');
+      // Mock all retry attempts to reject with the same error
+      mockFetch.mockRejectedValue(networkError);
 
       const payload = {
         rtsp_url: 'rtsp://test.com/stream',

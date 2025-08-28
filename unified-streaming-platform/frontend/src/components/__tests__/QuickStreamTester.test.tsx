@@ -10,6 +10,7 @@ vi.mock('../../config/api', () => ({
     getStreamCharacteristics: vi.fn(),
     generatePipeline: vi.fn(),
     validateRTSPUrl: vi.fn(),
+    getRTSPTestStreams: vi.fn(),
   },
   RTSP_CONFIG: {
     ENABLED: true,
@@ -65,10 +66,30 @@ describe('QuickStreamTester', () => {
   const mockGetStreamCharacteristics = vi.mocked(apiUtils.getStreamCharacteristics);
   const mockGeneratePipeline = vi.mocked(apiUtils.generatePipeline);
   const mockValidateRTSPUrl = vi.mocked(apiUtils.validateRTSPUrl);
+  const mockGetRTSPTestStreams = vi.mocked(apiUtils.getRTSPTestStreams);
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockValidateRTSPUrl.mockReturnValue({ isValid: true });
+    
+    // Mock 25 test streams so that length - 1 = 24
+    const mockStreams = Array.from({ length: 25 }, (_, i) => ({
+      url: `rtsp://test${i}.com/stream`,
+      description: `Test Stream ${i}`,
+      codec: 'H.264',
+      resolution: '720p',
+      framerate: '25fps',
+      audio: false
+    }));
+    mockGetRTSPTestStreams.mockResolvedValue({
+      server_info: {
+        name: 'Test Server',
+        version: '1.0',
+        ip: '44.222.205.185',
+        port: 8554
+      },
+      rtsp_urls: mockStreams
+    });
     mockGetStreamCharacteristics.mockResolvedValue({
       stream_characteristics: {
         video: { codec: 'H.264' },
@@ -98,13 +119,19 @@ describe('QuickStreamTester', () => {
   });
 
   describe('Stream Selection', () => {
-    it('handles stream selection', () => {
+    it('handles stream selection', async () => {
       render(<QuickStreamTester />);
+      
+      // Wait for streams to load
+      await waitFor(() => {
+        expect(screen.getByTestId('select')).toBeInTheDocument();
+      });
+      
       const select = screen.getByTestId('select');
       
-      // Select an actual option from the dropdown
-      fireEvent.change(select, { target: { value: 'rtsp://44.215.108.66:8554/h264_360p_15fps' } });
-      expect(select).toHaveValue('rtsp://44.215.108.66:8554/h264_360p_15fps');
+      // Select the first mock stream
+      fireEvent.change(select, { target: { value: 'rtsp://test0.com/stream' } });
+      expect(select).toHaveValue('rtsp://test0.com/stream');
     });
   });
 

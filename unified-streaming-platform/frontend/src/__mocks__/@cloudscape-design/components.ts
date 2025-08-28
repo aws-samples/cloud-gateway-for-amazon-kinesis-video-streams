@@ -1,19 +1,20 @@
+import React from 'react';
 import { vi } from 'vitest';
 
 // Mock all Cloudscape Design components used in the application
-export const Box = vi.fn(({ children, ...props }) => (
-  <div data-testid="box" {...props}>{children}</div>
-));
+export const Box = vi.fn(({ children, ...props }: any) => 
+  React.createElement('div', { 'data-testid': 'box', ...props }, children)
+);
 
-export const Button = vi.fn(({ children, onClick, disabled, loading, ...props }) => (
-  <button onClick={onClick} disabled={disabled || loading} {...props}>
-    {loading ? 'Loading...' : children}
-  </button>
-));
+export const Button = vi.fn(({ children, onClick, disabled, loading, ...props }: any) => 
+  React.createElement('button', { onClick, disabled: disabled || loading, ...props }, 
+    loading ? 'Loading...' : children
+  )
+);
 
-export const Container = vi.fn(({ children, ...props }) => (
-  <div data-testid="container" {...props}>{children}</div>
-));
+export const Container = vi.fn(({ children, ...props }: any) => 
+  React.createElement('div', { 'data-testid': 'container', ...props }, children)
+);
 
 export const Header = vi.fn(({ children, ...props }) => (
   <div data-testid="header" {...props}>{children}</div>
@@ -219,6 +220,42 @@ export const StatusIndicator = vi.fn(({ type = 'success', children, ...props }) 
   </div>
 ));
 
+export const Badge = vi.fn(({ children, color = 'grey', ...props }) => (
+  <span data-testid="badge" data-color={color} {...props}>
+    {children}
+  </span>
+));
+
+export const Modal = vi.fn(({ children, visible, onDismiss, header, ...props }) => 
+  visible ? (
+    <div data-testid="modal" {...props}>
+      {header && <div data-testid="modal-header">{header}</div>}
+      <div onClick={onDismiss}>{children}</div>
+    </div>
+  ) : null
+);
+
+export const Pagination = vi.fn(({ currentPageIndex, pagesCount, onChange, ...props }) => (
+  <div data-testid="pagination" {...props}>
+    Page {currentPageIndex} of {pagesCount}
+  </div>
+));
+
+export const TextFilter = vi.fn(({ filteringText, onChange, ...props }) => (
+  <input 
+    data-testid="text-filter" 
+    value={filteringText} 
+    onChange={onChange} 
+    {...props} 
+  />
+));
+
+export const CollectionPreferences = vi.fn(({ children, ...props }) => (
+  <div data-testid="collection-preferences" {...props}>
+    {children}
+  </div>
+));
+
 // Export default mock object
 export default {
   Box,
@@ -239,4 +276,9 @@ export default {
   ContentLayout,
   Spinner,
   StatusIndicator,
+  Badge,
+  Modal,
+  Pagination,
+  TextFilter,
+  CollectionPreferences,
 };

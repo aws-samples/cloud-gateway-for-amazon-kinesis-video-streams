@@ -4,6 +4,37 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import CameraList from '../CameraList';
 import { cameraAPI } from "../../config/api";
 
+// Mock Cloudscape components
+vi.mock('@cloudscape-design/components', () => ({
+  Container: ({ children }: any) => <div data-testid="container">{children}</div>,
+  Header: ({ children }: any) => <div data-testid="header">{children}</div>,
+  Table: ({ items, loading, empty }: any) => (
+    <div data-testid="table" data-loading={loading ? 'true' : 'false'}>
+      {loading ? (
+        <div>Loading...</div>
+      ) : items?.length === 0 ? (
+        <div>{empty}</div>
+      ) : (
+        items?.map((item: any, index: number) => (
+          <div key={index} data-testid="table-row">
+            {item.camera_name || JSON.stringify(item)}
+          </div>
+        ))
+      )}
+    </div>
+  ),
+  Button: ({ children, onClick }: any) => <button onClick={onClick}>{children}</button>,
+  SpaceBetween: ({ children }: any) => <div>{children}</div>,
+  Box: ({ children }: any) => <div>{children}</div>,
+  Badge: ({ children }: any) => <span>{children}</span>,
+  Modal: ({ children, visible }: any) => visible ? <div data-testid="modal">{children}</div> : null,
+  Alert: ({ children, type }: any) => <div data-testid="alert" data-type={type}>{children}</div>,
+  Pagination: ({ children }: any) => <div>{children}</div>,
+  TextFilter: ({ children }: any) => <div>{children}</div>,
+  CollectionPreferences: ({ children }: any) => <div>{children}</div>,
+  Link: ({ children }: any) => <a>{children}</a>,
+}));
+
 // Mock the camera API
 vi.mock('../../config/api', () => ({
   cameraAPI: {

@@ -10,11 +10,11 @@ import {
   Box,
   Spinner
 } from '@cloudscape-design/components';
-import { apiUtils } from "../../config/api";
+import { apiUtils } from "../config/api";
 import type { 
   APIResponse, 
   RTSPTestRequest 
-} from "../../config/api";
+} from "../config/api";
 
 interface ValidationErrors {
   rtspUrl?: string;

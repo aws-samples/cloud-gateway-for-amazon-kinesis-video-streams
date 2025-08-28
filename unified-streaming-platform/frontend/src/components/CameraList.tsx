@@ -14,7 +14,7 @@ import {
   CollectionPreferences,
   Link
 } from '@cloudscape-design/components';
-import { cameraAPI } from "../../config/api";
+import { cameraAPI } from "../config/api";
 
 interface Camera {
   composite_key: string;
