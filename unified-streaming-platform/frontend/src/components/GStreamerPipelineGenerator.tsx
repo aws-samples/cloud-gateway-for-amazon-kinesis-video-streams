@@ -54,8 +54,9 @@ const GStreamerPipelineGenerator: React.FC = () => {
       const actualResult = response.result || response;
       setResult(actualResult);
       
-      if (actualResult.pipeline) {
-        const formatted = actualResult.pipeline
+      const pipeline = actualResult.pipeline || actualResult.original_pipeline;
+      if (pipeline) {
+        const formatted = pipeline
           .replace(/\s+/g, ' ')
           .replace(/\s*!\s*/g, ' ! ')
           .replace(/\s*=\s*/g, '=')
