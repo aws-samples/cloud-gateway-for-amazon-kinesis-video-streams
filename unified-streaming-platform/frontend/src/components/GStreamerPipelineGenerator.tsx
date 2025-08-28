@@ -69,39 +69,13 @@ const GStreamerPipelineGenerator: React.FC = () => {
       
       setResult(actualResult);
       
-      // Look for pipeline in various possible fields
-      let pipeline = actualResult.optimized_pipeline || 
-                      actualResult.generated_pipeline || 
-                      actualResult.pipeline || 
-                      actualResult.gstreamer_pipeline ||
-                      actualResult.optimization_response ||  // The actual generated content is here
-                      actualResult.original_pipeline;
+      // Display the full optimization response which contains expert analysis
+      const fullResponse = actualResult.optimization_response || 
+                           actualResult.response ||
+                           'No detailed response available';
                       
-      console.log('🔍 Found pipeline:', pipeline);
-      
-      // If we got the optimization_response, extract the actual pipeline command from it
-      if (pipeline && typeof pipeline === 'string' && !pipeline.includes('gst-launch') && pipeline.includes('gst-launch-1.0')) {
-        // Extract the gst-launch command from the response text
-        const pipelineMatch = pipeline.match(/gst-launch-1\.0[^`\n]*/);
-        if (pipelineMatch) {
-          pipeline = pipelineMatch[0];
-          console.log('🔧 Extracted pipeline from response:', pipeline);
-        }
-      }
-      
-      if (pipeline && (pipeline.includes('gst-launch') || pipeline.includes('gst-launch-1.0'))) {
-        const formatted = pipeline
-          .replace(/\s+/g, ' ')
-          .replace(/\s*!\s*/g, ' ! ')
-          .replace(/\s*=\s*/g, '=')
-          .trim();
-        
-        setFormattedPipeline(formatted);
-        console.log('📋 Formatted pipeline ready for display');
-      } else {
-        console.log('⚠️ No valid GStreamer pipeline found in response');
-        throw new Error('No valid GStreamer pipeline was generated. The response may contain an error.');
-      }
+      console.log('📋 Got full expert response');
+      setFormattedPipeline(fullResponse);
 
     } catch (err) {
       console.error('❌ Pipeline generation failed:', err);
@@ -183,25 +157,8 @@ const GStreamerPipelineGenerator: React.FC = () => {
       <Container
         key="pipeline-container"
         header={
-          <Header 
-            variant="h3"
-            actions={
-              <Button
-                onClick={async () => {
-                  console.log('🔧 Copy button clicked, formattedPipeline:', formattedPipeline);
-                  try {
-                    await navigator.clipboard.writeText(formattedPipeline);
-                    console.log('✅ Pipeline copied to clipboard successfully');
-                  } catch (err) {
-                    console.error('❌ Failed to copy pipeline to clipboard:', err);
-                  }
-                }}
-              >
-                📋 Copy Pipeline
-              </Button>
-            }
-          >
-            🎯 Generated GStreamer Pipeline
+          <Header variant="h3">
+            🧠 GStreamer Expert Analysis
           </Header>
         }
       >
@@ -231,13 +188,13 @@ const GStreamerPipelineGenerator: React.FC = () => {
           </pre>
 
           <Box key="usage-instructions">
-            <Header variant="h3">📋 Usage Instructions</Header>
+            <Header variant="h3">📋 How to Use This Analysis</Header>
             <SpaceBetween size="s">
               <Box key="step-1">
-                <strong>1. Copy the pipeline command</strong> - Click "Copy Pipeline" or select and copy the formatted command above
+                <strong>1. Review the expert analysis</strong> - The response includes pipeline recommendations, explanations, and alternatives
               </Box>
               <Box key="step-2">
-                <strong>2. Open your terminal</strong> - The command is formatted with line continuations (\) for easy reading
+                <strong>2. Copy pipeline commands</strong> - Select and copy any gst-launch commands from the analysis above
               </Box>
               <Box key="step-3">
                 <strong>3. Set AWS credentials</strong> - Ensure AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_DEFAULT_REGION are set
@@ -246,7 +203,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
                 <strong>4. Install dependencies</strong> - Make sure GStreamer and the Kinesis Video Streams plugin are installed
               </Box>
               <Box key="step-5">
-                <strong>5. Paste and run</strong> - The command can be pasted directly into your terminal and will execute properly
+                <strong>5. Test and customize</strong> - Use the provided guidance to adapt the pipeline for your specific needs
               </Box>
             </SpaceBetween>
           </Box>
