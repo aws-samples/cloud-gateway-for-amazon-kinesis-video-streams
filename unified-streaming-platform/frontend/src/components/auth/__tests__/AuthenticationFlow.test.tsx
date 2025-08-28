@@ -24,62 +24,6 @@ vi.mock('../../../contexts/AuthContext', () => {
   };
 });
 
-// Mock CloudScape components
-vi.mock('@cloudscape-design/components', () => ({
-  Container: ({ children, header }: any) => (
-    <div data-testid="container">
-      {header && <div data-testid="header">{header}</div>}
-      {children}
-    </div>
-  ),
-  Header: ({ children }: any) => <div data-testid="header">{children}</div>,
-  SpaceBetween: ({ children }: any) => <div data-testid="space-between">{children}</div>,
-  FormField: ({ children, label }: any) => (
-    <div data-testid="form-field">
-      {label && <label>{label}</label>}
-      {children}
-    </div>
-  ),
-  Input: ({ value, onChange, placeholder, type }: any) => (
-    <input
-      type={type}
-      value={value}
-      onChange={(e) => onChange && onChange({ detail: { value: e.target.value } })}
-      placeholder={placeholder}
-    />
-  ),
-  Button: ({ children, onClick, disabled, loading }: any) => (
-    <button onClick={onClick} disabled={disabled || loading}>
-      {loading ? 'Loading...' : children}
-    </button>
-  ),
-  Alert: ({ children, type }: any) => (
-    <div data-testid="alert" data-type={type}>{children}</div>
-  ),
-  Tabs: ({ tabs, activeTabId, onChange }: any) => (
-    <div data-testid="tabs">
-      {tabs.map((tab: any) => (
-        <button
-          key={tab.id}
-          onClick={() => onChange({ detail: { activeTabId: tab.id } })}
-          data-active={activeTabId === tab.id}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
-  ),
-  Grid: ({ children, gridDefinition }: any) => (
-    <div data-testid="grid">{children}</div>
-  ),
-  Form: ({ children, actions }: any) => (
-    <form data-testid="form">
-      {children}
-      {actions && <div data-testid="form-actions">{actions}</div>}
-    </form>
-  ),
-}));
-
 const renderWithAuth = (authOverrides = {}) => {
   // Just render the component directly since the mock handles the context
   return render(<AuthenticationFlow />);
