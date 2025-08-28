@@ -185,7 +185,7 @@ class LambdaInterface:
                 return None, None
             
             # Build query for pipeline generation
-            query = f"Generate optimized GStreamer pipeline for RTSP stream: {rtsp_url}"
+            query = f"Create a new GStreamer pipeline for RTSP stream: {rtsp_url}. I need a complete working pipeline from scratch, not optimization of an existing one."
             
             # Add additional context from body
             context = {}
@@ -294,7 +294,7 @@ class LambdaInterface:
         Returns:
             Enhanced pipeline generation result
         """
-        query = f"Generate optimized GStreamer pipeline for RTSP stream: {rtsp_url}"
+        query = f"Create a new GStreamer pipeline for RTSP stream: {rtsp_url}. I need a complete working pipeline from scratch."
         
         context = {
             'platform': platform,
