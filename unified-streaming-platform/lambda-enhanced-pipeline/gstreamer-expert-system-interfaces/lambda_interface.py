@@ -193,6 +193,8 @@ class LambdaInterface:
                 context['stream_analysis'] = body['stream_analysis']
             if body.get('platform'):
                 context['platform'] = body['platform']
+            if body.get('hardware_acceleration'):
+                context['hardware_acceleration'] = body['hardware_acceleration']
             if body.get('optimization_goals'):
                 context['optimization_goals'] = body['optimization_goals']
             
@@ -278,7 +280,8 @@ class LambdaInterface:
     # Convenience methods for specific use cases
     
     async def generate_enhanced_pipeline(self, rtsp_url: str, stream_info: Optional[Dict] = None, 
-                                       platform: str = 'linux', goals: str = 'quality and performance') -> Dict[str, Any]:
+                                       platform: str = 'linux-ubuntu', hardware_acceleration: str = 'auto',
+                                       goals: str = 'quality and performance') -> Dict[str, Any]:
         """
         Generate enhanced pipeline using expert system
         
@@ -295,6 +298,7 @@ class LambdaInterface:
         
         context = {
             'platform': platform,
+            'hardware_acceleration': hardware_acceleration,
             'optimization_goals': goals
         }
         

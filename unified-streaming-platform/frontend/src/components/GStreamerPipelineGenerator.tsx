@@ -21,7 +21,8 @@ interface GenerationResult {
 
 const GStreamerPipelineGenerator: React.FC = () => {
   const [rtspUrl, setRtspUrl] = useState('');
-  const [targetEnvironment, setTargetEnvironment] = useState('linux');
+  const [targetEnvironment, setTargetEnvironment] = useState('linux-ubuntu');
+  const [hardwareAcceleration, setHardwareAcceleration] = useState('auto');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +45,8 @@ const GStreamerPipelineGenerator: React.FC = () => {
       const response = await apiUtils.generatePipeline({
         rtsp_url: rtspUrl.trim(),
         mode: 'pipeline',
-        platform: targetEnvironment
+        platform: targetEnvironment,
+        hardware_acceleration: hardwareAcceleration
       });
 
       console.log('✅ Pipeline generation response:', response);
@@ -119,23 +121,118 @@ const GStreamerPipelineGenerator: React.FC = () => {
         <FormField
           key="target-environment-field"
           label="Target Execution Environment"
-          description="Select the operating system where the GStreamer pipeline will run"
+          description="Select the specific operating system and distribution"
         >
           <Select
-            selectedOption={{ label: targetEnvironment === 'linux' ? 'Linux' : 
-                                    targetEnvironment === 'macos' ? 'macOS' : 
-                                    targetEnvironment === 'windows' ? 'Windows' : 
-                                    'Docker/Container', value: targetEnvironment }}
-            onChange={({ detail }) => setTargetEnvironment(detail.selectedOption.value || 'linux')}
+            selectedOption={{ 
+              label: targetEnvironment === 'linux-ubuntu' ? 'Linux (Ubuntu/Debian)' : 
+                     targetEnvironment === 'linux-rhel' ? 'Linux (RHEL/CentOS/Fedora)' :
+                     targetEnvironment === 'linux-arch' ? 'Linux (Arch/Manjaro)' :
+                     targetEnvironment === 'macos-intel' ? 'macOS (Intel)' :
+                     targetEnvironment === 'macos-apple' ? 'macOS (Apple Silicon)' :
+                     targetEnvironment === 'windows' ? 'Windows' :
+                     'Docker/Container', 
+              value: targetEnvironment 
+            }}
+            onChange={({ detail }) => setTargetEnvironment(detail.selectedOption.value || 'linux-ubuntu')}
             options={[
-              { label: 'Linux', value: 'linux' },
-              { label: 'macOS', value: 'macos' },
+              { label: 'Linux (Ubuntu/Debian)', value: 'linux-ubuntu' },
+              { label: 'Linux (RHEL/CentOS/Fedora)', value: 'linux-rhel' },
+              { label: 'Linux (Arch/Manjaro)', value: 'linux-arch' },
+              { label: 'macOS (Intel)', value: 'macos-intel' },
+              { label: 'macOS (Apple Silicon)', value: 'macos-apple' },
               { label: 'Windows', value: 'windows' },
               { label: 'Docker/Container', value: 'docker' }
             ]}
             placeholder="Choose target environment"
           />
         </FormField>
+
+        <FormField
+          key="hardware-acceleration-field"
+          label="Hardware Acceleration Preference"
+          description="Select your preferred acceleration method (choose 'Auto-detect' if unsure)"
+        >
+          <Select
+            selectedOption={{ 
+              label: hardwareAcceleration === 'auto' ? 'Auto-detect (Recommended)' :
+                     hardwareAcceleration === 'gpu-nvidia' ? 'GPU (NVIDIA)' :
+                     hardwareAcceleration === 'gpu-amd' ? 'GPU (AMD)' :
+                     hardwareAcceleration === 'gpu-intel' ? 'GPU (Intel)' :
+                     hardwareAcceleration === 'cpu' ? 'CPU Only' :
+                     'Software Only', 
+              value: hardwareAcceleration 
+            }}
+            onChange={({ detail }) => setHardwareAcceleration(detail.selectedOption.value || 'auto')}
+            options={[
+              { label: 'Auto-detect (Recommended)', value: 'auto' },
+              { label: 'GPU (NVIDIA)', value: 'gpu-nvidia' },
+              { label: 'GPU (AMD)', value: 'gpu-amd' },
+              { label: 'GPU (Intel)', value: 'gpu-intel' },
+              { label: 'CPU Only', value: 'cpu' },
+              { label: 'Software Only', value: 'software' }
+            ]}
+            placeholder="Choose acceleration preference"
+          />
+        </FormField>
+
+        {/* Hardware Detection Help */}
+        <Alert
+          key="hardware-detection-help"
+          type="info"
+          header="🔍 Need help detecting your hardware capabilities?"
+        >
+          <SpaceBetween size="s">
+            <Box>
+              <strong>Run these commands to detect your hardware:</strong>
+            </Box>
+            
+            {targetEnvironment.startsWith('linux') && (
+              <Box>
+                <strong>Linux:</strong>
+                <Box variant="code">
+                  # Check GPU<br/>
+                  lspci | grep -i vga<br/>
+                  nvidia-smi  # For NVIDIA<br/>
+                  lshw -c video  # General GPU info<br/><br/>
+                  # Check GStreamer plugins<br/>
+                  gst-inspect-1.0 | grep -i nvenc  # NVIDIA<br/>
+                  gst-inspect-1.0 | grep -i vaapi  # Intel/AMD<br/>
+                  gst-inspect-1.0 | grep -i v4l2   # Hardware codecs
+                </Box>
+              </Box>
+            )}
+            
+            {targetEnvironment.startsWith('macos') && (
+              <Box>
+                <strong>macOS:</strong>
+                <Box variant="code">
+                  # Check hardware<br/>
+                  system_profiler SPDisplaysDataType<br/>
+                  sysctl machdep.cpu.brand_string<br/><br/>
+                  # Check GStreamer plugins<br/>
+                  gst-inspect-1.0 | grep -i vtenc  # VideoToolbox<br/>
+                  gst-inspect-1.0 | grep -i applemedia
+                </Box>
+              </Box>
+            )}
+            
+            {targetEnvironment === 'windows' && (
+              <Box>
+                <strong>Windows:</strong>
+                <Box variant="code">
+                  # Check GPU<br/>
+                  dxdiag  # DirectX Diagnostics<br/>
+                  wmic path win32_VideoController get name<br/><br/>
+                  # Check GStreamer plugins<br/>
+                  gst-inspect-1.0.exe | findstr nvenc  # NVIDIA<br/>
+                  gst-inspect-1.0.exe | findstr d3d11  # DirectX<br/>
+                  gst-inspect-1.0.exe | findstr mf     # Media Foundation
+                </Box>
+              </Box>
+            )}
+          </SpaceBetween>
+        </Alert>
 
         <Box key="generate-button" textAlign="center">
           <Button
