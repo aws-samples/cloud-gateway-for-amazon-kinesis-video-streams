@@ -1,11 +1,14 @@
-# Use Ubuntu as base for better GStreamer support
-FROM ubuntu:22.04
+# Use Ubuntu 24.04 LTS for latest security updates
+FROM ubuntu:24.04
 
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Update package lists and upgrade all packages to latest versions
+RUN apt-get update && apt-get upgrade -y
+
 # Install GStreamer, health check dependencies, and AWS deployment tools
-RUN apt-get update && apt-get install -y \
+RUN apt-get install -y \
     gstreamer1.0-tools \
     gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good \
@@ -23,7 +26,10 @@ RUN apt-get update && apt-get install -y \
     openssl \
     ffmpeg \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/* \
+    && rm -rf /var/tmp/*
 
 # Create directories for certificates and configs
 RUN mkdir -p /etc/rtsp-server/certs /etc/rtsp-server/auth

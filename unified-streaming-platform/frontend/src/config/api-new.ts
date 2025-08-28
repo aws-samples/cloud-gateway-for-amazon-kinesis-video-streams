@@ -402,7 +402,7 @@ export const apiUtils = {
    */
   async getRTSPTestStreams(): Promise<RTSPTestServerResponse | null> {
     // Use public IP from config instead of calling localhost API
-    const publicIP = '3.94.214.20'; // Current RTSP server public IP
+    const publicIP = '44.222.205.185'; // Current RTSP server public IP
     const port = 8554;
     
     const testStreams = [
