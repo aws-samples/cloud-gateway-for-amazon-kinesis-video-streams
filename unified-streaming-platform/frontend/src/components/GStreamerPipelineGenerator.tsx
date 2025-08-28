@@ -52,10 +52,26 @@ const GStreamerPipelineGenerator: React.FC = () => {
 
       // Handle nested result structure
       const actualResult = response.result || response;
+      console.log('🔍 Actual result object:', actualResult);
+      console.log('🔍 Available fields:', Object.keys(actualResult));
+      
+      // Check for errors in the response
+      if (actualResult.optimization_response && actualResult.optimization_response.includes('Error')) {
+        throw new Error(`Pipeline generation failed: ${actualResult.optimization_response}`);
+      }
+      
       setResult(actualResult);
       
-      const pipeline = actualResult.pipeline || actualResult.original_pipeline;
-      if (pipeline) {
+      // Look for pipeline in various possible fields
+      const pipeline = actualResult.optimized_pipeline || 
+                      actualResult.generated_pipeline || 
+                      actualResult.pipeline || 
+                      actualResult.gstreamer_pipeline ||
+                      actualResult.original_pipeline;
+                      
+      console.log('🔍 Found pipeline:', pipeline);
+      
+      if (pipeline && pipeline.includes('gst-launch')) {
         const formatted = pipeline
           .replace(/\s+/g, ' ')
           .replace(/\s*!\s*/g, ' ! ')
@@ -65,7 +81,8 @@ const GStreamerPipelineGenerator: React.FC = () => {
         setFormattedPipeline(formatted);
         console.log('📋 Formatted pipeline ready for display');
       } else {
-        console.log('⚠️ No pipeline found in response:', actualResult);
+        console.log('⚠️ No valid GStreamer pipeline found in response');
+        throw new Error('No valid GStreamer pipeline was generated. The response may contain an error.');
       }
 
     } catch (err) {
