@@ -21,8 +21,12 @@ interface GenerationResult {
 
 const GStreamerPipelineGenerator: React.FC = () => {
   const [rtspUrl, setRtspUrl] = useState('');
-  const [targetEnvironment, setTargetEnvironment] = useState('linux-ubuntu');
-  const [hardwareAcceleration, setHardwareAcceleration] = useState('auto');
+  const [targetEnvironment, setTargetEnvironment] = useState(() => 
+    localStorage.getItem('gstreamer-target-environment') || 'linux-ubuntu'
+  );
+  const [hardwareAcceleration, setHardwareAcceleration] = useState(() => 
+    localStorage.getItem('gstreamer-hardware-acceleration') || 'auto'
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -159,7 +163,11 @@ const GStreamerPipelineGenerator: React.FC = () => {
                      'Docker/Container', 
               value: targetEnvironment 
             }}
-            onChange={({ detail }) => setTargetEnvironment(detail.selectedOption.value || 'linux-ubuntu')}
+            onChange={({ detail }) => {
+              const value = detail.selectedOption.value || 'linux-ubuntu';
+              setTargetEnvironment(value);
+              localStorage.setItem('gstreamer-target-environment', value);
+            }}
             options={[
               { label: 'Linux (Ubuntu/Debian)', value: 'linux-ubuntu' },
               { label: 'Linux (RHEL/CentOS/Fedora)', value: 'linux-rhel' },
@@ -188,7 +196,11 @@ const GStreamerPipelineGenerator: React.FC = () => {
                      'Software Only', 
               value: hardwareAcceleration 
             }}
-            onChange={({ detail }) => setHardwareAcceleration(detail.selectedOption.value || 'auto')}
+            onChange={({ detail }) => {
+              const value = detail.selectedOption.value || 'auto';
+              setHardwareAcceleration(value);
+              localStorage.setItem('gstreamer-hardware-acceleration', value);
+            }}
             options={[
               { label: 'Auto-detect (Recommended)', value: 'auto' },
               { label: 'GPU (NVIDIA)', value: 'gpu-nvidia' },
