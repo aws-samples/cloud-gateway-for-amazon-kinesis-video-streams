@@ -5,7 +5,7 @@
  * using Cloudscape Design components
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Header,
@@ -17,7 +17,8 @@ import {
   Alert,
   Link,
   Box,
-  Grid
+  Grid,
+  Checkbox
 } from '@cloudscape-design/components';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -34,6 +35,28 @@ const AuthenticationFlow: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [rememberUsername, setRememberUsername] = useState(true);
+
+  // Load saved username on component mount
+  useEffect(() => {
+    const savedUsername = localStorage.getItem('rememberedUsername');
+    const shouldRemember = localStorage.getItem('rememberUsername') === 'true';
+    if (savedUsername && shouldRemember) {
+      setEmail(savedUsername);
+      setRememberUsername(true);
+    }
+  }, []);
+
+  // Save username when remember checkbox changes
+  useEffect(() => {
+    if (rememberUsername && email) {
+      localStorage.setItem('rememberedUsername', email);
+      localStorage.setItem('rememberUsername', 'true');
+    } else if (!rememberUsername) {
+      localStorage.removeItem('rememberedUsername');
+      localStorage.removeItem('rememberUsername');
+    }
+  }, [rememberUsername, email]);
 
   const clearMessages = () => {
     setError('');
@@ -42,14 +65,29 @@ const AuthenticationFlow: React.FC = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔍 handleSignIn called');
+    console.log('🔍 Email:', email);
+    console.log('🔍 Password length:', password.length);
+    console.log('🔍 Event:', e);
+    
+    if (!email || !password) {
+      console.log('❌ Missing email or password');
+      setError('Please enter both email and password');
+      return;
+    }
+    
     setIsLoading(true);
     clearMessages();
 
+    console.log('🔍 Calling signIn function...');
     const result = await signIn(email, password);
+    console.log('🔍 signIn result:', result);
     
     if (result.success) {
+      console.log('✅ Sign in successful');
       setSuccess('Sign in successful!');
     } else {
+      console.log('❌ Sign in failed:', result.error);
       setError(result.error || 'Sign in failed');
     }
     
@@ -171,47 +209,61 @@ const AuthenticationFlow: React.FC = () => {
   };
 
   const renderSignInForm = () => (
-    <Form
-      actions={
-        <SpaceBetween direction="vertical" size="xs">
-          <Button key="signin-btn" variant="primary" loading={isLoading} formAction="submit">
-            Sign In
-          </Button>
-          <Box key="signup-link" textAlign="center">
-            <Link onFollow={() => setMode('signUp')}>
-              Don't have an account? Sign up
-            </Link>
-          </Box>
-          <Box key="forgot-link" textAlign="center">
-            <Link onFollow={() => setMode('forgotPassword')}>
-              Forgot your password?
-            </Link>
-          </Box>
+    <form onSubmit={handleSignIn}>
+      <Form
+        actions={
+          <SpaceBetween direction="vertical" size="xs">
+            <Button 
+              key="signin-btn" 
+              variant="primary" 
+              loading={isLoading}
+              onClick={handleSignIn}
+            >
+              Sign In
+            </Button>
+            <Box key="signup-link" textAlign="center">
+              <Link onFollow={() => setMode('signUp')}>
+                Don't have an account? Sign up
+              </Link>
+            </Box>
+            <Box key="forgot-link" textAlign="center">
+              <Link onFollow={() => setMode('forgotPassword')}>
+                Forgot your password?
+              </Link>
+            </Box>
+          </SpaceBetween>
+        }
+      >
+        <SpaceBetween direction="vertical" size="l">
+          <FormField key="email-field" label="Email">
+            <Input
+              value={email}
+              onChange={({ detail }) => setEmail(detail.value)}
+              type="email"
+              placeholder="Enter your email"
+              disabled={isLoading}
+            />
+          </FormField>
+          <FormField key="password-field" label="Password">
+            <Input
+              value={password}
+              onChange={({ detail }) => setPassword(detail.value)}
+              type="password"
+              placeholder="Enter your password"
+              disabled={isLoading}
+            />
+          </FormField>
+          <FormField key="remember-field">
+            <Checkbox
+              checked={rememberUsername}
+              onChange={({ detail }) => setRememberUsername(detail.checked)}
+            >
+              Remember username
+            </Checkbox>
+          </FormField>
         </SpaceBetween>
-      }
-      onSubmit={handleSignIn}
-    >
-      <SpaceBetween direction="vertical" size="l">
-        <FormField key="email-field" label="Email">
-          <Input
-            value={email}
-            onChange={({ detail }) => setEmail(detail.value)}
-            type="email"
-            placeholder="Enter your email"
-            disabled={isLoading}
-          />
-        </FormField>
-        <FormField key="password-field" label="Password">
-          <Input
-            value={password}
-            onChange={({ detail }) => setPassword(detail.value)}
-            type="password"
-            placeholder="Enter your password"
-            disabled={isLoading}
-          />
-        </FormField>
-      </SpaceBetween>
-    </Form>
+      </Form>
+    </form>
   );
 
   const renderSignUpForm = () => (
