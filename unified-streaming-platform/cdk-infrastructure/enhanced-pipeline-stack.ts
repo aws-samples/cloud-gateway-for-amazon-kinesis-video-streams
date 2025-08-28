@@ -252,17 +252,10 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
                 'bedrock:InvokeModelWithResponseStream'
               ],
               resources: [
-                // Claude Models (Foundation Models)
-                `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0`,
-                `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-3-opus-20240229-v1:0`,
-                `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-3-haiku-20240307-v1:0`,
-                `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-opus-4-20250514-v1:0`,
-                `arn:aws:bedrock:${this.region}::foundation-model/anthropic.claude-sonnet-4-20250514-v1:0`,
-                // Inference Profiles
-                `arn:aws:bedrock:${this.region}::inference-profile/${claudeModel}`,
-                `arn:aws:bedrock:${this.region}::inference-profile/us.anthropic.*`,
-                // Wildcard for any foundation model
-                `arn:aws:bedrock:${this.region}::foundation-model/*`
+                // Foundation Models - wildcard for all regions and models
+                `arn:aws:bedrock:*::foundation-model/*`,
+                // Inference Profiles - wildcard for all regions with account ID
+                `arn:aws:bedrock:*:${this.account}:inference-profile/*`
               ]
             }),
             // Knowledge Base Access Permissions
