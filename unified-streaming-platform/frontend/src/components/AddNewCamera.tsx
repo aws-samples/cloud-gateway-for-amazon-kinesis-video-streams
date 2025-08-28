@@ -316,8 +316,8 @@ const AddNewCamera: React.FC = () => {
     const { video, audio, connection, diagnostics } = characteristics;
 
     return (
-      <SpaceBetween >
-        <Alert type="success" header="✅ Stream Test Successful!">
+      <SpaceBetween size="l">
+        <Alert key="success-alert" type="success" header="✅ Stream Test Successful!">
           Connection established and stream characteristics detected
         </Alert>
         
@@ -325,21 +325,21 @@ const AddNewCamera: React.FC = () => {
         {testResult?.stream_characteristics && (() => {
           const { diagnostics } = testResult.stream_characteristics;
           return diagnostics && (diagnostics?.warnings?.length || diagnostics.info?.length) && (
-            <Container header={<Header variant="h3">🔍 Diagnostics</Header>}>
-              <SpaceBetween >
+            <Container key="diagnostics-container" header={<Header variant="h3">🔍 Diagnostics</Header>}>
+              <SpaceBetween size="m">
                 {diagnostics?.warnings && diagnostics?.warnings?.length > 0 && (
-                  <SpaceBetween >
+                  <SpaceBetween key="warnings-section" size="s">
                     {diagnostics?.warnings.map((warning, index) => (
-                      <Alert key={index} type="warning">
+                      <Alert key={`warning-${index}`} type="warning">
                         {warning}
                       </Alert>
                     ))}
                   </SpaceBetween>
                 )}
                 {diagnostics.info && diagnostics.info.length > 0 && (
-                  <SpaceBetween >
+                  <SpaceBetween key="info-section" size="s">
                     {diagnostics.info.map((info, index) => (
-                      <Alert key={index} type="info">
+                      <Alert key={`info-${index}`} type="info">
                         {info}
                       </Alert>
                     ))}
@@ -352,8 +352,8 @@ const AddNewCamera: React.FC = () => {
         
         {/* Captured Frame Preview */}
         {previewImage && (
-          <Container header={<Header variant="h3">📸 Captured Frame Preview</Header>}>
-            <SpaceBetween >
+          <Container key="preview-container" header={<Header variant="h3">📸 Captured Frame Preview</Header>}>
+            <SpaceBetween size="m">
               <Box
                 padding="s"
               >
@@ -463,7 +463,7 @@ const AddNewCamera: React.FC = () => {
   };
 
   return (
-    <SpaceBetween >
+    <SpaceBetween size="l">
       {/* Camera Configuration Form */}
       <Container
         header={
@@ -472,8 +472,8 @@ const AddNewCamera: React.FC = () => {
           </Header>
         }
       >
-        <SpaceBetween >
-          <Box>
+        <SpaceBetween size="l">
+          <Box key="description">
             Configure a new camera for monitoring and streaming to Kinesis Video Streams. 
             Fill in the camera details, test the RTSP connection, and save the configuration.
           </Box>
@@ -589,8 +589,8 @@ const AddNewCamera: React.FC = () => {
           </FormField>
 
           {/* Action Buttons */}
-          <Box textAlign="center">
-            <SpaceBetween direction="horizontal" >
+          <Box key="action-buttons" textAlign="center">
+            <SpaceBetween direction="horizontal" size="s">
               <Button
                 variant="normal"
                 onClick={testRTSPStream}
@@ -614,10 +614,10 @@ const AddNewCamera: React.FC = () => {
           </Box>
 
           {isLoading && (
-            <Box textAlign="center">
-              <SpaceBetween >
-                <Spinner  />
-                <Box fontSize="body-s" color="text-body-secondary">
+            <Box key="loading-indicator" textAlign="center">
+              <SpaceBetween size="s">
+                <Spinner key="loading-spinner" />
+                <Box key="loading-text" fontSize="body-s" color="text-body-secondary">
                   ⏱️ Testing RTSP connection and gathering stream metadata...
                 </Box>
               </SpaceBetween>
@@ -625,10 +625,10 @@ const AddNewCamera: React.FC = () => {
           )}
 
           {isSaving && (
-            <Box textAlign="center">
-              <SpaceBetween >
-                <Spinner  />
-                <Box fontSize="body-s" color="text-body-secondary">
+            <Box key="saving-indicator" textAlign="center">
+              <SpaceBetween size="s">
+                <Spinner key="saving-spinner" />
+                <Box key="saving-text" fontSize="body-s" color="text-body-secondary">
                   💾 Saving camera configuration and securing RTSP credentials...
                 </Box>
               </SpaceBetween>
@@ -649,10 +649,10 @@ const AddNewCamera: React.FC = () => {
           header={<Header variant="h3">Stream Test Results</Header>}
         >
           {isLoading && (
-            <Box textAlign="center" padding="l">
-              <SpaceBetween >
-                <Spinner  />
-                <Box fontSize="heading-m" fontWeight="bold">
+            <Box key="test-loading" textAlign="center" padding="l">
+              <SpaceBetween size="s">
+                <Spinner key="test-spinner" />
+                <Box key="test-loading-text" fontSize="heading-m" fontWeight="bold">
                   🔍 Analyzing RTSP stream...
                 </Box>
               </SpaceBetween>
@@ -660,13 +660,13 @@ const AddNewCamera: React.FC = () => {
           )}
 
           {testResult && !isLoading && (
-            <SpaceBetween >
+            <SpaceBetween size="m">
               {testResult.error ? (
-                <Alert type="error" header="❌ Stream Test Failed">
-                  <SpaceBetween >
-                    <Box>{testResult.error}</Box>
+                <Alert key="test-error" type="error" header="❌ Stream Test Failed">
+                  <SpaceBetween size="s">
+                    <Box key="error-message">{testResult.error}</Box>
                     {testResult.suggestion && (
-                      <Box>
+                      <Box key="error-suggestion">
                         <Box fontWeight="bold">💡 Suggestion:</Box>
                         <Box fontSize="body-s">{testResult.suggestion}</Box>
                       </Box>
@@ -676,7 +676,7 @@ const AddNewCamera: React.FC = () => {
               ) : testResult.stream_characteristics ? (
                 renderStreamInfo(testResult.stream_characteristics)
               ) : (
-                <Alert type="warning" header="Unexpected Response">
+                <Alert key="unexpected-response" type="warning" header="Unexpected Response">
                   Unexpected response format received from server
                 </Alert>
               )}
