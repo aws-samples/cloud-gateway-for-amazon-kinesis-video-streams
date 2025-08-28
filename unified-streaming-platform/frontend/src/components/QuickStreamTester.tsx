@@ -13,13 +13,13 @@ import {
   StatusIndicator,
   CodeEditor
 } from '@cloudscape-design/components';
-import { apiUtils } from '../config/api-new';
+import { apiUtils } from "../../config/api';
 import type { 
   APIResponse, 
   StreamCharacteristics, 
   RTSPTestRequest,
   RTSPStreamInfo
-} from '../config/api-new';
+} from "../../config/api';
 
 interface StreamOption {
   value: string;

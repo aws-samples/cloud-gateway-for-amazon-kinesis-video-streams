@@ -13,12 +13,12 @@ import {
   Grid,
   Badge
 } from '@cloudscape-design/components';
-import { apiUtils } from '../config/api-new';
+import { apiUtils } from "../../config/api';
 import type { 
   APIResponse, 
   StreamCharacteristics, 
   RTSPTestRequest
-} from '../config/api-new';
+} from "../../config/api';
 
 interface ValidationErrors {
   rtspUrl?: string;

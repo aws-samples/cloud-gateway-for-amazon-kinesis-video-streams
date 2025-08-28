@@ -1,23 +1,101 @@
-// API Configuration
+/**
+ * Modern API Configuration
+ * 
+ * This file provides API configuration using the generated frontend config
+ * with automatic endpoint resolution and authentication handling.
+ */
+
+import { apiConfig, authenticationConfig, rtspTestServerConfig } from './app-config';
+
+// API Configuration using generated config
 export const API_CONFIG = {
-  // Pipeline Generator API endpoint
-  PIPELINE_GENERATOR_ENDPOINT: 'https://44gtbahskk.execute-api.us-east-1.amazonaws.com/prod/generate-pipeline',
+  // Base API URL from generated config
+  BASE_URL: apiConfig.baseUrl,
   
-  // Camera Management API endpoint - Updated with new CDK deployment
-  CAMERA_MANAGEMENT_ENDPOINT: 'https://kcbjsfve5f.execute-api.us-east-1.amazonaws.com/prod',
+  // API Gateway details
+  GATEWAY_ID: apiConfig.gatewayId,
+  STAGE: apiConfig.stage,
   
-  // Amplify API name for camera management (when using Amplify)
-  AMPLIFY_API_NAME: 'cameramanagement',
+  // Full endpoint URLs (constructed from base URL + paths)
+  ENDPOINTS: {
+    // Pipeline generation endpoints
+    PIPELINE_GENERATION: `${apiConfig.baseUrl}${apiConfig.endpoints.pipelineGeneration}`,
+    RTSP_CHARACTERISTICS: `${apiConfig.baseUrl}${apiConfig.endpoints.rtspCharacteristics}`,
+    
+    // GStreamer expert tools endpoints
+    GSTREAMER_TOOLS: {
+      SEARCH_ELEMENTS: `${apiConfig.baseUrl}${apiConfig.endpoints.gstreamerTools.searchElements}`,
+      TROUBLESHOOT: `${apiConfig.baseUrl}${apiConfig.endpoints.gstreamerTools.troubleshoot}`,
+      OPTIMIZE: `${apiConfig.baseUrl}${apiConfig.endpoints.gstreamerTools.optimize}`,
+      VALIDATE: `${apiConfig.baseUrl}${apiConfig.endpoints.gstreamerTools.validate}`,
+      EXPERT: `${apiConfig.baseUrl}${apiConfig.endpoints.gstreamerTools.expert}`
+    },
+    
+    // Camera management endpoints
+    CAMERA_MANAGEMENT: {
+      LIST: `${apiConfig.baseUrl}${apiConfig.endpoints.cameraManagement.list}`,
+      CREATE: `${apiConfig.baseUrl}${apiConfig.endpoints.cameraManagement.create}`,
+      GET: (cameraId: string) => `${apiConfig.baseUrl}${apiConfig.endpoints.cameraManagement.get.replace('{id}', cameraId)}`,
+      UPDATE: (cameraId: string) => `${apiConfig.baseUrl}${apiConfig.endpoints.cameraManagement.update.replace('{id}', cameraId)}`,
+      DELETE: (cameraId: string) => `${apiConfig.baseUrl}${apiConfig.endpoints.cameraManagement.delete.replace('{id}', cameraId)}`
+    }
+  },
   
-  // Request timeout in milliseconds
+  // Request configuration
   REQUEST_TIMEOUT: 60000, // 60 seconds
-  
-  // Default retry configuration
   RETRY_ATTEMPTS: 2,
   RETRY_DELAY: 1000, // 1 second
+  
+  // Authentication configuration
+  AUTH_FLOW: authenticationConfig.authFlow,
+  TOKEN_TYPE: authenticationConfig.tokenType,
+  USERNAME_FORMAT: authenticationConfig.usernameFormat
 };
 
-// API response types - exported interfaces
+// RTSP Test Server configuration
+export const RTSP_CONFIG = {
+  ENABLED: rtspTestServerConfig.enabled,
+  TEST_STREAMS: rtspTestServerConfig.testStreams,
+  PORTS: rtspTestServerConfig.ports,
+  
+  // Helper to get a random test stream
+  getRandomTestStream(): string | null {
+    if (!rtspTestServerConfig.enabled || rtspTestServerConfig.testStreams.length === 0) {
+      return null;
+    }
+    const randomIndex = Math.floor(Math.random() * rtspTestServerConfig.testStreams.length);
+    return rtspTestServerConfig.testStreams[randomIndex];
+  },
+  
+  // Helper to get test streams by quality
+  getTestStreamsByQuality(): { [key: string]: string[] } {
+    const streams = rtspTestServerConfig.testStreams;
+    return {
+      '720p': streams.filter(stream => stream.includes('720p')),
+      '360p': streams.filter(stream => stream.includes('360p')),
+      'h264': streams.filter(stream => stream.includes('h264')),
+      'h265': streams.filter(stream => stream.includes('h265')),
+      'aac': streams.filter(stream => stream.includes('aac'))
+    };
+  },
+
+  // Get RTSP test server list endpoint URL
+  getListEndpoint(): string | null {
+    if (!rtspTestServerConfig.enabled || rtspTestServerConfig.testStreams.length === 0) {
+      return null;
+    }
+    // Extract IP from first test stream
+    const firstStream = rtspTestServerConfig.testStreams[0];
+    const match = firstStream.match(/rtsp:\/\/([^:]+):/);
+    if (match) {
+      const ip = match[1];
+      return `http://${ip}:${rtspTestServerConfig.ports.http}/rtsp-urls`;
+    }
+    return null;
+  }
+};
+
+// API response types (keeping existing interfaces)
 export interface StreamCharacteristics {
   video?: {
     codec?: string;
@@ -77,108 +155,61 @@ export interface RTSPTestRequest {
   capture_frame?: boolean;
 }
 
-// API utility functions
-export const apiUtils = {
-  /**
-   * Make a request to the pipeline generator API with timeout and retry logic
-   */
-  async makeRequest(payload: RTSPTestRequest): Promise<APIResponse> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.REQUEST_TIMEOUT);
+// RTSP Test Server response types
+export interface RTSPStreamInfo {
+  url: string;
+  path: string;
+  description: string;
+  codec: string;
+  resolution: string;
+  framerate: number;
+  bitrate: string;
+  audio: string;
+  authentication: string;
+  transport: string;
+  port: number;
+  server: string;
+  test_credentials?: any;
+}
 
-    try {
-      const response = await fetch(API_CONFIG.PIPELINE_GENERATOR_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
+export interface RTSPTestServerResponse {
+  server_info: {
+    name: string;
+    version: string;
+    public_ip: string;
+    total_streams: number;
+    coverage: string;
+    authentication_support: string[];
+    transport_support: string[];
+    max_resolution: string;
+    max_framerate: string;
+  };
+  rtsp_urls: RTSPStreamInfo[];
+  authentication_info: any;
+  usage_examples: any;
+}
 
-      clearTimeout(timeoutId);
+// GStreamer Tools request/response types
+export interface GStreamerToolRequest {
+  query?: string;
+  pipeline?: string;
+  issue?: string;
+  symptoms?: string;
+  target_platform?: string;
+  performance_requirements?: string;
+}
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+export interface GStreamerToolResponse {
+  result?: any;
+  elements?: any[];
+  suggestions?: string[];
+  optimizations?: string[];
+  validation_results?: any;
+  error?: string;
+  timestamp?: string;
+}
 
-      const responseData = await response.json();
-      
-      // Handle Lambda response structure - the actual data is in the 'body' field as a JSON string
-      if (responseData.statusCode && responseData.body) {
-        // This is a Lambda response, parse the body
-        const parsedBody = JSON.parse(responseData.body);
-        return parsedBody;
-      }
-      
-      // Direct API response (not Lambda)
-      return responseData;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      
-      if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          throw new Error('Request timed out. The stream analysis is taking longer than expected.');
-        }
-        throw error;
-      }
-      
-      throw new Error('Unknown error occurred during API request');
-    }
-  },
-
-  /**
-   * Validate RTSP URL format
-   */
-  validateRTSPUrl(url: string): { isValid: boolean; error?: string } {
-    if (!url.trim()) {
-      return { isValid: false, error: 'RTSP URL is required' };
-    }
-
-    if (!url.toLowerCase().startsWith('rtsp://')) {
-      return { isValid: false, error: 'URL must start with rtsp://' };
-    }
-
-    try {
-      new URL(url);
-      return { isValid: true };
-    } catch {
-      return { isValid: false, error: 'Invalid URL format' };
-    }
-  },
-
-  /**
-   * Format file size in human readable format
-   */
-  formatFileSize(bytes: number): string {
-    if (bytes === 0) return '0 B';
-    
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    // Always show one decimal place for consistency
-    return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
-  },
-
-  /**
-   * Format duration in human readable format
-   */
-  formatDuration(ms: number): string {
-    if (ms < 1000) return `${ms.toFixed(0)}ms`;
-    if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-    return `${(ms / 60000).toFixed(1)}min`;
-  },
-
-  /**
-   * Generate pipeline - alias for makeRequest for backward compatibility
-   */
-  async generatePipeline(payload: RTSPTestRequest): Promise<APIResponse> {
-    return this.makeRequest(payload);
-  }
-};
-
-// Camera Management Types
+// Camera Management types (keeping existing interfaces)
 export interface CameraConfiguration {
   camera_id: string;
   camera_name: string;
@@ -226,8 +257,8 @@ export interface CameraAPIResponse {
   error?: string;
 }
 
-// Camera Management API Functions
-export const cameraAPI = {
+// Modern API utility functions
+export const apiUtils = {
   /**
    * Get authentication headers for API requests
    */
@@ -236,10 +267,17 @@ export const cameraAPI = {
       // Get token from localStorage (where our custom auth stores it)
       const idToken = localStorage.getItem('auth_id_token');
       
-      return {
-        'Content-Type': 'application/json',
-        ...(idToken && { 'Authorization': `Bearer ${idToken}` }),
-      };
+      if (idToken) {
+        return {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        };
+      } else {
+        console.warn('⚠️ No authentication token found, proceeding without authentication');
+        return {
+          'Content-Type': 'application/json'
+        };
+      }
     } catch (error) {
       console.warn('⚠️ Could not get auth token, proceeding without authentication:', error);
       return {
@@ -249,203 +287,307 @@ export const cameraAPI = {
   },
 
   /**
-   * Check if Amplify API is available and configured
+   * Make authenticated API request with retry logic
    */
-  async isAmplifyAPIAvailable(): Promise<boolean> {
-    try {
-      // Try to get the API configuration
-      const config = API.configure();
-      return config && config.API && config.API.endpoints && 
-             config.API.endpoints.some((endpoint: any) => endpoint.name === API_CONFIG.AMPLIFY_API_NAME);
-    } catch (error) {
-      console.log('Amplify API not available, using direct REST calls');
-      return false;
-    }
-  },
-
-  /**
-   * Make API call using either Amplify API or direct REST
-   */
-  async makeAPICall(method: string, path: string, data?: any): Promise<any> {
-    const useAmplify = await this.isAmplifyAPIAvailable();
+  async makeAuthenticatedRequest(
+    url: string, 
+    options: RequestInit = {}
+  ): Promise<any> {
+    const headers = await this.getAuthHeaders();
     
-    if (useAmplify) {
-      return this.makeAmplifyAPICall(method, path, data);
-    } else {
-      return this.makeDirectAPICall(method, path, data);
-    }
+    const requestOptions: RequestInit = {
+      ...options,
+      headers: {
+        ...headers,
+        ...options.headers
+      }
+    };
+
+    return this.makeRequestWithRetry(url, requestOptions);
   },
 
   /**
-   * Make API call using Amplify API client
+   * Make API request with timeout and retry logic
    */
-  async makeAmplifyAPICall(method: string, path: string, data?: any): Promise<any> {
-    try {
-      
-      const apiOptions: any = {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      };
-      
-      if (data) {
-        apiOptions.body = data;
-      }
-      
-      let response;
-      switch (method.toUpperCase()) {
-        case 'GET':
-          response = await API.get(API_CONFIG.AMPLIFY_API_NAME, path, apiOptions);
-          break;
-        case 'POST':
-          response = await API.post(API_CONFIG.AMPLIFY_API_NAME, path, apiOptions);
-          break;
-        case 'PUT':
-          response = await API.put(API_CONFIG.AMPLIFY_API_NAME, path, apiOptions);
-          break;
-        case 'DELETE':
-          response = await API.del(API_CONFIG.AMPLIFY_API_NAME, path, apiOptions);
-          break;
-        default:
-          throw new Error(`Unsupported HTTP method: ${method}`);
-      }
-      
-      return response;
-    } catch (error) {
-      console.error('Amplify API call failed:', error);
-      throw error;
-    }
-  },
+  async makeRequestWithRetry(
+    url: string, 
+    options: RequestInit = {},
+    attempt: number = 1
+  ): Promise<any> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.REQUEST_TIMEOUT);
 
-  /**
-   * Make API call using direct REST
-   */
-  async makeDirectAPICall(method: string, path: string, data?: any): Promise<any> {
     try {
-      const headers = await this.getAuthHeaders();
-      const url = `${API_CONFIG.CAMERA_MANAGEMENT_ENDPOINT}${path}`;
-      
-      const options: RequestInit = {
-        method: method.toUpperCase(),
-        headers,
-      };
-      
-      if (data && method.toUpperCase() !== 'GET') {
-        options.body = JSON.stringify(data);
-      }
-      
-      const response = await fetch(url, options);
-      
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      
+      // Handle Lambda response structure
+      if (responseData.statusCode && responseData.body) {
+        const parsedBody = JSON.parse(responseData.body);
+        return parsedBody;
       }
       
-      return await response.json();
+      return responseData;
     } catch (error) {
-      console.error('Direct API call failed:', error);
-      throw error;
+      clearTimeout(timeoutId);
+      
+      // Retry logic
+      if (attempt < API_CONFIG.RETRY_ATTEMPTS && 
+          error instanceof Error && 
+          !error.name.includes('Abort')) {
+        
+        console.warn(`Request failed (attempt ${attempt}), retrying...`, error.message);
+        await new Promise(resolve => setTimeout(resolve, API_CONFIG.RETRY_DELAY));
+        return this.makeRequestWithRetry(url, options, attempt + 1);
+      }
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          throw new Error('Request timed out. The operation is taking longer than expected.');
+        }
+        throw error;
+      }
+      
+      throw new Error('Unknown error occurred during API request');
     }
   },
 
+  /**
+   * Make pipeline generation request
+   */
+  async generatePipeline(payload: RTSPTestRequest): Promise<APIResponse> {
+    return this.makeAuthenticatedRequest(API_CONFIG.ENDPOINTS.PIPELINE_GENERATION, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * Get RTSP stream characteristics
+   */
+  async getStreamCharacteristics(payload: RTSPTestRequest): Promise<APIResponse> {
+    return this.makeAuthenticatedRequest(API_CONFIG.ENDPOINTS.RTSP_CHARACTERISTICS, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * Use GStreamer expert tools
+   */
+  async useGStreamerTool(
+    tool: 'searchElements' | 'troubleshoot' | 'optimize' | 'validate' | 'expert',
+    payload: GStreamerToolRequest
+  ): Promise<GStreamerToolResponse> {
+    const endpoint = API_CONFIG.ENDPOINTS.GSTREAMER_TOOLS[tool.toUpperCase() as keyof typeof API_CONFIG.ENDPOINTS.GSTREAMER_TOOLS];
+    
+    return this.makeAuthenticatedRequest(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * Get RTSP test server stream list
+   */
+  async getRTSPTestStreams(): Promise<RTSPTestServerResponse | null> {
+    // Use public IP from config instead of calling localhost API
+    const publicIP = '44.222.205.185'; // Current RTSP server public IP
+    const port = 8554;
+    
+    const testStreams = [
+      {
+        url: `rtsp://${publicIP}:${port}/h264_720p_25fps`,
+        description: 'H.264 720p 25fps (No Audio)',
+        codec: 'H.264',
+        resolution: '720p',
+        framerate: '25fps',
+        audio: false
+      },
+      {
+        url: `rtsp://${publicIP}:${port}/h264_360p_15fps`,
+        description: 'H.264 360p 15fps (No Audio)',
+        codec: 'H.264',
+        resolution: '360p',
+        framerate: '15fps',
+        audio: false
+      },
+      {
+        url: `rtsp://${publicIP}:${port}/h264_360p_15fps_aac`,
+        description: 'H.264 360p 15fps + AAC Audio',
+        codec: 'H.264',
+        resolution: '360p',
+        framerate: '15fps',
+        audio: true
+      },
+      {
+        url: `rtsp://${publicIP}:${port}/h265_720p_25fps`,
+        description: 'H.265 720p 25fps (No Audio)',
+        codec: 'H.265',
+        resolution: '720p',
+        framerate: '25fps',
+        audio: false
+      },
+      {
+        url: `rtsp://${publicIP}:${port}/h265_360p_15fps_aac`,
+        description: 'H.265 360p 15fps + AAC Audio',
+        codec: 'H.265',
+        resolution: '360p',
+        framerate: '15fps',
+        audio: true
+      }
+    ];
+
+    return {
+      server_info: {
+        name: 'Enhanced RTSP Test Server',
+        version: '2.0',
+        ip: publicIP,
+        port: port
+      },
+      rtsp_urls: testStreams
+    };
+  },
+  validateRTSPUrl(url: string): { isValid: boolean; error?: string } {
+    if (!url.trim()) {
+      return { isValid: false, error: 'RTSP URL is required' };
+    }
+
+    if (!url.toLowerCase().startsWith('rtsp://')) {
+      return { isValid: false, error: 'URL must start with rtsp://' };
+    }
+
+    try {
+      new URL(url);
+      return { isValid: true };
+    } catch {
+      return { isValid: false, error: 'Invalid URL format' };
+    }
+  },
+
+  /**
+   * Format file size in human readable format
+   */
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
+  },
+
+  /**
+   * Format duration in human readable format
+   */
+  formatDuration(ms: number): string {
+    if (ms < 1000) return `${ms.toFixed(0)}ms`;
+    if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+    return `${(ms / 60000).toFixed(1)}min`;
+  }
+};
+
+// Camera Management API (modernized)
+export const cameraAPI = {
   /**
    * Create a new camera configuration
    */
   async createCamera(cameraData: CreateCameraRequest): Promise<CameraAPIResponse> {
-    try {
-      console.log('📹 Creating camera:', cameraData.camera_name);
-      
-      const result = await this.makeAPICall('POST', '/cameras', cameraData);
-      
-      console.log('✅ Camera created successfully:', result.camera?.camera_id);
-      return result;
-    } catch (error) {
-      console.error('❌ Error creating camera:', error);
-      throw error;
-    }
+    console.log('📹 Creating camera:', cameraData.camera_name);
+    
+    const result = await apiUtils.makeAuthenticatedRequest(
+      API_CONFIG.ENDPOINTS.CAMERA_MANAGEMENT.CREATE,
+      {
+        method: 'POST',
+        body: JSON.stringify(cameraData)
+      }
+    );
+    
+    console.log('✅ Camera created successfully:', result.camera?.camera_id);
+    return result;
   },
 
   /**
    * Get all cameras
    */
   async listCameras(limit?: number, includeFrames?: boolean): Promise<CameraAPIResponse> {
-    try {
-      console.log('📹 Fetching cameras list...');
-      
-      let path = '/cameras';
-      const params = new URLSearchParams();
-      
-      if (limit) {
-        params.append('limit', limit.toString());
-      }
-      
-      if (includeFrames) {
-        params.append('include_frames', 'true');
-      }
-      
-      if (params.toString()) {
-        path += `?${params.toString()}`;
-      }
-      
-      const result = await this.makeAPICall('GET', path);
-      
-      console.log('✅ Retrieved cameras:', result.count || result.cameras?.length || 0);
-      return result;
-    } catch (error) {
-      console.error('❌ Error fetching cameras:', error);
-      throw error;
+    console.log('📹 Fetching cameras list...');
+    
+    let url = API_CONFIG.ENDPOINTS.CAMERA_MANAGEMENT.LIST;
+    const params = new URLSearchParams();
+    
+    if (limit) params.append('limit', limit.toString());
+    if (includeFrames) params.append('include_frames', 'true');
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
     }
+    
+    const result = await apiUtils.makeAuthenticatedRequest(url, {
+      method: 'GET'
+    });
+    
+    console.log('✅ Retrieved cameras:', result.count || result.cameras?.length || 0);
+    return result;
   },
 
   /**
    * Get a specific camera by ID
    */
   async getCamera(cameraId: string): Promise<CameraAPIResponse> {
-    try {
-      console.log('📹 Fetching camera:', cameraId);
-      
-      const result = await this.makeAPICall('GET', `/cameras/${cameraId}`);
-      
-      console.log('✅ Retrieved camera:', result.camera?.camera_name);
-      return result;
-    } catch (error) {
-      console.error('❌ Error fetching camera:', error);
-      throw error;
-    }
+    console.log('📹 Fetching camera:', cameraId);
+    
+    const result = await apiUtils.makeAuthenticatedRequest(
+      API_CONFIG.ENDPOINTS.CAMERA_MANAGEMENT.GET(cameraId),
+      { method: 'GET' }
+    );
+    
+    console.log('✅ Retrieved camera:', result.camera?.camera_name);
+    return result;
   },
 
   /**
    * Update a camera configuration
    */
   async updateCamera(cameraId: string, updateData: UpdateCameraRequest): Promise<CameraAPIResponse> {
-    try {
-      console.log('📹 Updating camera:', cameraId);
-      
-      const result = await this.makeAPICall('PUT', `/cameras/${cameraId}`, updateData);
-      
-      console.log('✅ Camera updated successfully:', result.camera?.camera_name);
-      return result;
-    } catch (error) {
-      console.error('❌ Error updating camera:', error);
-      throw error;
-    }
+    console.log('📹 Updating camera:', cameraId);
+    
+    const result = await apiUtils.makeAuthenticatedRequest(
+      API_CONFIG.ENDPOINTS.CAMERA_MANAGEMENT.UPDATE(cameraId),
+      {
+        method: 'PUT',
+        body: JSON.stringify(updateData)
+      }
+    );
+    
+    console.log('✅ Camera updated successfully:', result.camera?.camera_name);
+    return result;
   },
 
   /**
    * Delete a camera configuration
    */
   async deleteCamera(cameraId: string): Promise<CameraAPIResponse> {
-    try {
-      console.log('📹 Deleting camera:', cameraId);
-      
-      const result = await this.makeAPICall('DELETE', `/cameras/${cameraId}`);
-      
-      console.log('✅ Camera deleted successfully');
-      return result;
-    } catch (error) {
-      console.error('❌ Error deleting camera:', error);
-      throw error;
-    }
+    console.log('📹 Deleting camera:', cameraId);
+    
+    const result = await apiUtils.makeAuthenticatedRequest(
+      API_CONFIG.ENDPOINTS.CAMERA_MANAGEMENT.DELETE(cameraId),
+      { method: 'DELETE' }
+    );
+    
+    console.log('✅ Camera deleted successfully');
+    return result;
   }
 };
 
@@ -453,6 +595,8 @@ export const cameraAPI = {
 export type { StreamCharacteristics as StreamCharacteristicsType };
 export type { APIResponse as APIResponseType };
 export type { RTSPTestRequest as RTSPTestRequestType };
+export type { GStreamerToolRequest as GStreamerToolRequestType };
+export type { GStreamerToolResponse as GStreamerToolResponseType };
 export type { CameraConfiguration as CameraConfigurationType };
 export type { CreateCameraRequest as CreateCameraRequestType };
 export type { UpdateCameraRequest as UpdateCameraRequestType };

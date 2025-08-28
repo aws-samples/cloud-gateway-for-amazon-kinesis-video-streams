@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import CameraList from '../CameraList';
-import { cameraAPI } from '../../config/api-new';
+import { cameraAPI } from "../../config/api';
 
 // Mock the camera API
 vi.mock('../../config/api-new', () => ({

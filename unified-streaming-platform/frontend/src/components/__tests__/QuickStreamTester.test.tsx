@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import QuickStreamTester from '../QuickStreamTester';
-import { apiUtils } from '../../config/api-new';
+import { apiUtils } from "../../config/api';
 
 // Mock the API utilities
 vi.mock('../../config/api-new', () => ({
