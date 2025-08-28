@@ -8,7 +8,8 @@ import {
   Button,
   Alert,
   Box,
-  Spinner
+  Spinner,
+  Select
 } from '@cloudscape-design/components';
 import { apiUtils } from '../config/api';
 
@@ -20,6 +21,7 @@ interface GenerationResult {
 
 const GStreamerPipelineGenerator: React.FC = () => {
   const [rtspUrl, setRtspUrl] = useState('');
+  const [targetEnvironment, setTargetEnvironment] = useState('linux');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +43,8 @@ const GStreamerPipelineGenerator: React.FC = () => {
       
       const response = await apiUtils.generatePipeline({
         rtsp_url: rtspUrl.trim(),
-        mode: 'pipeline'
+        mode: 'pipeline',
+        platform: targetEnvironment
       });
 
       console.log('✅ Pipeline generation response:', response);
@@ -110,6 +113,27 @@ const GStreamerPipelineGenerator: React.FC = () => {
             value={rtspUrl}
             onChange={({ detail }) => setRtspUrl(detail.value)}
             placeholder="rtsp://username:password@192.168.1.100:554/stream1"
+          />
+        </FormField>
+
+        <FormField
+          key="target-environment-field"
+          label="Target Execution Environment"
+          description="Select the operating system where the GStreamer pipeline will run"
+        >
+          <Select
+            selectedOption={{ label: targetEnvironment === 'linux' ? 'Linux' : 
+                                    targetEnvironment === 'macos' ? 'macOS' : 
+                                    targetEnvironment === 'windows' ? 'Windows' : 
+                                    'Docker/Container', value: targetEnvironment }}
+            onChange={({ detail }) => setTargetEnvironment(detail.selectedOption.value || 'linux')}
+            options={[
+              { label: 'Linux', value: 'linux' },
+              { label: 'macOS', value: 'macos' },
+              { label: 'Windows', value: 'windows' },
+              { label: 'Docker/Container', value: 'docker' }
+            ]}
+            placeholder="Choose target environment"
           />
         </FormField>
 
