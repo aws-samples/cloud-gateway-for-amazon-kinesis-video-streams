@@ -36,7 +36,7 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
 
     // Configuration - Use existing knowledge base from bedrock-gstreamer project
     const knowledgeBaseId = '5CGJIOV1QM';
-    const claudeModel = 'us.anthropic.claude-opus-4-1-20250805-v1:0';
+    const claudeModel = 'anthropic.claude-3-5-sonnet-20240620-v1:0'; // Switch from Opus to Sonnet for better performance
 
     // Create Cognito User Pool for authentication (v2 - email as username)
     const userPool = new cognito.UserPool(this, 'UserPoolV2', {

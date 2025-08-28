@@ -239,8 +239,8 @@ class GStreamerExpertCore:
             if context.get('source_type'):
                 kb_query += f" {context['source_type']}"
         
-        # Get relevant knowledge base information
-        kb_results = await self.kb_client.query_knowledge_base(kb_query, max_results=15)
+        # Get relevant knowledge base information (reduced for Lambda to prevent throttling)
+        kb_results = await self.kb_client.query_knowledge_base(kb_query, max_results=5)
         
         # Build context for Claude
         claude_context = self._build_comprehensive_context(query, kb_results, context)
@@ -261,10 +261,10 @@ class GStreamerExpertCore:
         
         system_prompt = """You are a comprehensive GStreamer expert. Analyze the user's query and provide detailed, actionable assistance. Include specific pipeline examples, element recommendations, and troubleshooting guidance as appropriate."""
         
-        # Add knowledge base context
+        # Add knowledge base context (reduced size for Lambda)
         kb_context = "\n\n=== RELEVANT KNOWLEDGE BASE INFORMATION ===\n"
-        for i, result in enumerate(kb_results[:10], 1):
-            kb_context += f"\n{i}. {result['content'][:500]}...\n"
+        for i, result in enumerate(kb_results[:5], 1):
+            kb_context += f"\n{i}. {result['content'][:300]}...\n"  # Reduced from 500 to 300 chars
         
         # Add user context if available
         context_info = ""
