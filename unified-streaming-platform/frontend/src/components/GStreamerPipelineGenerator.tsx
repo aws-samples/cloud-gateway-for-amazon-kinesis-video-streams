@@ -57,7 +57,14 @@ const GStreamerPipelineGenerator: React.FC = () => {
       
       // Check for errors in the response
       if (actualResult.optimization_response && actualResult.optimization_response.includes('Error')) {
-        throw new Error(`Pipeline generation failed: ${actualResult.optimization_response}`);
+        const errorMsg = actualResult.optimization_response;
+        if (errorMsg.includes('ThrottlingException') || errorMsg.includes('Too many tokens')) {
+          throw new Error('Bedrock service is currently busy. Please wait a few minutes and try again.');
+        } else if (errorMsg.includes('AccessDeniedException')) {
+          throw new Error('Service configuration issue. Please contact support.');
+        } else {
+          throw new Error(`Pipeline generation failed: ${errorMsg}`);
+        }
       }
       
       setResult(actualResult);
