@@ -70,15 +70,26 @@ const GStreamerPipelineGenerator: React.FC = () => {
       setResult(actualResult);
       
       // Look for pipeline in various possible fields
-      const pipeline = actualResult.optimized_pipeline || 
+      let pipeline = actualResult.optimized_pipeline || 
                       actualResult.generated_pipeline || 
                       actualResult.pipeline || 
                       actualResult.gstreamer_pipeline ||
+                      actualResult.optimization_response ||  // The actual generated content is here
                       actualResult.original_pipeline;
                       
       console.log('🔍 Found pipeline:', pipeline);
       
-      if (pipeline && pipeline.includes('gst-launch')) {
+      // If we got the optimization_response, extract the actual pipeline command from it
+      if (pipeline && typeof pipeline === 'string' && !pipeline.includes('gst-launch') && pipeline.includes('gst-launch-1.0')) {
+        // Extract the gst-launch command from the response text
+        const pipelineMatch = pipeline.match(/gst-launch-1\.0[^`\n]*/);
+        if (pipelineMatch) {
+          pipeline = pipelineMatch[0];
+          console.log('🔧 Extracted pipeline from response:', pipeline);
+        }
+      }
+      
+      if (pipeline && (pipeline.includes('gst-launch') || pipeline.includes('gst-launch-1.0'))) {
         const formatted = pipeline
           .replace(/\s+/g, ' ')
           .replace(/\s*!\s*/g, ' ! ')
