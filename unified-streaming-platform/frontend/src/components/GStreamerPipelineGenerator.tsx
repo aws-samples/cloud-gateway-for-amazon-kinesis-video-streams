@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   Header,
@@ -197,20 +197,25 @@ const GStreamerPipelineGenerator: React.FC = () => {
         </SpaceBetween>
       </Container>
 
+      {/* Error Display */}
       {error && (
-        <Alert key="error-display" type="error" header="❌ Pipeline Generation Failed">
-          <SpaceBetween size="s">
-            <Box key="error-message">{error}</Box>
-            <Box key="error-help" fontSize="body-s">
-              Please verify your RTSP URL is correct and the stream is accessible.
-            </Box>
-          </SpaceBetween>
-        </Alert>
+        <React.Fragment key="error-fragment">
+          <Alert key="error-display" type="error" header="❌ Pipeline Generation Failed">
+            <SpaceBetween size="s">
+              <Box key="error-message">{error}</Box>
+              <Box key="error-help" fontSize="body-s">
+                Please verify your RTSP URL is correct and the stream is accessible.
+              </Box>
+            </SpaceBetween>
+          </Alert>
+        </React.Fragment>
       )}
 
+      {/* Pipeline Display */}
       {formattedPipeline && (
-        <Container
-          key="pipeline-container"
+        <React.Fragment key="pipeline-fragment">
+          <Container
+            key="pipeline-container"
           header={
             <Header 
               variant="h3"
@@ -283,11 +288,13 @@ const GStreamerPipelineGenerator: React.FC = () => {
             </Box>
           </SpaceBetween>
         </Container>
+        </React.Fragment>
       )}
 
       {!formattedPipeline && !isLoading && !error && (
-        <Container
-          key="help-container"
+        <React.Fragment key="help-fragment">
+          <Container
+            key="help-container"
           header={<Header variant="h3">💡 How It Works</Header>}
         >
           <SpaceBetween size="s">
@@ -305,6 +312,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
             </Box>
           </SpaceBetween>
         </Container>
+        </React.Fragment>
       )}
     </SpaceBetween>
   );
