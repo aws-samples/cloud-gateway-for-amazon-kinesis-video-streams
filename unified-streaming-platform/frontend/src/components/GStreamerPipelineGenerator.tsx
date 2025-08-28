@@ -96,10 +96,9 @@ const GStreamerPipelineGenerator: React.FC = () => {
       }
     >
       <SpaceBetween size="m">
-        <Alert key="info-alert" type="info" header="GStreamer Pipeline Generator is now loaded and ready!">
-          Generate optimized GStreamer pipelines for your RTSP camera streams. 
-          This tool analyzes your stream characteristics and creates a custom pipeline 
-          optimized for Amazon Kinesis Video Streams.
+        <Alert key="info-alert" type="info" header="GStreamer Expert System is ready!">
+          Get comprehensive GStreamer assistance powered by AI. This expert system analyzes your requirements 
+          and provides detailed guidance, pipeline recommendations, troubleshooting tips, and optimization strategies.
         </Alert>
 
         <FormField
@@ -216,20 +215,20 @@ const GStreamerPipelineGenerator: React.FC = () => {
     children.push(
       <Container
         key="help-container"
-        header={<Header variant="h3">💡 How It Works</Header>}
+        header={<Header variant="h3">🧠 How the Expert System Works</Header>}
       >
         <SpaceBetween size="s">
           <Box key="step-1">
-            <strong>Step 1:</strong> Enter your RTSP camera URL with credentials
+            <strong>Step 1:</strong> Enter your RTSP camera URL or describe your GStreamer requirements
           </Box>
           <Box key="step-2">
-            <strong>Step 2:</strong> Click "Generate GStreamer Pipeline" to analyze your stream
+            <strong>Step 2:</strong> Click "Generate GStreamer Pipeline" to get expert analysis
           </Box>
           <Box key="step-3">
-            <strong>Step 3:</strong> Get a customized GStreamer pipeline optimized for your camera
+            <strong>Step 3:</strong> Receive comprehensive guidance including pipeline recommendations, explanations, and alternatives
           </Box>
           <Box key="step-4">
-            <strong>Step 4:</strong> Use the pipeline to stream video to Amazon Kinesis Video Streams
+            <strong>Step 4:</strong> Use the expert advice to implement and customize your GStreamer solution
           </Box>
         </SpaceBetween>
       </Container>
