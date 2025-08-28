@@ -92,6 +92,31 @@ const GStreamerPipelineGenerator: React.FC = () => {
   };
 
   const children = [
+    // Help section first - explains how the system works
+    <Container
+      key="help-container"
+      header={<Header variant="h3">🧠 How the Expert System Works</Header>}
+    >
+      <SpaceBetween size="s">
+        <Box key="step-1">
+          <strong>Step 1:</strong> Enter your RTSP camera URL or describe your GStreamer requirements
+        </Box>
+        <Box key="step-2">
+          <strong>Step 2:</strong> Select your target environment and hardware acceleration preferences
+        </Box>
+        <Box key="step-3">
+          <strong>Step 3:</strong> Click "Generate GStreamer Pipeline" to get expert analysis
+        </Box>
+        <Box key="step-4">
+          <strong>Step 4:</strong> Receive comprehensive guidance including pipeline recommendations, explanations, and alternatives
+        </Box>
+        <Box key="step-5">
+          <strong>Step 5:</strong> Use the expert advice to implement and customize your GStreamer solution
+        </Box>
+      </SpaceBetween>
+    </Container>,
+    
+    // Main configuration form
     <Container
       key="configuration-form"
       header={
@@ -258,32 +283,6 @@ const GStreamerPipelineGenerator: React.FC = () => {
       </SpaceBetween>
     </Container>
   ];
-
-  // Add help section right after the main form (always visible)
-  children.push(
-    <Container
-      key="help-container"
-      header={<Header variant="h3">🧠 How the Expert System Works</Header>}
-    >
-      <SpaceBetween size="s">
-        <Box key="step-1">
-          <strong>Step 1:</strong> Enter your RTSP camera URL or describe your GStreamer requirements
-        </Box>
-        <Box key="step-2">
-          <strong>Step 2:</strong> Select your target environment and hardware acceleration preferences
-        </Box>
-        <Box key="step-3">
-          <strong>Step 3:</strong> Click "Generate GStreamer Pipeline" to get expert analysis
-        </Box>
-        <Box key="step-4">
-          <strong>Step 4:</strong> Receive comprehensive guidance including pipeline recommendations, explanations, and alternatives
-        </Box>
-        <Box key="step-5">
-          <strong>Step 5:</strong> Use the expert advice to implement and customize your GStreamer solution
-        </Box>
-      </SpaceBetween>
-    </Container>
-  );
 
   if (error) {
     children.push(
