@@ -114,15 +114,30 @@ const AuthenticationFlow: React.FC = () => {
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔍 handleForgotPassword called');
+    console.log('🔍 Email value:', email);
+    console.log('🔍 Current mode:', mode);
+    console.log('🔍 Event:', e);
+    
+    if (!email) {
+      console.log('❌ No email provided');
+      setError('Please enter your email address');
+      return;
+    }
+    
     setIsLoading(true);
     clearMessages();
 
+    console.log('🔍 Calling forgotPassword function...');
     const result = await forgotPassword(email);
+    console.log('🔍 forgotPassword result:', result);
     
     if (result.success) {
+      console.log('✅ Password reset code sent successfully');
       setSuccess('Password reset code sent! Please check your email.');
       setMode('confirmForgotPassword');
     } else {
+      console.log('❌ Password reset failed:', result.error);
       setError(result.error || 'Password reset failed');
     }
     
@@ -159,15 +174,15 @@ const AuthenticationFlow: React.FC = () => {
     <Form
       actions={
         <SpaceBetween direction="vertical" size="xs">
-          <Button variant="primary" loading={isLoading} formAction="submit">
+          <Button key="signin-btn" variant="primary" loading={isLoading} formAction="submit">
             Sign In
           </Button>
-          <Box textAlign="center">
+          <Box key="signup-link" textAlign="center">
             <Link onFollow={() => setMode('signUp')}>
               Don't have an account? Sign up
             </Link>
           </Box>
-          <Box textAlign="center">
+          <Box key="forgot-link" textAlign="center">
             <Link onFollow={() => setMode('forgotPassword')}>
               Forgot your password?
             </Link>
@@ -177,7 +192,7 @@ const AuthenticationFlow: React.FC = () => {
       onSubmit={handleSignIn}
     >
       <SpaceBetween direction="vertical" size="l">
-        <FormField label="Email">
+        <FormField key="email-field" label="Email">
           <Input
             value={email}
             onChange={({ detail }) => setEmail(detail.value)}
@@ -186,7 +201,7 @@ const AuthenticationFlow: React.FC = () => {
             disabled={isLoading}
           />
         </FormField>
-        <FormField label="Password">
+        <FormField key="password-field" label="Password">
           <Input
             value={password}
             onChange={({ detail }) => setPassword(detail.value)}
@@ -203,10 +218,10 @@ const AuthenticationFlow: React.FC = () => {
     <Form
       actions={
         <SpaceBetween direction="vertical" size="xs">
-          <Button variant="primary" loading={isLoading} formAction="submit">
+          <Button key="signup-btn" variant="primary" loading={isLoading} formAction="submit">
             Sign Up
           </Button>
-          <Box textAlign="center">
+          <Box key="signin-link" textAlign="center">
             <Link onFollow={() => setMode('signIn')}>
               Already have an account? Sign in
             </Link>
@@ -216,7 +231,7 @@ const AuthenticationFlow: React.FC = () => {
       onSubmit={handleSignUp}
     >
       <SpaceBetween direction="vertical" size="l">
-        <FormField label="Email">
+        <FormField key="email-field" label="Email">
           <Input
             value={email}
             onChange={({ detail }) => setEmail(detail.value)}
@@ -225,7 +240,7 @@ const AuthenticationFlow: React.FC = () => {
             disabled={isLoading}
           />
         </FormField>
-        <FormField label="Password">
+        <FormField key="password-field" label="Password">
           <Input
             value={password}
             onChange={({ detail }) => setPassword(detail.value)}
@@ -234,7 +249,7 @@ const AuthenticationFlow: React.FC = () => {
             disabled={isLoading}
           />
         </FormField>
-        <FormField label="Confirm Password">
+        <FormField key="confirm-password-field" label="Confirm Password">
           <Input
             value={confirmPassword}
             onChange={({ detail }) => setConfirmPassword(detail.value)}
@@ -251,13 +266,13 @@ const AuthenticationFlow: React.FC = () => {
     <Form
       actions={
         <SpaceBetween direction="vertical" size="xs">
-          <Button variant="primary" loading={isLoading} formAction="submit">
+          <Button key="confirm-btn" variant="primary" loading={isLoading} formAction="submit">
             Confirm Account
           </Button>
-          <Button variant="link" onClick={handleResendCode} disabled={isLoading}>
+          <Button key="resend-btn" variant="link" onClick={handleResendCode} disabled={isLoading}>
             Resend confirmation code
           </Button>
-          <Box textAlign="center">
+          <Box key="back-link" textAlign="center">
             <Link onFollow={() => setMode('signIn')}>
               Back to sign in
             </Link>
@@ -267,7 +282,7 @@ const AuthenticationFlow: React.FC = () => {
       onSubmit={handleConfirmSignUp}
     >
       <SpaceBetween direction="vertical" size="l">
-        <FormField label="Email">
+        <FormField key="email-field" label="Email">
           <Input
             value={email}
             onChange={({ detail }) => setEmail(detail.value)}
@@ -276,7 +291,7 @@ const AuthenticationFlow: React.FC = () => {
             disabled={isLoading}
           />
         </FormField>
-        <FormField label="Confirmation Code">
+        <FormField key="code-field" label="Confirmation Code">
           <Input
             value={code}
             onChange={({ detail }) => setCode(detail.value)}
@@ -288,44 +303,53 @@ const AuthenticationFlow: React.FC = () => {
     </Form>
   );
 
-  const renderForgotPasswordForm = () => (
-    <Form
-      actions={
-        <SpaceBetween direction="vertical" size="xs">
-          <Button variant="primary" loading={isLoading} formAction="submit">
-            Send Reset Code
-          </Button>
-          <Box textAlign="center">
-            <Link onFollow={() => setMode('signIn')}>
-              Back to sign in
-            </Link>
-          </Box>
-        </SpaceBetween>
-      }
-      onSubmit={handleForgotPassword}
-    >
-      <SpaceBetween direction="vertical" size="l">
-        <FormField label="Email">
-          <Input
-            value={email}
-            onChange={({ detail }) => setEmail(detail.value)}
-            type="email"
-            placeholder="Enter your email"
-            disabled={isLoading}
-          />
-        </FormField>
-      </SpaceBetween>
-    </Form>
-  );
+  const renderForgotPasswordForm = () => {
+    console.log('🔍 Rendering forgot password form, current email:', email);
+    return (
+      <form onSubmit={handleForgotPassword}>
+        <Form
+          actions={
+            <SpaceBetween direction="vertical" size="xs">
+              <Button 
+                key="reset-btn" 
+                variant="primary" 
+                loading={isLoading}
+                onClick={handleForgotPassword}
+              >
+                Send Reset Code
+              </Button>
+              <Box key="back-link" textAlign="center">
+                <Link onFollow={() => setMode('signIn')}>
+                  Back to sign in
+                </Link>
+              </Box>
+            </SpaceBetween>
+          }
+        >
+          <SpaceBetween direction="vertical" size="l">
+            <FormField key="email-field" label="Email">
+              <Input
+                value={email}
+                onChange={({ detail }) => setEmail(detail.value)}
+                type="email"
+                placeholder="Enter your email"
+                disabled={isLoading}
+              />
+            </FormField>
+          </SpaceBetween>
+        </Form>
+      </form>
+    );
+  };
 
   const renderConfirmForgotPasswordForm = () => (
     <Form
       actions={
         <SpaceBetween direction="vertical" size="xs">
-          <Button variant="primary" loading={isLoading} formAction="submit">
+          <Button key="reset-confirm-btn" variant="primary" loading={isLoading} formAction="submit">
             Reset Password
           </Button>
-          <Box textAlign="center">
+          <Box key="back-link" textAlign="center">
             <Link onFollow={() => setMode('signIn')}>
               Back to sign in
             </Link>
@@ -335,7 +359,7 @@ const AuthenticationFlow: React.FC = () => {
       onSubmit={handleConfirmForgotPassword}
     >
       <SpaceBetween direction="vertical" size="l">
-        <FormField label="Email">
+        <FormField key="email-field" label="Email">
           <Input
             value={email}
             onChange={({ detail }) => setEmail(detail.value)}
@@ -344,7 +368,7 @@ const AuthenticationFlow: React.FC = () => {
             disabled={isLoading}
           />
         </FormField>
-        <FormField label="Reset Code">
+        <FormField key="code-field" label="Reset Code">
           <Input
             value={code}
             onChange={({ detail }) => setCode(detail.value)}
@@ -352,7 +376,7 @@ const AuthenticationFlow: React.FC = () => {
             disabled={isLoading}
           />
         </FormField>
-        <FormField label="New Password">
+        <FormField key="new-password-field" label="New Password">
           <Input
             value={password}
             onChange={({ detail }) => setPassword(detail.value)}
@@ -361,7 +385,7 @@ const AuthenticationFlow: React.FC = () => {
             disabled={isLoading}
           />
         </FormField>
-        <FormField label="Confirm New Password">
+        <FormField key="confirm-new-password-field" label="Confirm New Password">
           <Input
             value={confirmPassword}
             onChange={({ detail }) => setConfirmPassword(detail.value)}
@@ -415,23 +439,27 @@ const AuthenticationFlow: React.FC = () => {
     >
       <Container>
         <SpaceBetween direction="vertical" size="l">
-          <Header variant="h1" description={getDescription()}>
+          <Header key="header" variant="h1" description={getDescription()}>
             {getTitle()}
           </Header>
           
-          {error && (
-            <Alert type="error" dismissible onDismiss={() => setError('')}>
-              {error}
-            </Alert>
-          )}
+          <div key="alerts">
+            {error && (
+              <Alert type="error" dismissible onDismiss={() => setError('')}>
+                {error}
+              </Alert>
+            )}
+            
+            {success && (
+              <Alert type="success" dismissible onDismiss={() => setSuccess('')}>
+                {success}
+              </Alert>
+            )}
+          </div>
           
-          {success && (
-            <Alert type="success" dismissible onDismiss={() => setSuccess('')}>
-              {success}
-            </Alert>
-          )}
-          
-          {renderForm()}
+          <div key="form">
+            {renderForm()}
+          </div>
         </SpaceBetween>
       </Container>
     </Grid>
