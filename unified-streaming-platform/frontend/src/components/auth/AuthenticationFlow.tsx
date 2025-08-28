@@ -22,10 +22,10 @@ import {
 } from '@cloudscape-design/components';
 import { useAuth } from '../../contexts/AuthContext';
 
-type AuthMode = 'signIn' | 'signUp' | 'confirmSignUp' | 'forgotPassword' | 'confirmForgotPassword';
+type AuthMode = 'signIn' | 'signUp' | 'confirmSignUp' | 'forgotPassword' | 'confirmForgotPassword' | 'changePassword';
 
 const AuthenticationFlow: React.FC = () => {
-  const { signIn, signUp, confirmSignUp, resendConfirmationCode, forgotPassword, confirmForgotPassword } = useAuth();
+  const { signIn, signUp, confirmSignUp, resendConfirmationCode, forgotPassword, confirmForgotPassword, changePassword } = useAuth();
   
   const [mode, setMode] = useState<AuthMode>('signIn');
   const [email, setEmail] = useState('');
@@ -86,6 +86,18 @@ const AuthenticationFlow: React.FC = () => {
     if (result.success) {
       console.log('✅ Sign in successful');
       setSuccess('Sign in successful!');
+    } else if (result.challengeName === 'NEW_PASSWORD_REQUIRED') {
+      console.log('🔄 Password change required');
+      setPassword(''); // Clear the old password
+      setConfirmPassword(''); // Clear confirm password
+      setMode('changePassword');
+      setSuccess('Please set a new password to continue.');
+    } else if (result.challengeName === 'PASSWORD_RESET_REQUIRED') {
+      console.log('🔄 Password reset required - redirecting to forgot password');
+      setPassword(''); // Clear the old password
+      setConfirmPassword(''); // Clear confirm password
+      setMode('confirmForgotPassword');
+      setSuccess('Password reset code sent to your email. Please check your email and enter the code below.');
     } else {
       console.log('❌ Sign in failed:', result.error);
       setError(result.error || 'Sign in failed');
@@ -177,6 +189,37 @@ const AuthenticationFlow: React.FC = () => {
     } else {
       console.log('❌ Password reset failed:', result.error);
       setError(result.error || 'Password reset failed');
+    }
+    
+    setIsLoading(false);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('🔍 handleChangePassword called');
+    
+    if (!password || !confirmPassword) {
+      setError('Please enter both password fields');
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    
+    setIsLoading(true);
+    clearMessages();
+
+    const result = await changePassword(email, password);
+    console.log('🔍 changePassword result:', result);
+    
+    if (result.success) {
+      console.log('✅ Password changed successfully');
+      setSuccess('Password changed successfully! You are now signed in.');
+    } else {
+      console.log('❌ Password change failed:', result.error);
+      setError(result.error || 'Password change failed');
     }
     
     setIsLoading(false);
@@ -394,22 +437,81 @@ const AuthenticationFlow: React.FC = () => {
     );
   };
 
-  const renderConfirmForgotPasswordForm = () => (
-    <Form
-      actions={
-        <SpaceBetween direction="vertical" size="xs">
-          <Button key="reset-confirm-btn" variant="primary" loading={isLoading} formAction="submit">
-            Reset Password
-          </Button>
-          <Box key="back-link" textAlign="center">
-            <Link onFollow={() => setMode('signIn')}>
-              Back to sign in
-            </Link>
-          </Box>
+  const renderChangePasswordForm = () => (
+    <form onSubmit={handleChangePassword}>
+      <Form
+        actions={
+          <SpaceBetween direction="vertical" size="xs">
+            <Button 
+              key="change-btn" 
+              variant="primary" 
+              loading={isLoading}
+              onClick={handleChangePassword}
+            >
+              Set New Password
+            </Button>
+            <Box key="back-link" textAlign="center">
+              <Link onFollow={() => setMode('signIn')}>
+                Back to sign in
+              </Link>
+            </Box>
+          </SpaceBetween>
+        }
+      >
+        <SpaceBetween direction="vertical" size="l">
+          <FormField key="email-field" label="Email">
+            <Input
+              value={email}
+              onChange={({ detail }) => setEmail(detail.value)}
+              type="email"
+              placeholder="Enter your email"
+              disabled={true}
+            />
+          </FormField>
+          <FormField key="new-password-field" label="New Password">
+            <Input
+              value={password}
+              onChange={({ detail }) => setPassword(detail.value)}
+              type="password"
+              placeholder="Enter your new password"
+              disabled={isLoading}
+            />
+          </FormField>
+          <FormField key="confirm-new-password-field" label="Confirm New Password">
+            <Input
+              value={confirmPassword}
+              onChange={({ detail }) => setConfirmPassword(detail.value)}
+              type="password"
+              placeholder="Confirm your new password"
+              disabled={isLoading}
+            />
+          </FormField>
         </SpaceBetween>
-      }
-      onSubmit={handleConfirmForgotPassword}
-    >
+      </Form>
+    </form>
+  );
+
+  const renderConfirmForgotPasswordForm = () => (
+    <form onSubmit={handleConfirmForgotPassword}>
+      <Form
+        actions={
+          <SpaceBetween direction="vertical" size="xs">
+            <Button 
+              key="reset-confirm-btn" 
+              variant="primary" 
+              loading={isLoading}
+              onClick={handleConfirmForgotPassword}
+            >
+              Reset Password
+            </Button>
+            <Box key="back-link" textAlign="center">
+              <Link onFollow={() => setMode('signIn')}>
+                Back to sign in
+              </Link>
+            </Box>
+          </SpaceBetween>
+        }
+      >
       <SpaceBetween direction="vertical" size="l">
         <FormField key="email-field" label="Email">
           <Input
@@ -448,6 +550,7 @@ const AuthenticationFlow: React.FC = () => {
         </FormField>
       </SpaceBetween>
     </Form>
+    </form>
   );
 
   const getTitle = () => {
@@ -457,6 +560,7 @@ const AuthenticationFlow: React.FC = () => {
       case 'confirmSignUp': return 'Confirm Account';
       case 'forgotPassword': return 'Reset Password';
       case 'confirmForgotPassword': return 'Set New Password';
+      case 'changePassword': return 'Change Password';
       default: return 'Authentication';
     }
   };
@@ -468,6 +572,7 @@ const AuthenticationFlow: React.FC = () => {
       case 'confirmSignUp': return 'Enter the confirmation code sent to your email';
       case 'forgotPassword': return 'Enter your email to receive a password reset code';
       case 'confirmForgotPassword': return 'Enter the reset code and your new password';
+      case 'changePassword': return 'Set a new password to complete your sign in';
       default: return '';
     }
   };
@@ -479,6 +584,7 @@ const AuthenticationFlow: React.FC = () => {
       case 'confirmSignUp': return renderConfirmSignUpForm();
       case 'forgotPassword': return renderForgotPasswordForm();
       case 'confirmForgotPassword': return renderConfirmForgotPasswordForm();
+      case 'changePassword': return renderChangePasswordForm();
       default: return renderSignInForm();
     }
   };

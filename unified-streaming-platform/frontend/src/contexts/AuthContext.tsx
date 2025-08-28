@@ -9,6 +9,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
+  RespondToAuthChallengeCommand,
   SignUpCommand,
   ConfirmSignUpCommand,
   ResendConfirmationCodeCommand,
@@ -41,6 +42,7 @@ export interface AuthContextType {
   resendConfirmationCode: (email: string) => Promise<{ success: boolean; error?: string }>;
   forgotPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   confirmForgotPassword: (email: string, code: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  changePassword: (email: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<boolean>;
 }
@@ -111,6 +113,8 @@ const parseJWT = (token: string) => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [challengeSession, setChallengeSession] = useState<string | null>(null);
+  const [challengeUsername, setChallengeUsername] = useState<string | null>(null);
 
   // Initialize auth state from stored tokens
   useEffect(() => {
@@ -155,6 +159,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const response = await cognitoClient.send(command);
 
       if (response.ChallengeName) {
+        // Store session and username for challenge response
+        setChallengeSession(response.Session || null);
+        setChallengeUsername(email);
+        
         return {
           success: false,
           challengeName: response.ChallengeName,
@@ -191,6 +199,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return { success: false, error: 'Authentication failed' };
     } catch (error: any) {
       console.error('Sign in error:', error);
+      
+      // Handle password reset required exception
+      if (error.name === 'PasswordResetRequiredException') {
+        // For RESET_REQUIRED users, we need to initiate forgot password flow
+        try {
+          const forgotCommand = new ForgotPasswordCommand({
+            ClientId: cognitoConfig.userPoolWebClientId,
+            Username: email
+          });
+          
+          await cognitoClient.send(forgotCommand);
+          
+          return {
+            success: false,
+            challengeName: 'PASSWORD_RESET_REQUIRED',
+            error: 'Password reset code sent to your email. Please check your email and use the reset code.'
+          };
+        } catch (forgotError: any) {
+          return {
+            success: false,
+            challengeName: 'PASSWORD_RESET_REQUIRED',
+            error: 'Password reset required. Please use the forgot password option.'
+          };
+        }
+      }
+      
       return { 
         success: false, 
         error: error.message || 'Sign in failed' 
@@ -298,6 +332,66 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const changePassword = async (email: string, newPassword: string) => {
+    try {
+      if (!challengeSession || !challengeUsername) {
+        return { 
+          success: false, 
+          error: 'No active challenge session. Please sign in again.' 
+        };
+      }
+
+      const command = new RespondToAuthChallengeCommand({
+        ChallengeName: ChallengeNameType.NEW_PASSWORD_REQUIRED,
+        ClientId: cognitoConfig.userPoolWebClientId,
+        Session: challengeSession,
+        ChallengeResponses: {
+          USERNAME: challengeUsername,
+          NEW_PASSWORD: newPassword
+        }
+      });
+
+      const response = await cognitoClient.send(command);
+
+      if (response.AuthenticationResult) {
+        const { AccessToken, IdToken, RefreshToken } = response.AuthenticationResult;
+        
+        if (AccessToken && IdToken && RefreshToken) {
+          // Parse user info from ID token
+          const idTokenPayload = parseJWT(IdToken);
+          const userData: AuthUser = {
+            username: idTokenPayload.sub,
+            email: idTokenPayload.email || email,
+            attributes: {
+              email: idTokenPayload.email || email,
+              email_verified: idTokenPayload.email_verified || 'false'
+            },
+            accessToken: AccessToken,
+            idToken: IdToken,
+            refreshToken: RefreshToken
+          };
+
+          storeTokens(AccessToken, IdToken, RefreshToken, JSON.stringify(userData));
+          setUser(userData);
+          
+          // Clear challenge session
+          setChallengeSession(null);
+          setChallengeUsername(null);
+
+          return { success: true };
+        }
+      }
+
+      return { success: false, error: 'Password change failed' };
+    } catch (error: any) {
+      console.error('Change password error:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Password change failed' 
+      };
+    }
+  };
+
   const signOut = async () => {
     try {
       if (user?.accessToken) {
@@ -330,6 +424,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     resendConfirmationCode,
     forgotPassword,
     confirmForgotPassword,
+    changePassword,
     signOut,
     refreshSession
   };
