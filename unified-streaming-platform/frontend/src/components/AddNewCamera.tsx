@@ -16,12 +16,12 @@ import {
   Textarea,
   type SelectProps
 } from '@cloudscape-design/components';
-import { apiUtils, cameraAPI, type CreateCameraRequest } from "../../config/api';
+import { apiUtils, cameraAPI, type CreateCameraRequest } from "../../config/api";
 import type { 
   APIResponse, 
   StreamCharacteristics, 
   RTSPTestRequest
-} from "../../config/api';
+} from "../../config/api";
 
 interface ValidationErrors {
   cameraName?: string;

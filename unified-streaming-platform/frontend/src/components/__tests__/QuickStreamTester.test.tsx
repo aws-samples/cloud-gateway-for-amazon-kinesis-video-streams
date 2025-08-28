@@ -2,10 +2,10 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import QuickStreamTester from '../QuickStreamTester';
-import { apiUtils } from "../../config/api';
+import { apiUtils } from "../../config/api";
 
 // Mock the API utilities
-vi.mock('../../config/api-new', () => ({
+vi.mock('../../config/api', () => ({
   apiUtils: {
     getStreamCharacteristics: vi.fn(),
     generatePipeline: vi.fn(),
