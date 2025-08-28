@@ -9,7 +9,8 @@ import {
   Alert,
   Box,
   Spinner,
-  Select
+  Select,
+  ExpandableSection
 } from '@cloudscape-design/components';
 import { apiUtils } from '../config/api';
 
@@ -214,10 +215,10 @@ const GStreamerPipelineGenerator: React.FC = () => {
         </FormField>
 
         {/* Hardware Detection Help */}
-        <Alert
+        <ExpandableSection
           key="hardware-detection-help"
-          type="info"
-          header="🔍 Need help detecting your hardware capabilities?"
+          headerText="🔍 Need help detecting your hardware capabilities?"
+          defaultExpanded={false}
         >
           <SpaceBetween size="s">
             <Box>
@@ -269,7 +270,7 @@ const GStreamerPipelineGenerator: React.FC = () => {
               </Box>
             )}
           </SpaceBetween>
-        </Alert>
+        </ExpandableSection>
 
         <Box key="generate-button" textAlign="center">
           <Button
