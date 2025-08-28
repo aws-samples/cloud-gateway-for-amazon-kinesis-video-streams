@@ -236,6 +236,17 @@ class GStreamerExpertCore:
         if context:
             if context.get('platform'):
                 kb_query += f" {context['platform']}"
+            if context.get('hardware_acceleration'):
+                if context['hardware_acceleration'] == 'gpu-nvidia':
+                    kb_query += " nvidia nvenc cuda"
+                elif context['hardware_acceleration'] == 'gpu-amd':
+                    kb_query += " amd vaapi"
+                elif context['hardware_acceleration'] == 'gpu-intel':
+                    kb_query += " intel vaapi qsv"
+                elif context['hardware_acceleration'] == 'cpu':
+                    kb_query += " cpu hardware"
+                elif context['hardware_acceleration'] == 'software':
+                    kb_query += " software encoding"
             if context.get('source_type'):
                 kb_query += f" {context['source_type']}"
         
@@ -259,7 +270,14 @@ class GStreamerExpertCore:
     def _build_comprehensive_context(self, query: str, kb_results: List[Dict], context: Optional[Dict]) -> str:
         """Build comprehensive context for Claude analysis"""
         
-        system_prompt = """You are a comprehensive GStreamer expert. Analyze the user's query and provide detailed, actionable assistance. Include specific pipeline examples, element recommendations, and troubleshooting guidance as appropriate."""
+        system_prompt = """You are a comprehensive GStreamer expert. Analyze the user's query and provide detailed, actionable assistance. 
+
+IMPORTANT: Pay close attention to the ADDITIONAL CONTEXT section which contains:
+- Target platform (linux-ubuntu, macos-intel, etc.) - use platform-specific elements and paths
+- Hardware acceleration preference (gpu-nvidia, gpu-amd, cpu, etc.) - recommend appropriate encoders/decoders
+- Stream analysis data - use actual codec and format information
+
+Provide specific pipeline examples optimized for the given platform and hardware. Include element recommendations, installation instructions, and troubleshooting guidance as appropriate."""
         
         # Add knowledge base context (reduced size for Lambda)
         kb_context = "\n\n=== RELEVANT KNOWLEDGE BASE INFORMATION ===\n"
