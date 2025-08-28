@@ -185,7 +185,8 @@ class LambdaInterface:
                 return None, None
             
             # Build query for pipeline generation
-            query = f"Create a new GStreamer pipeline for RTSP stream: {rtsp_url}. I need a complete working pipeline from scratch, not optimization of an existing one."
+            sink_info = f" targeting {body.get('target_sink', 'kvssink')}" if body.get('target_sink') else ""
+            query = f"Create a new GStreamer pipeline for RTSP stream: {rtsp_url}{sink_info}. I need a complete working pipeline from scratch that handles both video and audio streams if present."
             
             # Add additional context from body
             context = {}
@@ -195,6 +196,8 @@ class LambdaInterface:
                 context['platform'] = body['platform']
             if body.get('hardware_acceleration'):
                 context['hardware_acceleration'] = body['hardware_acceleration']
+            if body.get('target_sink'):
+                context['target_sink'] = body['target_sink']
             if body.get('optimization_goals'):
                 context['optimization_goals'] = body['optimization_goals']
             
@@ -281,7 +284,7 @@ class LambdaInterface:
     
     async def generate_enhanced_pipeline(self, rtsp_url: str, stream_info: Optional[Dict] = None, 
                                        platform: str = 'linux-ubuntu', hardware_acceleration: str = 'auto',
-                                       goals: str = 'quality and performance') -> Dict[str, Any]:
+                                       target_sink: str = 'kvssink', goals: str = 'quality and performance') -> Dict[str, Any]:
         """
         Generate enhanced pipeline using expert system
         
@@ -294,11 +297,13 @@ class LambdaInterface:
         Returns:
             Enhanced pipeline generation result
         """
-        query = f"Create a new GStreamer pipeline for RTSP stream: {rtsp_url}. I need a complete working pipeline from scratch."
+        sink_info = f" targeting {target_sink}" if target_sink != 'kvssink' else ""
+        query = f"Create a new GStreamer pipeline for RTSP stream: {rtsp_url}{sink_info}. I need a complete working pipeline from scratch that handles both video and audio streams if present."
         
         context = {
             'platform': platform,
             'hardware_acceleration': hardware_acceleration,
+            'target_sink': target_sink,
             'optimization_goals': goals
         }
         

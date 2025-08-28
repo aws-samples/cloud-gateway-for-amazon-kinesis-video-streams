@@ -28,10 +28,24 @@ const GStreamerPipelineGenerator: React.FC = () => {
   const [hardwareAcceleration, setHardwareAcceleration] = useState(() => 
     localStorage.getItem('gstreamer-hardware-acceleration') || 'auto'
   );
+  const [targetSink, setTargetSink] = useState(() => 
+    localStorage.getItem('gstreamer-target-sink') || 'kvssink'
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [formattedPipeline, setFormattedPipeline] = useState<string | null>(null);
+
+  // Common sink options (can be expanded by querying GStreamer expert)
+  const sinkOptions = [
+    { label: 'Kinesis Video Streams (kvssink)', value: 'kvssink' },
+    { label: 'File Output (filesink)', value: 'filesink' },
+    { label: 'RTMP Stream (rtmpsink)', value: 'rtmpsink' },
+    { label: 'UDP Stream (udpsink)', value: 'udpsink' },
+    { label: 'TCP Stream (tcpserversink)', value: 'tcpserversink' },
+    { label: 'Display Output (autovideosink)', value: 'autovideosink' },
+    { label: 'Null Sink (fakesink)', value: 'fakesink' }
+  ];
 
   const handleGenerate = async () => {
     if (!rtspUrl.trim()) {
@@ -51,7 +65,8 @@ const GStreamerPipelineGenerator: React.FC = () => {
         rtsp_url: rtspUrl.trim(),
         mode: 'pipeline',
         platform: targetEnvironment,
-        hardware_acceleration: hardwareAcceleration
+        hardware_acceleration: hardwareAcceleration,
+        target_sink: targetSink
       });
 
       console.log('✅ Pipeline generation response:', response);
@@ -214,6 +229,26 @@ const GStreamerPipelineGenerator: React.FC = () => {
           />
         </FormField>
 
+        <FormField
+          key="target-sink-field"
+          label="Target Sink Element"
+          description="Select where the processed stream should be sent"
+        >
+          <Select
+            selectedOption={{ 
+              label: sinkOptions.find(opt => opt.value === targetSink)?.label || 'Kinesis Video Streams (kvssink)', 
+              value: targetSink 
+            }}
+            onChange={({ detail }) => {
+              const value = detail.selectedOption.value || 'kvssink';
+              setTargetSink(value);
+              localStorage.setItem('gstreamer-target-sink', value);
+            }}
+            options={sinkOptions}
+            placeholder="Choose target sink"
+          />
+        </FormField>
+
         {/* Hardware Detection Help */}
         <ExpandableSection
           key="hardware-detection-help"
@@ -346,22 +381,22 @@ const GStreamerPipelineGenerator: React.FC = () => {
           </pre>
 
           <Box key="usage-instructions">
-            <Header variant="h3">📋 How to Use This Analysis</Header>
+            <Header variant="h3">📋 How to Use This Expert Analysis</Header>
             <SpaceBetween size="s">
               <Box key="step-1">
-                <strong>1. Review the expert analysis</strong> - The response includes pipeline recommendations, explanations, and alternatives
+                <strong>1. Review the comprehensive analysis</strong> - The response includes pipeline recommendations, explanations, alternatives, and platform-specific guidance
               </Box>
               <Box key="step-2">
-                <strong>2. Copy pipeline commands</strong> - Select and copy any gst-launch commands from the analysis above
+                <strong>2. Copy the recommended pipeline</strong> - Select and copy the complete gst-launch command from the analysis
               </Box>
               <Box key="step-3">
-                <strong>3. Set AWS credentials</strong> - Ensure AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_DEFAULT_REGION are set
+                <strong>3. Install required dependencies</strong> - Follow the provided installation instructions for your platform and hardware
               </Box>
               <Box key="step-4">
-                <strong>4. Install dependencies</strong> - Make sure GStreamer and the Kinesis Video Streams plugin are installed
+                <strong>4. Configure credentials (if using kvssink)</strong> - Set AWS credentials for Kinesis Video Streams access
               </Box>
               <Box key="step-5">
-                <strong>5. Test and customize</strong> - Use the provided guidance to adapt the pipeline for your specific needs
+                <strong>5. Test and customize</strong> - Run the pipeline and use the expert guidance to fine-tune for your specific requirements
               </Box>
             </SpaceBetween>
           </Box>
