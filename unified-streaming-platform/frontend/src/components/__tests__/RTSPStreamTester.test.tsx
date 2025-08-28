@@ -35,8 +35,8 @@ vi.mock('@cloudscape-design/components', () => ({
       {children}
     </div>
   ),
-  FormField: ({ children, label, description, ...props }: any) => (
-    <div data-testid="form-field" {...props}>
+  FormField: ({ children, label, description, errorText, ...props }: any) => (
+    <div data-testid="form-field" data-error-text={errorText} {...props}>
       {label && <label>{label}</label>}
       {description && <div data-testid="description">{description}</div>}
       {children}
@@ -48,7 +48,7 @@ vi.mock('@cloudscape-design/components', () => ({
       onChange={(e) => onChange && onChange({ detail: { value: e.target.value } })}
       placeholder={placeholder}
       data-invalid={invalid}
-      ariaLabel={ariaLabel}
+      aria-label={ariaLabel}
       {...props}
     />
   ),
@@ -56,7 +56,7 @@ vi.mock('@cloudscape-design/components', () => ({
     <button
       data-variant={variant}
       disabled={disabled || loading}
-      loadingText={loadingText}
+      data-loading-text={loadingText}
       onClick={onClick}
       {...props}
     >
