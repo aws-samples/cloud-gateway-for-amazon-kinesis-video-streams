@@ -197,8 +197,23 @@ export const configUtils = {
    * Check if the configuration is using real values (not placeholders)
    */
   isConfigurationValid(): boolean {
-    const hasPlaceholders = JSON.stringify(appConfig).includes('REPLACE_WITH_');
-    return !hasPlaceholders;
+    // Check if we successfully loaded the generated config
+    try {
+      // Create a copy without the _instructions field which contains placeholders for documentation
+      const configWithoutInstructions = { ...generatedConfig };
+      delete configWithoutInstructions._instructions;
+      
+      const configStr = JSON.stringify(configWithoutInstructions);
+      const hasPlaceholders = configStr.includes('REPLACE_WITH_');
+      const hasRequiredFields = generatedConfig?.cognito?.userPoolId && 
+                               generatedConfig?.api?.baseUrl &&
+                               !generatedConfig?.cognito?.userPoolId.includes('REPLACE_WITH_') &&
+                               !generatedConfig?.api?.baseUrl.includes('REPLACE_WITH_');
+      
+      return !hasPlaceholders && hasRequiredFields;
+    } catch (error) {
+      return false;
+    }
   },
 
   /**

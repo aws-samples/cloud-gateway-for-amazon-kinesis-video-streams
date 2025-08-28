@@ -8,10 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --reporter=basic --no-coverage",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:run": "vitest run --reporter=basic --no-coverage",
+    "test:coverage": "vitest run --coverage --reporter=basic"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.876.0",

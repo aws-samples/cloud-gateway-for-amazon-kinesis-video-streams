@@ -1,0 +1,720 @@
+libzbar0
+Critical
+8 months ago
+USN-7118-1 
+2 CVEs
+0:0.23.92-4build2-amd64
+0:0.23.92-4ubuntu0.1~esm1-amd64
+libxml2
+Critical
+in 15 days
+USN-7694-1 
+4 CVEs
+0:2.9.13%2Bdfsg-1ubuntu0.7-amd64
+0:2.9.13+dfsg-1ubuntu0.8-amd64
+libswresample3
+High
+2 years ago
+USN-5958-1 
+4 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm1-amd64
+libavfilter7
+High
+2 years ago
+USN-5958-1 
+4 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm1-amd64
+libavcodec58
+High
+2 years ago
+USN-5958-1 
+4 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm1-amd64
+libavdevice58
+High
+2 years ago
+USN-5958-1 
+4 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm1-amd64
+ffmpeg
+High
+2 years ago
+USN-5958-1 
+4 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm1-amd64
+libavutil56
+High
+2 years ago
+USN-5958-1 
+4 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm1-amd64
+libpostproc55
+High
+2 years ago
+USN-5958-1 
+4 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm1-amd64
+libswscale5
+High
+2 years ago
+USN-5958-1 
+4 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm1-amd64
+libavformat58
+High
+2 years ago
+USN-5958-1 
+4 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm1-amd64
+libswresample3
+High
+1 year ago
+USN-6449-1 
+8 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm2-amd64
+libavfilter7
+High
+1 year ago
+USN-6449-1 
+8 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm2-amd64
+libavcodec58
+High
+1 year ago
+USN-6449-1 
+8 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm2-amd64
+libavdevice58
+High
+1 year ago
+USN-6449-1 
+8 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm2-amd64
+ffmpeg
+High
+1 year ago
+USN-6449-1 
+8 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm2-amd64
+libavutil56
+High
+1 year ago
+USN-6449-1 
+8 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm2-amd64
+libpostproc55
+High
+1 year ago
+USN-6449-1 
+8 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm2-amd64
+libswscale5
+High
+1 year ago
+USN-6449-1 
+8 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm2-amd64
+libavformat58
+High
+1 year ago
+USN-6449-1 
+8 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm2-amd64
+libswresample3
+High
+1 year ago
+USN-6803-1 
+15 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm4-amd64
+libavfilter7
+High
+1 year ago
+USN-6803-1 
+15 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm4-amd64
+libavcodec58
+High
+1 year ago
+USN-6803-1 
+15 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm4-amd64
+libavdevice58
+High
+1 year ago
+USN-6803-1 
+15 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm4-amd64
+ffmpeg
+High
+1 year ago
+USN-6803-1 
+15 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm4-amd64
+libavutil56
+High
+1 year ago
+USN-6803-1 
+15 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm4-amd64
+libpostproc55
+High
+1 year ago
+USN-6803-1 
+15 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm4-amd64
+libswscale5
+High
+1 year ago
+USN-6803-1 
+15 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm4-amd64
+libavformat58
+High
+1 year ago
+USN-6803-1 
+15 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm4-amd64
+libheif1
+High
+1 year ago
+USN-6847-1 
+8 CVEs
+0:1.12.0-2build1-amd64
+0:1.12.0-2ubuntu0.1~esm1-amd64
+libswresample3
+High
+10 months ago
+USN-6983-1 
+CVE-2024-32230 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm5-amd64
+libavfilter7
+High
+10 months ago
+USN-6983-1 
+CVE-2024-32230 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm5-amd64
+libavcodec58
+High
+10 months ago
+USN-6983-1 
+CVE-2024-32230 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm5-amd64
+libavdevice58
+High
+10 months ago
+USN-6983-1 
+CVE-2024-32230 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm5-amd64
+ffmpeg
+High
+10 months ago
+USN-6983-1 
+CVE-2024-32230 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm5-amd64
+libavutil56
+High
+10 months ago
+USN-6983-1 
+CVE-2024-32230 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm5-amd64
+libpostproc55
+High
+10 months ago
+USN-6983-1 
+CVE-2024-32230 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm5-amd64
+libswscale5
+High
+10 months ago
+USN-6983-1 
+CVE-2024-32230 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm5-amd64
+libavformat58
+High
+10 months ago
+USN-6983-1 
+CVE-2024-32230 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm5-amd64
+zvbi
+High
+4 months ago
+USN-7367-1 
+5 CVEs
+0:0.2.35-19-all
+0:0.2.35-19ubuntu0.1~esm1-all
+libzvbi0
+High
+4 months ago
+USN-7367-1 
+5 CVEs
+0:0.2.35-19-amd64
+0:0.2.35-19ubuntu0.1~esm1-amd64
+gstreamer1.0-plugins-bad
+High
+1 month ago
+USN-7558-1 
+3 CVEs
+0:1.20.3-0ubuntu1.1-amd64
+0:1.20.3-0ubuntu1.1+esm2-amd64
+libgstreamer-plugins-bad1.0-0
+High
+1 month ago
+USN-7558-1 
+3 CVEs
+0:1.20.3-0ubuntu1.1-amd64
+0:1.20.3-0ubuntu1.1+esm2-amd64
+libpython3.10
+High
+in 23 days
+USN-7710-1 
+2 CVEs
+0:3.10.12-1%7E22.04.10-amd64
+0:3.10.12-1~22.04.11-amd64
+python3.10
+High
+in 23 days
+USN-7710-1 
+2 CVEs
+0:3.10.12-1%7E22.04.10-amd64
+0:3.10.12-1~22.04.11-amd64
+gstreamer1.0-plugins-good
+High
+in 27 days
+USN-7717-1 
+2 CVEs
+0:1.20.3-0ubuntu1.3-amd64
+0:1.20.3-0ubuntu1.4-amd64
+libgstreamer-plugins-good1.0-0
+High
+in 27 days
+USN-7717-1 
+2 CVEs
+0:1.20.3-0ubuntu1.3-amd64
+0:1.20.3-0ubuntu1.4-amd64
+libopenexr25
+Medium
+2 years ago
+USN-5620-1 
+7 CVEs
+0:2.5.7-1-amd64
+0:2.5.7-1ubuntu0.1~esm1-amd64
+openexr
+Medium
+2 years ago
+USN-5620-1 
+7 CVEs
+0:2.5.7-1-amd64
+0:2.5.7-1ubuntu0.1~esm1-amd64
+libswresample3
+Medium
+5 months ago
+USN-7188-1 
+CVE-2024-36617 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm6-amd64
+libavfilter7
+Medium
+5 months ago
+USN-7188-1 
+CVE-2024-36617 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm6-amd64
+libavcodec58
+Medium
+5 months ago
+USN-7188-1 
+CVE-2024-36617 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm6-amd64
+libavdevice58
+Medium
+5 months ago
+USN-7188-1 
+CVE-2024-36617 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm6-amd64
+ffmpeg
+Medium
+5 months ago
+USN-7188-1 
+CVE-2024-36617 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm6-amd64
+libavutil56
+Medium
+5 months ago
+USN-7188-1 
+CVE-2024-36617 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm6-amd64
+libpostproc55
+Medium
+5 months ago
+USN-7188-1 
+CVE-2024-36617 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm6-amd64
+libswscale5
+Medium
+5 months ago
+USN-7188-1 
+CVE-2024-36617 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm6-amd64
+libavformat58
+Medium
+5 months ago
+USN-7188-1 
+CVE-2024-36617 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm6-amd64
+libswresample3
+Medium
+1 month ago
+USN-7538-1 
+5 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm7-amd64
+libavfilter7
+Medium
+1 month ago
+USN-7538-1 
+5 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm7-amd64
+libavcodec58
+Medium
+1 month ago
+USN-7538-1 
+5 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm7-amd64
+libavdevice58
+Medium
+1 month ago
+USN-7538-1 
+5 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm7-amd64
+ffmpeg
+Medium
+1 month ago
+USN-7538-1 
+5 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm7-amd64
+libavutil56
+Medium
+1 month ago
+USN-7538-1 
+5 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm7-amd64
+libpostproc55
+Medium
+1 month ago
+USN-7538-1 
+5 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm7-amd64
+libswscale5
+Medium
+1 month ago
+USN-7538-1 
+5 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm7-amd64
+libavformat58
+Medium
+1 month ago
+USN-7538-1 
+5 CVEs
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm7-amd64
+libstdc%2B%2B6
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+libgomp1
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+libquadmath0
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+libgcc-11-dev
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:11.4.0-1ubuntu1%7E22.04-amd64
+0:11.4.0-1ubuntu1~22.04.2-amd64
+gcc-12-base
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+libubsan1
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+libgcc-s1
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+gcc-11-base
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:11.4.0-1ubuntu1%7E22.04-amd64
+0:11.4.0-1ubuntu1~22.04.2-amd64
+libcc1-0
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+cpp-11
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:11.4.0-1ubuntu1%7E22.04-amd64
+0:11.4.0-1ubuntu1~22.04.2-amd64
+libgfortran5
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+libitm1
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+gcc-11
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:11.4.0-1ubuntu1%7E22.04-amd64
+0:11.4.0-1ubuntu1~22.04.2-amd64
+g%2B%2B-11
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:11.4.0-1ubuntu1%7E22.04-amd64
+0:11.4.0-1ubuntu1~22.04.2-amd64
+libstdc%2B%2B-11-dev
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:11.4.0-1ubuntu1%7E22.04-amd64
+0:11.4.0-1ubuntu1~22.04.2-amd64
+liblsan0
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+libatomic1
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+libtsan0
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:11.4.0-1ubuntu1%7E22.04-amd64
+0:11.4.0-1ubuntu1~22.04.2-amd64
+gcc-12
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:12.3.0-1ubuntu1%7E22.04-amd64
+0:12.3.0-1ubuntu1~22.04.2-amd64
+libasan6
+Medium
+in 1 month
+USN-7700-1 
+CVE-2023-4039 
+0:11.4.0-1ubuntu1%7E22.04-amd64
+0:11.4.0-1ubuntu1~22.04.2-amd64
+libtiff5
+Medium
+in 1 month
+USN-7707-1 
+4 CVEs
+0:4.3.0-6ubuntu0.10-amd64
+0:4.3.0-6ubuntu0.11-amd64
+gstreamer1.0-x
+Medium
+in 1 month
+USN-7716-1 
+3 CVEs
+0:1.20.1-1ubuntu0.4-amd64
+0:1.20.1-1ubuntu0.5-amd64
+gstreamer1.0-gl
+Medium
+in 1 month
+USN-7716-1 
+3 CVEs
+0:1.20.1-1ubuntu0.4-amd64
+0:1.20.1-1ubuntu0.5-amd64
+gstreamer1.0-plugins-base
+Medium
+in 1 month
+USN-7716-1 
+3 CVEs
+0:1.20.1-1ubuntu0.4-amd64
+0:1.20.1-1ubuntu0.5-amd64
+libgstreamer-plugins-base1.0-0
+Medium
+in 1 month
+USN-7716-1 
+3 CVEs
+0:1.20.1-1ubuntu0.4-amd64
+0:1.20.1-1ubuntu0.5-amd64
+libgstreamer-gl1.0-0
+Medium
+in 1 month
+USN-7716-1 
+3 CVEs
+0:1.20.1-1ubuntu0.4-amd64
+0:1.20.1-1ubuntu0.5-amd64
+libde265-0
+Low
+11 months ago
+USN-6764-1 
+CVE-2023-51792 
+0:1.0.8-1ubuntu0.3-amd64
+0:1.0.8-1ubuntu0.3+esm1-amd64
+linux-libc-dev
+-
+-
+USN-7704-1 
+21 CVEs
+0:5.15.0-151.161-amd64
+0:5.15.0-152.162-amd64
+libswresample3
+-
+-
+USN-6449-2 
+USN-6449-2 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm3-amd64
+libavfilter7
+-
+-
+USN-6449-2 
+USN-6449-2 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm3-amd64
+libavcodec58
+-
+-
+USN-6449-2 
+USN-6449-2 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm3-amd64
+libavdevice58
+-
+-
+USN-6449-2 
+USN-6449-2 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm3-amd64
+ffmpeg
+-
+-
+USN-6449-2 
+USN-6449-2 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm3-amd64
+libavutil56
+-
+-
+USN-6449-2 
+USN-6449-2 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm3-amd64
+libpostproc55
+-
+-
+USN-6449-2 
+USN-6449-2 
+7:4.4.2-0ubuntu0.22.04.1-amd64
+7:4.4.2-0ubuntu0.22.04.1+esm3-amd64
+libswscale5
+-
+-
+USN-6449-2 
+USN-6449-2 
+7:4.4.2-0ubuntu0.22.04.1-amd64

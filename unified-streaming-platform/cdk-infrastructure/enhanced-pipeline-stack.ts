@@ -325,10 +325,12 @@ export class EnhancedPipelineGeneratorStack extends cdk.Stack {
         allowOrigins: [
           'http://localhost:3000',
           'http://localhost:3001', 
+          'http://localhost:5173',
           'http://localhost:8080',
           'http://localhost:8000',
           'https://localhost:3000',
           'https://localhost:3001',
+          'https://localhost:5173',
           'https://localhost:8080',
           'https://localhost:8000'
         ],
