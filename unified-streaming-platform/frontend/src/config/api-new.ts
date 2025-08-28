@@ -401,32 +401,62 @@ export const apiUtils = {
    * Get RTSP test server stream list
    */
   async getRTSPTestStreams(): Promise<RTSPTestServerResponse | null> {
-    const endpoint = RTSP_CONFIG.getListEndpoint();
-    if (!endpoint) {
-      console.warn('RTSP test server not available or not configured');
-      return null;
-    }
-
-    try {
-      console.log('📡 Fetching RTSP test streams from:', endpoint);
-      const response = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    // Use public IP from config instead of calling localhost API
+    const publicIP = '3.94.214.20'; // Current RTSP server public IP
+    const port = 8554;
+    
+    const testStreams = [
+      {
+        url: `rtsp://${publicIP}:${port}/h264_720p_25fps`,
+        description: 'H.264 720p 25fps (No Audio)',
+        codec: 'H.264',
+        resolution: '720p',
+        framerate: '25fps',
+        audio: false
+      },
+      {
+        url: `rtsp://${publicIP}:${port}/h264_360p_15fps`,
+        description: 'H.264 360p 15fps (No Audio)',
+        codec: 'H.264',
+        resolution: '360p',
+        framerate: '15fps',
+        audio: false
+      },
+      {
+        url: `rtsp://${publicIP}:${port}/h264_360p_15fps_aac`,
+        description: 'H.264 360p 15fps + AAC Audio',
+        codec: 'H.264',
+        resolution: '360p',
+        framerate: '15fps',
+        audio: true
+      },
+      {
+        url: `rtsp://${publicIP}:${port}/h265_720p_25fps`,
+        description: 'H.265 720p 25fps (No Audio)',
+        codec: 'H.265',
+        resolution: '720p',
+        framerate: '25fps',
+        audio: false
+      },
+      {
+        url: `rtsp://${publicIP}:${port}/h265_360p_15fps_aac`,
+        description: 'H.265 360p 15fps + AAC Audio',
+        codec: 'H.265',
+        resolution: '360p',
+        framerate: '15fps',
+        audio: true
       }
+    ];
 
-      const data = await response.json();
-      console.log('✅ RTSP test streams fetched successfully:', data);
-      return data;
-    } catch (error) {
-      console.error('❌ Failed to fetch RTSP test streams:', error);
-      return null;
-    }
+    return {
+      server_info: {
+        name: 'Enhanced RTSP Test Server',
+        version: '2.0',
+        ip: publicIP,
+        port: port
+      },
+      rtsp_urls: testStreams
+    };
   },
   validateRTSPUrl(url: string): { isValid: boolean; error?: string } {
     if (!url.trim()) {

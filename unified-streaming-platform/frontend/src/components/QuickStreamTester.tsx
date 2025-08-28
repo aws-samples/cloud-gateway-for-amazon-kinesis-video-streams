@@ -115,11 +115,14 @@ const QuickStreamTester: React.FC = () => {
       const pipelineData = await apiUtils.generatePipeline(pipelinePayload);
       console.log('✅ Pipeline Response:', pipelineData);
 
-      // Combine both responses
+      // Combine both responses and extract stream_characteristics to root level
       const combinedData = {
-        ...characteristicsData,
-        generated_pipeline: pipelineData.generated_pipeline,
-        stream_analysis: pipelineData.stream_analysis
+        ...characteristicsData.stream_characteristics,
+        generated_pipeline: pipelineData.result?.generated_pipeline || pipelineData.generated_pipeline,
+        stream_analysis: pipelineData.result?.stream_analysis || pipelineData.stream_analysis,
+        mode: characteristicsData.mode,
+        enhanced: characteristicsData.enhanced,
+        system: characteristicsData.system
       };
       
       setTestResult(combinedData);
