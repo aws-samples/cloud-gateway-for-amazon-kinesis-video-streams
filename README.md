@@ -19,7 +19,10 @@ This repository provides a comprehensive solution for ingesting RTSP video strea
 ### **🔧 Consolidated Architecture**
 - **Single CDK Stack**: Unified deployment with shared infrastructure
 - **Dual Lambda Functions**: Enhanced Pipeline (3GB, 10min) + Camera Management (512MB, 30s)
+- **React Frontend**: Complete web interface with dynamic configuration
 - **Unified API Gateway**: 12 endpoints covering all functionality
+- **Enhanced RTSP Server**: Comprehensive testing with 25+ test streams
+- **Testing Framework**: Automated validation and deployment readiness checks
 - **Integrated Security**: Secrets Manager, Cognito authentication, user isolation
 - **AI-Powered Pipeline Generation**: Uses Amazon Bedrock agents for optimized pipelines
 - **Serverless Architecture**: Fully serverless using AWS Lambda and API Gateway
@@ -123,26 +126,29 @@ curl -X POST https://your-api-endpoint/v1/tools/troubleshoot \
 ```
 cloud-gateway-for-amazon-kinesis-video-streams/
 ├── unified-streaming-platform/      # 🎯 CONSOLIDATED: Complete streaming solution
-│   ├── enhanced_lambda_function.py  #   ├── Pipeline generation with expert system
-│   ├── camera_management.py         #   ├── Camera CRUD operations
-│   ├── rtsp_analysis.py             #   ├── RTSP stream analysis & SDP parsing
-│   ├── enhanced-pipeline-stack.ts   #   ├── Unified CDK infrastructure
-│   └── deploy.sh                    #   └── Single deployment script
-├── migration-scripts/               # 🔄 Preserved migration utilities
+│   ├── frontend/                    #   ├── React frontend application (relocated)
+│   ├── lambda-enhanced-pipeline/    #   ├── Enhanced pipeline generation with expert system
+│   ├── lambda-camera-management/    #   ├── Camera CRUD operations
+│   ├── cdk-infrastructure/          #   ├── Unified CDK deployment stack
+│   ├── rtsp-test-server/           #   ├── Enhanced RTSP testing server
+│   ├── testing/                    #   ├── Comprehensive testing framework
+│   ├── frontend-config.json        #   ├── Frontend configuration
+│   └── deploy.sh                   #   └── Single deployment script
 ├── gstreamer-expert-system/         # 🧠 Expert system components (integrated)
 ├── fargate-cdk-app/                # 🐳 Fargate-based gateway
 ├── ec2-cdk-app/                    # 🖥️  EC2-based gateway
-├── frontend-app/                   # 🌐 React frontend application
+├── frontend-app/                   # 📂 Legacy frontend (deprecated - see unified-streaming-platform/frontend/)
 ├── docker-images/                  # 📦 Container images and scripts
-├── test-scripts/                   # 🧪 Testing and validation
-└── simple-rtsp-server/             # 📡 RTSP server for testing
+└── logs/                          # 📋 System logs and debugging output
 ```
 
 ### **🔄 Consolidation Summary**
-- **✅ Enhanced Pipeline Generator**: Merged into unified-streaming-platform
-- **✅ CDK Pipeline Generator**: Camera management integrated, deprecated Bedrock Agent removed
-- **✅ Lambda SDP Extractor**: RTSP analysis functionality integrated
-- **📦 Migration Scripts**: Preserved for existing deployments
+- **✅ Enhanced Pipeline Generator**: Merged into unified-streaming-platform/lambda-enhanced-pipeline/
+- **✅ Camera Management**: Integrated into unified-streaming-platform/lambda-camera-management/
+- **✅ Frontend Application**: Relocated to unified-streaming-platform/frontend/
+- **✅ RTSP Test Server**: Enhanced version in unified-streaming-platform/rtsp-test-server/
+- **✅ CDK Infrastructure**: Unified stack in unified-streaming-platform/cdk-infrastructure/
+- **📦 Legacy Components**: Preserved for existing deployments
 
 ---
 
