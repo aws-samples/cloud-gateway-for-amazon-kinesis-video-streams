@@ -77,6 +77,21 @@ export const RTSP_CONFIG = {
       'h265': streams.filter(stream => stream.includes('h265')),
       'aac': streams.filter(stream => stream.includes('aac'))
     };
+  },
+
+  // Get RTSP test server list endpoint URL
+  getListEndpoint(): string | null {
+    if (!rtspTestServerConfig.enabled || rtspTestServerConfig.testStreams.length === 0) {
+      return null;
+    }
+    // Extract IP from first test stream
+    const firstStream = rtspTestServerConfig.testStreams[0];
+    const match = firstStream.match(/rtsp:\/\/([^:]+):/);
+    if (match) {
+      const ip = match[1];
+      return `http://${ip}:${rtspTestServerConfig.ports.http}/rtsp-urls`;
+    }
+    return null;
   }
 };
 
@@ -138,6 +153,40 @@ export interface RTSPTestRequest {
   rtsp_url: string;
   mode: 'characteristics' | 'pipeline';
   capture_frame?: boolean;
+}
+
+// RTSP Test Server response types
+export interface RTSPStreamInfo {
+  url: string;
+  path: string;
+  description: string;
+  codec: string;
+  resolution: string;
+  framerate: number;
+  bitrate: string;
+  audio: string;
+  authentication: string;
+  transport: string;
+  port: number;
+  server: string;
+  test_credentials?: any;
+}
+
+export interface RTSPTestServerResponse {
+  server_info: {
+    name: string;
+    version: string;
+    public_ip: string;
+    total_streams: number;
+    coverage: string;
+    authentication_support: string[];
+    transport_support: string[];
+    max_resolution: string;
+    max_framerate: string;
+  };
+  rtsp_urls: RTSPStreamInfo[];
+  authentication_info: any;
+  usage_examples: any;
 }
 
 // GStreamer Tools request/response types
@@ -349,8 +398,36 @@ export const apiUtils = {
   },
 
   /**
-   * Validate RTSP URL format
+   * Get RTSP test server stream list
    */
+  async getRTSPTestStreams(): Promise<RTSPTestServerResponse | null> {
+    const endpoint = RTSP_CONFIG.getListEndpoint();
+    if (!endpoint) {
+      console.warn('RTSP test server not available or not configured');
+      return null;
+    }
+
+    try {
+      console.log('📡 Fetching RTSP test streams from:', endpoint);
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ RTSP test streams fetched successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ Failed to fetch RTSP test streams:', error);
+      return null;
+    }
+  },
   validateRTSPUrl(url: string): { isValid: boolean; error?: string } {
     if (!url.trim()) {
       return { isValid: false, error: 'RTSP URL is required' };

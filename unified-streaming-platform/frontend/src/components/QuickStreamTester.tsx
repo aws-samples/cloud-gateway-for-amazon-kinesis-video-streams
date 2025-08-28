@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Container,
   Header,
@@ -17,43 +17,70 @@ import { apiUtils } from '../config/api-new';
 import type { 
   APIResponse, 
   StreamCharacteristics, 
-  RTSPTestRequest
+  RTSPTestRequest,
+  RTSPStreamInfo
 } from '../config/api-new';
 
-// Test server URLs from our RTSP test server
-const TEST_STREAM_OPTIONS = [
-  { value: '', label: 'Select a test stream...' },
-  { value: 'rtsp://44.215.108.66:8554/h264_360p_15fps', label: 'H.264 360p 15fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8554/h264_360p_15fps_aac', label: 'H.264 360p 15fps + AAC Audio' },
-  { value: 'rtsp://44.215.108.66:8554/h264_480p_20fps', label: 'H.264 480p 20fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8554/h264_720p_25fps', label: 'H.264 720p 25fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8554/h265_360p_15fps', label: 'H.265 360p 15fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8554/h265_360p_15fps_aac', label: 'H.265 360p 15fps + AAC Audio' },
-  { value: 'rtsp://44.215.108.66:8554/h265_480p_20fps', label: 'H.265 480p 20fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8554/h265_720p_25fps', label: 'H.265 720p 25fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8555/mpeg2_360p_15fps', label: 'MPEG-2 360p 15fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8555/mpeg2_360p_15fps_aac', label: 'MPEG-2 360p 15fps + AAC Audio' },
-  { value: 'rtsp://44.215.108.66:8555/mpeg2_480p_20fps', label: 'MPEG-2 480p 20fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8555/mpeg2_720p_25fps', label: 'MPEG-2 720p 25fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8555/mpeg4_360p_15fps', label: 'MPEG-4 360p 15fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8555/mpeg4_360p_15fps_aac', label: 'MPEG-4 360p 15fps + AAC Audio' },
-  { value: 'rtsp://44.215.108.66:8555/mpeg4_480p_20fps', label: 'MPEG-4 480p 20fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8555/mpeg4_720p_25fps', label: 'MPEG-4 720p 25fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8556/mjpeg_360p_10fps', label: 'MJPEG 360p 10fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8556/mjpeg_360p_10fps_g711', label: 'MJPEG 360p 10fps + G.711 Audio' },
-  { value: 'rtsp://44.215.108.66:8556/mjpeg_480p_15fps', label: 'MJPEG 480p 15fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8556/mjpeg_720p_20fps', label: 'MJPEG 720p 20fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8557/theora_360p_15fps', label: 'Theora 360p 15fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8557/theora_360p_15fps_aac', label: 'Theora 360p 15fps + AAC Audio' },
-  { value: 'rtsp://44.215.108.66:8557/theora_480p_20fps', label: 'Theora 480p 20fps (No Audio)' },
-  { value: 'rtsp://44.215.108.66:8557/theora_720p_25fps', label: 'Theora 720p 25fps (No Audio)' }
-];
+interface StreamOption {
+  value: string;
+  label: string;
+}
 
 const QuickStreamTester: React.FC = () => {
-  const [selectedStream, setSelectedStream] = useState({ value: '', label: 'Select a test stream...' });
+  const [streamOptions, setStreamOptions] = useState<StreamOption[]>([
+    { value: '', label: 'Loading test streams...' }
+  ]);
+  const [selectedStream, setSelectedStream] = useState<StreamOption>({ value: '', label: 'Loading test streams...' });
   const [testResult, setTestResult] = useState<APIResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [loadingStreams, setLoadingStreams] = useState(true);
+
+  // Load RTSP test streams on component mount
+  useEffect(() => {
+    const loadTestStreams = async () => {
+      try {
+        const streamsData = await apiUtils.getRTSPTestStreams();
+        
+        if (streamsData && streamsData.rtsp_urls.length > 0) {
+          const options: StreamOption[] = [
+            { value: '', label: 'Select a test stream...' },
+            ...streamsData.rtsp_urls.map((stream: RTSPStreamInfo) => ({
+              value: stream.url,
+              label: stream.description
+            }))
+          ];
+          
+          setStreamOptions(options);
+          setSelectedStream({ value: '', label: 'Select a test stream...' });
+          console.log(`✅ Loaded ${streamsData.rtsp_urls.length} test streams from RTSP server`);
+        } else {
+          // Fallback to hardcoded streams if API fails
+          console.warn('⚠️ RTSP test server unavailable, using fallback streams');
+          setStreamOptions([
+            { value: '', label: 'Select a test stream...' },
+            { value: 'rtsp://3.94.214.20:8554/h264_720p_25fps', label: 'H.264 720p 25fps (No Audio)' },
+            { value: 'rtsp://3.94.214.20:8554/h264_360p_15fps_aac', label: 'H.264 360p 15fps + AAC Audio' },
+            { value: 'rtsp://3.94.214.20:8554/h265_720p_25fps', label: 'H.265 720p 25fps (No Audio)' },
+            { value: 'rtsp://3.94.214.20:8554/h265_360p_15fps_aac', label: 'H.265 360p 15fps + AAC Audio' }
+          ]);
+          setSelectedStream({ value: '', label: 'Select a test stream...' });
+        }
+      } catch (error) {
+        console.error('❌ Failed to load test streams:', error);
+        // Use fallback streams
+        setStreamOptions([
+          { value: '', label: 'Select a test stream...' },
+          { value: 'rtsp://3.94.214.20:8554/h264_720p_25fps', label: 'H.264 720p 25fps (No Audio)' }
+        ]);
+        setSelectedStream({ value: '', label: 'Select a test stream...' });
+      } finally {
+        setLoadingStreams(false);
+      }
+    };
+
+    loadTestStreams();
+  }, []);
 
   const testRTSPStream = async () => {
     if (!selectedStream.value) {
@@ -269,7 +296,7 @@ const QuickStreamTester: React.FC = () => {
         <SpaceBetween >
           <Header 
             variant="h1" 
-            description="Select from 24 pre-configured test streams with various codecs and configurations. Simply select a stream and click 'Test Stream' to analyze its characteristics and get a recommended GStreamer pipeline."
+            description={`Select from ${streamOptions.length - 1} pre-configured test streams with various codecs and configurations. Simply select a stream and click 'Test Stream' to analyze its characteristics and get a recommended GStreamer pipeline.`}
           >
             🚀 Quick Stream Tester
           </Header>
@@ -280,9 +307,10 @@ const QuickStreamTester: React.FC = () => {
               <Select
                 selectedOption={selectedStream}
                 onChange={({ detail }) => setSelectedStream(detail.selectedOption)}
-                options={TEST_STREAM_OPTIONS}
+                options={streamOptions}
                 placeholder="Choose a test stream..."
                 expandToViewport
+                disabled={loadingStreams}
               />
 
               <Box textAlign="right">
