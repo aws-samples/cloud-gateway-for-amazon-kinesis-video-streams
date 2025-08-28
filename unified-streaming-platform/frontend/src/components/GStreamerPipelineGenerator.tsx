@@ -50,10 +50,12 @@ const GStreamerPipelineGenerator: React.FC = () => {
         throw new Error(response.error);
       }
 
-      setResult(response);
+      // Handle nested result structure
+      const actualResult = response.result || response;
+      setResult(actualResult);
       
-      if (response.pipeline) {
-        const formatted = response.pipeline
+      if (actualResult.pipeline) {
+        const formatted = actualResult.pipeline
           .replace(/\s+/g, ' ')
           .replace(/\s*!\s*/g, ' ! ')
           .replace(/\s*=\s*/g, '=')
@@ -61,6 +63,8 @@ const GStreamerPipelineGenerator: React.FC = () => {
         
         setFormattedPipeline(formatted);
         console.log('📋 Formatted pipeline ready for display');
+      } else {
+        console.log('⚠️ No pipeline found in response:', actualResult);
       }
 
     } catch (err) {
